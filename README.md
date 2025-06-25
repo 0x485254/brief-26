@@ -49,13 +49,23 @@ The application will be available at http://localhost:8080
 
 ### Running with Docker
 
+The project includes Docker configurations for three environments:
+
 ```bash
-# Build and start the containers
-docker-compose up -d
+# For local development
+docker-compose -f docker-compose.dev.yml up -d
+
+# For pre-production testing
+docker-compose -f docker-compose.preprod.yml up -d
+
+# For production deployment
+docker-compose -f docker-compose.prod.yml up -d
 
 # View logs
-docker-compose logs -f
+docker-compose -f docker-compose.[env].yml logs -f
 ```
+
+See the [Docker Deployment Guide](docs/docker-deployment.md) for detailed instructions.
 
 ## Available Endpoints
 
