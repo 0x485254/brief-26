@@ -1,95 +1,95 @@
-# Spring Boot Starter Project
+# Projet Starter Spring Boot
 
-A starter project for Spring Boot applications with Docker support.
+Un projet de démarrage pour les applications Spring Boot avec support Docker.
 
-## Overview
+## Aperçu
 
-This project provides a foundation for building Spring Boot applications with:
+Ce projet fournit une base pour construire des applications Spring Boot avec :
 
-- RESTful API endpoints
-- Docker and Docker Compose configuration
-- Comprehensive documentation
+- Points de terminaison API RESTful
+- Configuration Docker et Docker Compose
+- Documentation complète
 
-## Project Structure
+## Structure du Projet
 
 ```
 .
-├── src/                    # Source code
+├── src/                    # Code source
 │   ├── main/
-│   │   ├── java/           # Java source files
-│   │   └── resources/      # Configuration files
-│   └── test/               # Test files
+│   │   ├── java/           # Fichiers source Java
+│   │   └── resources/      # Fichiers de configuration
+│   └── test/               # Fichiers de test
 ├── docs/                   # Documentation
-├── Dockerfile              # Docker configuration
-├── docker-compose.yml      # Docker Compose configuration
-├── pom.xml                 # Maven dependencies
-└── README.md               # This file
+├── Dockerfile              # Configuration Docker
+├── docker-compose.yml      # Configuration Docker Compose
+├── pom.xml                 # Dépendances Maven
+└── README.md               # Ce fichier
 ```
 
-## Quick Start
+## Démarrage Rapide
 
-### Prerequisites
+### Prérequis
 
-- Java 17 or higher
-- Maven 3.6 or higher
-- Docker and Docker Compose (optional)
+- Java 17 ou supérieur
+- Maven 3.6 ou supérieur
+- Docker et Docker Compose (optionnel)
 
-### Running Locally
+### Exécution en Local
 
 ```bash
-# Clone the repository
+# Cloner le dépôt
 git clone https://github.com/yourusername/spring-boot-starter.git
 cd spring-boot-starter
 
-# Run the application
+# Exécuter l'application
 mvn spring-boot:run
 ```
 
-The application will be available at http://localhost:8080
+L'application sera disponible à l'adresse http://localhost:8080
 
-### Running with Docker
+### Exécution avec Docker
 
-The project includes Docker configurations for three environments:
+Le projet inclut des configurations Docker pour trois environnements :
 
 ```bash
-# For local development
+# Pour le développement local
 docker compose -f docker-compose.dev.yml up -d
 
-# For pre-production testing
+# Pour les tests de pré-production
 docker compose -f docker-compose.preprod.yml up -d
 
-# For production deployment
+# Pour le déploiement en production
 docker compose -f docker-compose.prod.yml up -d
 
-# View logs
+# Voir les logs
 docker compose -f docker-compose.[env].yml logs -f
 ```
 
-See the [Docker Deployment Guide](docs/docker-deployment.md) for detailed instructions.
+Consultez le [Guide de Déploiement Docker](docs/docker-deployment.md) pour des instructions détaillées.
 
-## Available Endpoints
+## Points de Terminaison Disponibles
 
-- `GET /` - Welcome message
-- `GET /health` - Health check
-- Actuator endpoints at `/actuator/*`
+- `GET /` - Message de bienvenue
+- `GET /health` - Vérification de santé
+- Points de terminaison Actuator à `/actuator/*`
 
 ## Documentation
 
-Detailed documentation is available in the `docs` directory:
+Une documentation détaillée est disponible dans le répertoire `docs` :
 
-- [Getting Started Guide](docs/getting-started.md)
-- [API Documentation](docs/api-documentation.md)
-- [Docker Deployment Guide](docs/docker-deployment.md)
-- [CI/CD Setup](docs/ci-cd-setup.md)
+- [Guide de Démarrage](docs/getting-started.md)
+- [Documentation API](docs/api-documentation.md)
+- [Guide de Déploiement Docker](docs/docker-deployment.md)
+- [Configuration CI/CD](docs/ci-cd-setup.md)
 
-## Customizing the Starter
+## Personnalisation du Starter
 
-1. Update the application name and description in `pom.xml`
-2. Modify the package structure in `src/main/java`
-3. Add your own controllers, services, and repositories
-4. Configure additional dependencies in `pom.xml`
-5. Update the documentation to reflect your changes
+1. Mettre à jour le nom et la description de l'application dans `pom.xml`
+2. Modifier la structure des packages dans `src/main/java`
+3. Ajouter vos propres contrôleurs, services et dépôts
+4. Configurer des dépendances supplémentaires dans `pom.xml`
+5. Mettre à jour la documentation pour refléter vos changements
 
-## License
+## Licence
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+Ce projet est sous licence MIT - voir le fichier LICENSE pour plus de détails.
