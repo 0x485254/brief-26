@@ -12,4 +12,16 @@ FROM openjdk:17-slim
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+# Default to 'docker' profile if not specified
+ARG SPRING_PROFILES_ACTIVE=docker
+ENV SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+
+# Default JVM options
+ENV JAVA_OPTS=""
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD curl -f http://localhost:8080/health || exit 1
+
+# Start the application with profile and JVM options
+ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE} -jar app.jar"]
