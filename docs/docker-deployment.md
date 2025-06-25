@@ -1,106 +1,106 @@
-# Docker Deployment Guide
+# Guide de Déploiement Docker
 
-This guide explains how to deploy the Spring Boot application using Docker and Docker Compose for different environments (development, pre-production, and production).
+Ce guide explique comment déployer l'application Spring Boot en utilisant Docker et Docker Compose pour différents environnements (développement, pré-production et production).
 
-## Prerequisites
+## Prérequis
 
-- Docker installed on your machine
-- Docker Compose installed on your machine
+- Docker installé sur votre machine
+- Docker Compose installé sur votre machine
 
-## Environment-Specific Deployments
+## Déploiements Spécifiques à l'Environnement
 
-This project includes three environment-specific Docker Compose configurations:
+Ce projet inclut trois configurations Docker Compose spécifiques à l'environnement :
 
-1. **Development** (`docker-compose.dev.yml`): For local development with hot-reloading and debugging
-2. **Pre-production** (`docker-compose.preprod.yml`): For testing in a production-like environment
-3. **Production** (`docker-compose.prod.yml`): For deploying to production with high availability
+1. **Développement** (`docker-compose.dev.yml`) : Pour le développement local avec rechargement à chaud et débogage
+2. **Pré-production** (`docker-compose.preprod.yml`) : Pour les tests dans un environnement similaire à la production
+3. **Production** (`docker-compose.prod.yml`) : Pour le déploiement en production avec haute disponibilité
 
-## Building and Running with Docker
+## Construction et Exécution avec Docker
 
-### Building the Docker Image
+### Construction de l'Image Docker
 
-To build the Docker image for the application:
+Pour construire l'image Docker pour l'application :
 
 ```bash
 docker build -t spring-boot-starter .
 ```
 
-You can specify the environment during build:
+Vous pouvez spécifier l'environnement pendant la construction :
 
 ```bash
 docker build --build-arg SPRING_PROFILES_ACTIVE=prod -t spring-boot-starter .
 ```
 
-### Running the Docker Container
+### Exécution du Conteneur Docker
 
-To run the application in a Docker container:
+Pour exécuter l'application dans un conteneur Docker :
 
 ```bash
 docker run -p 8080:8080 -e SPRING_PROFILES_ACTIVE=dev spring-boot-starter
 ```
 
-The application will be accessible at http://localhost:8080.
+L'application sera accessible à l'adresse http://localhost:8080.
 
-## Deploying with Docker Compose
+## Déploiement avec Docker Compose
 
-Docker Compose simplifies the deployment process by managing multiple containers and their configurations.
+Docker Compose simplifie le processus de déploiement en gérant plusieurs conteneurs et leurs configurations.
 
-### Development Environment
+### Environnement de Développement
 
-For local development with hot-reloading and debugging:
+Pour le développement local avec rechargement à chaud et débogage :
 
 ```bash
 docker-compose -f docker-compose.dev.yml up -d
 ```
 
-Features:
-- Source code mounted as volumes for hot-reloading
-- Remote debugging enabled on port 5005
-- PostgreSQL database with development configuration
-- All actuator endpoints exposed
+Fonctionnalités :
+- Code source monté en volumes pour le rechargement à chaud
+- Débogage à distance activé sur le port 5005
+- Base de données PostgreSQL avec configuration de développement
+- Tous les points de terminaison Actuator exposés
 
-### Pre-production Environment
+### Environnement de Pré-production
 
-For testing in a production-like environment:
+Pour les tests dans un environnement similaire à la production :
 
 ```bash
 docker-compose -f docker-compose.preprod.yml up -d
 ```
 
-Features:
-- Resource limits for CPU and memory
-- PostgreSQL database with pre-production configuration
-- Limited actuator endpoints
-- Environment variable support for database credentials
+Fonctionnalités :
+- Limites de ressources pour le CPU et la mémoire
+- Base de données PostgreSQL avec configuration de pré-production
+- Points de terminaison Actuator limités
+- Support des variables d'environnement pour les identifiants de base de données
 
-### Production Environment
+### Environnement de Production
 
-For deploying to production:
+Pour le déploiement en production :
 
 ```bash
 docker-compose -f docker-compose.prod.yml up -d
 ```
 
-Features:
-- Service replication (2 replicas)
-- Health checks for application and database
-- Resource limits optimized for production
-- Environment variables for all sensitive information
-- Persistent volume configuration for database
+Fonctionnalités :
+- Réplication de service (2 répliques)
+- Vérifications de santé pour l'application et la base de données
+- Limites de ressources optimisées pour la production
+- Variables d'environnement pour toutes les informations sensibles
+- Configuration de volume persistant pour la base de données
 
-### Viewing Logs
+### Visualisation des Logs
 
-To view the logs of the running containers:
+Pour voir les logs des conteneurs en cours d'exécution :
 
 ```bash
 docker-compose -f docker-compose.[env].yml logs -f
 ```
 
-Replace `[env]` with `dev`, `preprod`, or `prod`.
+Remplacez `[env]` par `dev`, `preprod`, ou `prod`.
 
-### Stopping the Application
+### Arrêt de l'Application
 
-To stop the application:
+Pour arrêter l'application :
 
 ```bash
 docker-compose -f docker-compose.[env].yml down
@@ -108,42 +108,42 @@ docker-compose -f docker-compose.[env].yml down
 
 ## Configuration
 
-### Environment Variables
+### Variables d'Environnement
 
-Each environment has its own set of default environment variables in the Docker Compose files. You can override these by:
+Chaque environnement a son propre ensemble de variables d'environnement par défaut dans les fichiers Docker Compose. Vous pouvez les remplacer par :
 
-1. Creating a `.env` file in the project root
-2. Passing variables directly in the command line:
+1. Création d'un fichier `.env` à la racine du projet
+2. Passage de variables directement dans la ligne de commande :
 
 ```bash
 POSTGRES_PASSWORD=secure_password docker-compose -f docker-compose.prod.yml up -d
 ```
 
-### Environment-Specific Properties
+### Propriétés Spécifiques à l'Environnement
 
-The application includes environment-specific properties files:
+L'application inclut des fichiers de propriétés spécifiques à l'environnement :
 
-- `application-dev.properties`: Development settings
-- `application-preprod.properties`: Pre-production settings
-- `application-prod.properties`: Production settings
+- `application-dev.properties` : Paramètres de développement
+- `application-preprod.properties` : Paramètres de pré-production
+- `application-prod.properties` : Paramètres de production
 
-These are activated automatically based on the `SPRING_PROFILES_ACTIVE` environment variable.
+Ces fichiers sont activés automatiquement en fonction de la variable d'environnement `SPRING_PROFILES_ACTIVE`.
 
-## Production Considerations
+## Considérations pour la Production
 
-For production deployments, consider:
+Pour les déploiements en production, considérez :
 
-1. Using Docker secrets for sensitive information:
+1. Utilisation des secrets Docker pour les informations sensibles :
    ```bash
    docker secret create postgres_password /path/to/password/file
    ```
 
-2. Setting up proper logging and monitoring:
-   - The production configuration already includes file-based logging
-   - Consider integrating with a log aggregation service
+2. Mise en place d'une journalisation et d'une surveillance appropriées :
+   - La configuration de production inclut déjà la journalisation basée sur des fichiers
+   - Envisagez l'intégration avec un service d'agrégation de logs
 
-3. Using a container orchestration platform like Kubernetes for:
-   - Automatic scaling
-   - Rolling updates
-   - Self-healing
-   - Load balancing
+3. Utilisation d'une plateforme d'orchestration de conteneurs comme Kubernetes pour :
+   - Mise à l'échelle automatique
+   - Mises à jour progressives
+   - Auto-guérison
+   - Équilibrage de charge

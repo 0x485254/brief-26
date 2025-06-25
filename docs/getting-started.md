@@ -1,51 +1,51 @@
-# Getting Started with Spring Boot Starter
+# Démarrage avec Spring Boot Starter
 
-This guide will help you get started with this Spring Boot starter project.
+Ce guide vous aidera à démarrer avec ce projet starter Spring Boot.
 
-## Prerequisites
+## Prérequis
 
-- Java 17 or higher
-- Maven 3.6 or higher
-- Docker and Docker Compose (optional, for containerized deployment)
+- Java 17 ou supérieur
+- Maven 3.6 ou supérieur
+- Docker et Docker Compose (optionnel, pour le déploiement conteneurisé)
 
-## Running Locally
+## Exécution en Local
 
-1. Clone the repository
-2. Navigate to the project directory
-3. Run the application using Maven:
+1. Cloner le dépôt
+2. Naviguer vers le répertoire du projet
+3. Exécuter l'application en utilisant Maven :
 
 ```bash
 mvn spring-boot:run
 ```
 
-4. The application will start on port 8080. You can access it at http://localhost:8080
+4. L'application démarrera sur le port 8080. Vous pouvez y accéder à l'adresse http://localhost:8080
 
-## Building the Application
+## Construction de l'Application
 
-To build the application as a JAR file:
+Pour construire l'application sous forme de fichier JAR :
 
 ```bash
 mvn clean package
 ```
 
-The JAR file will be created in the `target` directory.
+Le fichier JAR sera créé dans le répertoire `target`.
 
-## Running the JAR
+## Exécution du JAR
 
 ```bash
 java -jar target/spring-boot-starter-0.0.1-SNAPSHOT.jar
 ```
 
-## Available Endpoints
+## Points de Terminaison Disponibles
 
-- `GET /` - Welcome message
-- `GET /health` - Health check endpoint
+- `GET /` - Message de bienvenue
+- `GET /health` - Point de terminaison de vérification de santé
 
 ## Configuration
 
-The application can be configured through the `application.properties` file located in `src/main/resources`.
+L'application peut être configurée via le fichier `application.properties` situé dans `src/main/resources`.
 
-Key properties:
+Propriétés clés :
 
-- `server.port` - The port the application runs on (default: 8080)
-- `spring.application.name` - The name of the application
+- `server.port` - Le port sur lequel l'application s'exécute (par défaut : 8080)
+- `spring.application.name` - Le nom de l'application

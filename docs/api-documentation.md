@@ -1,30 +1,30 @@
-# API Documentation
+# Documentation de l'API
 
-This document provides information about the REST API endpoints available in this Spring Boot starter application.
+Ce document fournit des informations sur les points de terminaison REST API disponibles dans cette application starter Spring Boot.
 
-## Base URL
+## URL de Base
 
-When running locally, the base URL is:
+Lors de l'exécution en local, l'URL de base est :
 
 ```
 http://localhost:8080
 ```
 
-## Endpoints
+## Points de Terminaison
 
-### Welcome Endpoint
+### Point de Terminaison d'Accueil
 
-Returns a welcome message and the current status of the application.
+Renvoie un message de bienvenue et l'état actuel de l'application.
 
-- **URL**: `/`
-- **Method**: `GET`
-- **Auth required**: No
-- **Permissions required**: None
+- **URL** : `/`
+- **Méthode** : `GET`
+- **Authentification requise** : Non
+- **Permissions requises** : Aucune
 
-#### Success Response
+#### Réponse en Cas de Succès
 
-- **Code**: 200 OK
-- **Content example**:
+- **Code** : 200 OK
+- **Exemple de contenu** :
 
 ```json
 {
@@ -33,19 +33,19 @@ Returns a welcome message and the current status of the application.
 }
 ```
 
-### Health Check Endpoint
+### Point de Terminaison de Vérification de Santé
 
-Returns the current health status of the application.
+Renvoie l'état de santé actuel de l'application.
 
-- **URL**: `/health`
-- **Method**: `GET`
-- **Auth required**: No
-- **Permissions required**: None
+- **URL** : `/health`
+- **Méthode** : `GET`
+- **Authentification requise** : Non
+- **Permissions requises** : Aucune
 
-#### Success Response
+#### Réponse en Cas de Succès
 
-- **Code**: 200 OK
-- **Content example**:
+- **Code** : 200 OK
+- **Exemple de contenu** :
 
 ```json
 {
@@ -53,17 +53,17 @@ Returns the current health status of the application.
 }
 ```
 
-## Actuator Endpoints
+## Points de Terminaison Actuator
 
-Spring Boot Actuator provides several production-ready endpoints. The following are enabled:
+Spring Boot Actuator fournit plusieurs points de terminaison prêts pour la production. Les suivants sont activés :
 
-- **Health**: `/actuator/health` - Shows application health information
-- **Info**: `/actuator/info` - Displays application information
-- **Metrics**: `/actuator/metrics` - Shows metrics information for the application
+- **Health** : `/actuator/health` - Affiche les informations de santé de l'application
+- **Info** : `/actuator/info` - Affiche les informations de l'application
+- **Metrics** : `/actuator/metrics` - Affiche les informations de métriques pour l'application
 
-## Error Responses
+## Réponses d'Erreur
 
-### 404 Not Found
+### 404 Non Trouvé
 
 ```json
 {
@@ -74,7 +74,7 @@ Spring Boot Actuator provides several production-ready endpoints. The following 
 }
 ```
 
-### 500 Internal Server Error
+### 500 Erreur Interne du Serveur
 
 ```json
 {
