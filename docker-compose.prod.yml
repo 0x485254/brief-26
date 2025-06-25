@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: spring-boot-starter-prod
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      # Add any production-specific environment variables here
+    restart: always
+    networks:
+      - spring-network
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+        window: 120s
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Production database
+  db:
+    image: postgres:14-alpine
+    container_name: postgres-prod
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB:-starter_db_prod}
+    volumes:
+      - postgres-data-prod:/var/lib/postgresql/data
+    networks:
+      - spring-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+networks:
+  spring-network:
+    driver: bridge
+
+volumes:
+  postgres-data-prod:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /data/postgres-prod
