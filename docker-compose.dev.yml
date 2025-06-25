@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: spring-boot-starter-dev
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+    volumes:
+      - ./src:/app/src
+      - ./target:/app/target
+    restart: unless-stopped
+    networks:
+      - spring-network
+    # Enable remote debugging for development
+    entrypoint: ["java", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005", "-jar", "app.jar"]
+
+  # Development database
+  db:
+    image: postgres:14-alpine
+    container_name: postgres-dev
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=starter_db_dev
+    volumes:
+      - postgres-data-dev:/var/lib/postgresql/data
+    networks:
+      - spring-network
+
+networks:
+  spring-network:
+    driver: bridge
+
+volumes:
+  postgres-data-dev:
