@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: spring-boot-starter-preprod
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=preprod
+    restart: always
+    networks:
+      - spring-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  # Pre-production database
+  db:
+    image: postgres:14-alpine
+    container_name: postgres-preprod
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=starter_db_preprod
+    volumes:
+      - postgres-data-preprod:/var/lib/postgresql/data
+    networks:
+      - spring-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
+networks:
+  spring-network:
+    driver: bridge
+
+volumes:
+  postgres-data-preprod:
