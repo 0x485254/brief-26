@@ -67,6 +67,21 @@ jobs:
 - **Faster Feedback**: Developers get quick feedback on their changes.
 - **Docker Verification**: Every change is verified to build successfully as a Docker image, ensuring containerization works properly.
 
+## Docker Image Maintenance
+
+The project uses Docker images for both building and running the application. These images are specified in the `Dockerfile`:
+
+- **Build Stage**: Uses `maven:3.9.5-eclipse-temurin-17` for compiling and packaging the application
+- **Run Stage**: Uses `eclipse-temurin:17-jre-jammy` for running the application
+
+When updating Docker images, consider the following:
+
+1. Check for the latest stable versions of the images on [Docker Hub](https://hub.docker.com/)
+2. Prefer LTS (Long Term Support) versions for production use
+3. Test the new images thoroughly before deploying to production
+4. Keep the build and run stage images compatible (e.g., same Java version)
+5. Consider using specific version tags rather than `latest` to ensure reproducible builds
+
 ## Future Enhancements
 
 Potential future enhancements to the CI/CD pipeline could include:
