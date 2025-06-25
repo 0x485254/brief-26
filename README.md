@@ -53,16 +53,16 @@ The project includes Docker configurations for three environments:
 
 ```bash
 # For local development
-docker-compose -f docker-compose.dev.yml up -d
+docker compose -f docker-compose.dev.yml up -d
 
 # For pre-production testing
-docker-compose -f docker-compose.preprod.yml up -d
+docker compose -f docker-compose.preprod.yml up -d
 
 # For production deployment
-docker-compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml up -d
 
 # View logs
-docker-compose -f docker-compose.[env].yml logs -f
+docker compose -f docker-compose.[env].yml logs -f
 ```
 
 See the [Docker Deployment Guide](docs/docker-deployment.md) for detailed instructions.
@@ -80,6 +80,7 @@ Detailed documentation is available in the `docs` directory:
 - [Getting Started Guide](docs/getting-started.md)
 - [API Documentation](docs/api-documentation.md)
 - [Docker Deployment Guide](docs/docker-deployment.md)
+- [CI/CD Setup](docs/ci-cd-setup.md)
 
 ## Customizing the Starter
 
