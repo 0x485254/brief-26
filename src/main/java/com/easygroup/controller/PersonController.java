@@ -17,7 +17,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/users/{userId}/lists/{listId}/persons")
 public class PersonController {
 
     private final PersonService personService;
@@ -27,7 +27,7 @@ public class PersonController {
         this.personService = personService;
     }
 
-    @PostMapping("/{userId}/lists/{listId}/persons")
+    @PostMapping
     public ResponseEntity<PersonResponse> addPersonToList(@PathVariable UUID userId, @PathVariable UUID listId, @RequestBody PersonRequest request){
         try{
             Person person = personService.save(request.getAge(), request.getFrenchLevel(), request.getGender(), request.getName(), request.getOldDwwm(), request.getProfile(), request.getTechLevel(), listId);
@@ -50,7 +50,7 @@ public class PersonController {
         }
     }
 
-    @GetMapping("/{userId}/lists/{listId}/persons")
+    @GetMapping
     public ResponseEntity<List<PersonResponse>> getPersonsByList(@PathVariable UUID userId, @PathVariable UUID listId) {
         try {
             List<Person> personList = personService.findByListIdOrderByName(listId);
@@ -74,7 +74,7 @@ public class PersonController {
         }
     }
 
-    @PutMapping("/{userId}/lists/{listId}/persons/{personId}")
+    @PutMapping("/{personId}")
     public ResponseEntity<PersonResponse> editPerson(@PathVariable UUID userId, @PathVariable UUID listId, @PathVariable UUID personId, @RequestBody PersonRequest request){
         try{
             Person person = personService.edit(personId, request.getAge(), request.getFrenchLevel(), request.getGender(), request.getName(), request.getOldDwwm(), request.getProfile(), request.getTechLevel());
@@ -98,7 +98,7 @@ public class PersonController {
     }
 
 
-    @DeleteMapping("/{userId}/lists/{listId}/persons/{personId}")
+    @DeleteMapping("/{personId}")
     public ResponseEntity<Void> deletePerson(@PathVariable UUID userId, @PathVariable UUID listId, @PathVariable UUID personId) {
         try {
             personService.deleteById(personId);
