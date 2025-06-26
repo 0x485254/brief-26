@@ -12,9 +12,11 @@ http://localhost:8080
 
 ## Points de Terminaison d'Authentification
 
-### Inscription d'un Utilisateur
+### Authentification par JWT (Token)
 
-Permet de créer un nouveau compte utilisateur.
+#### Inscription d'un Utilisateur
+
+Permet de créer un nouveau compte utilisateur et d'obtenir un token JWT.
 
 - **URL** : `/api/auth/register`
 - **Méthode** : `POST`
@@ -40,14 +42,14 @@ Permet de créer un nouveau compte utilisateur.
   "email": "utilisateur@exemple.com",
   "firstName": null,
   "lastName": null,
-  "token": "token_placeholder",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "role": "USER"
 }
 ```
 
-### Connexion d'un Utilisateur
+#### Connexion d'un Utilisateur
 
-Permet à un utilisateur de se connecter et d'obtenir un token d'authentification.
+Permet à un utilisateur de se connecter et d'obtenir un token JWT.
 
 - **URL** : `/api/auth/login`
 - **Méthode** : `POST`
@@ -73,10 +75,92 @@ Permet à un utilisateur de se connecter et d'obtenir un token d'authentificatio
   "email": "utilisateur@exemple.com",
   "firstName": "Prénom",
   "lastName": "Nom",
-  "token": "token_placeholder",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "role": "USER"
 }
 ```
+
+### Authentification par Cookie (HTTP-Only)
+
+#### Inscription d'un Utilisateur avec Cookie
+
+Permet de créer un nouveau compte utilisateur et de définir un cookie HTTP-only contenant un token JWT.
+
+- **URL** : `/api/auth/cookie/register`
+- **Méthode** : `POST`
+- **Authentification requise** : Non
+- **Permissions requises** : Aucune
+- **Corps de la Requête** :
+
+```json
+{
+  "email": "utilisateur@exemple.com",
+  "password": "motdepasse123"
+}
+```
+
+#### Réponse en Cas de Succès
+
+- **Code** : 201 Created
+- **Cookies définis** : `JWT_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` (HTTP-only)
+- **Exemple de contenu** :
+
+```json
+{
+  "userId": "550e8400-e29b-41d4-a716-446655440000",
+  "email": "utilisateur@exemple.com",
+  "firstName": null,
+  "lastName": null,
+  "role": "USER"
+}
+```
+
+#### Connexion d'un Utilisateur avec Cookie
+
+Permet à un utilisateur de se connecter et de recevoir un cookie HTTP-only contenant un token JWT.
+
+- **URL** : `/api/auth/cookie/login`
+- **Méthode** : `POST`
+- **Authentification requise** : Non
+- **Permissions requises** : Aucune
+- **Corps de la Requête** :
+
+```json
+{
+  "email": "utilisateur@exemple.com",
+  "password": "motdepasse123"
+}
+```
+
+#### Réponse en Cas de Succès
+
+- **Code** : 200 OK
+- **Cookies définis** : `JWT_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` (HTTP-only)
+- **Exemple de contenu** :
+
+```json
+{
+  "userId": "550e8400-e29b-41d4-a716-446655440000",
+  "email": "utilisateur@exemple.com",
+  "firstName": "Prénom",
+  "lastName": "Nom",
+  "role": "USER"
+}
+```
+
+#### Déconnexion d'un Utilisateur (Cookie)
+
+Permet à un utilisateur de se déconnecter en supprimant le cookie d'authentification.
+
+- **URL** : `/api/auth/cookie/logout`
+- **Méthode** : `POST`
+- **Authentification requise** : Non
+- **Permissions requises** : Aucune
+
+#### Réponse en Cas de Succès
+
+- **Code** : 200 OK
+- **Cookies supprimés** : `JWT_TOKEN` (valeur vide, Max-Age=0)
 
 ## Points de Terminaison de Gestion des Listes
 

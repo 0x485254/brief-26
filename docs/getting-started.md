@@ -61,9 +61,19 @@ java -jar target/easygroup-0.0.1-SNAPSHOT.jar
 
 ## Points de Terminaison Disponibles
 
+### Authentification par JWT (Token)
 - `POST /api/auth/register` - Enregistrement d'un nouvel utilisateur
 - `POST /api/auth/login` - Authentification d'un utilisateur
-- Autres points de terminaison pour la gestion des listes et des groupes (voir la documentation API complète)
+
+### Authentification par Cookie (HTTP-Only)
+- `POST /api/auth/cookie/register` - Enregistrement d'un nouvel utilisateur avec cookie
+- `POST /api/auth/cookie/login` - Authentification d'un utilisateur avec cookie
+- `POST /api/auth/cookie/logout` - Déconnexion d'un utilisateur (suppression du cookie)
+
+Pour plus de détails, consultez la [documentation d'authentification](./authentication.md) et la [documentation d'authentification par cookie](./cookie-authentication.md).
+
+### Autres Points de Terminaison
+- Gestion des listes et des groupes (voir la [documentation API complète](./api-documentation.md))
 
 ## Configuration
 
