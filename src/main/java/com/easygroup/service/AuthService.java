@@ -1,8 +1,14 @@
 package com.easygroup.service;
 
+import com.easygroup.dto.AuthResponse;
 import com.easygroup.entity.User;
 import com.easygroup.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,10 +24,23 @@ import java.util.Optional;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
+    private final CustomUserDetailsService userDetailsService;
 
     @Autowired
-    public AuthService(UserRepository userRepository) {
+    public AuthService(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            JwtService jwtService,
+            AuthenticationManager authenticationManager,
+            CustomUserDetailsService userDetailsService) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
+        this.authenticationManager = authenticationManager;
+        this.userDetailsService = userDetailsService;
     }
 
     /**
@@ -41,7 +60,7 @@ public class AuthService {
 
         User user = new User();
         user.setEmail(email);
-        user.setPassword(password); // In a real application, this would be encrypted
+        user.setPassword(passwordEncoder.encode(password)); // Password is now properly encrypted
         user.setFirstName(firstName);
         user.setLastName(lastName);
         user.setIsActivated(true);
@@ -52,21 +71,31 @@ public class AuthService {
     }
 
     /**
-     * Authenticate a user.
+     * Authenticate a user and generate a JWT token.
      *
      * @param email the user's email
      * @param password the user's password
-     * @return an Optional containing the user if authentication is successful
+     * @return an AuthResponse containing the user details and JWT token
+     * @throws AuthenticationException if authentication fails
      */
-    public Optional<User> authenticate(String email, String password) {
-        Optional<User> userOpt = userRepository.findByEmail(email);
-        
-        // In a real application, password would be encrypted and compared securely
-        if (userOpt.isPresent() && userOpt.get().getPassword().equals(password)) {
-            return userOpt;
-        }
-        
-        return Optional.empty();
+    public AuthResponse authenticate(String email, String password) {
+        // Use Spring Security's AuthenticationManager to authenticate
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(email, password)
+        );
+
+        // If we get here, authentication was successful
+        var user = userDetailsService.getUserByEmail(email);
+        var jwtToken = jwtService.generateToken(userDetailsService.loadUserByUsername(email));
+
+        return new AuthResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                jwtToken,
+                user.getRole().toString()
+        );
     }
 
     /**
@@ -77,8 +106,7 @@ public class AuthService {
      * @return the updated user
      */
     public User changePassword(User user, String newPassword) {
-        // In a real application, password would be encrypted
-        user.setPassword(newPassword);
+        user.setPassword(passwordEncoder.encode(newPassword)); // Password is now properly encrypted
         user.setUpdatedAt(LocalDateTime.now());
         return userRepository.save(user);
     }
