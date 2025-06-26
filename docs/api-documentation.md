@@ -164,6 +164,177 @@ EasyGroup utilise l'algorithme Argon2id pour le hachage des mots de passe, avec 
 
 Cette configuration offre une excellente protection contre les attaques par force brute, y compris celles utilisant des GPU ou des ASIC.
 
+## Points de Terminaison de Gestion des Utilisateurs
+
+### Récupération du Profil de l'Utilisateur Courant
+
+Permet à un utilisateur authentifié de récupérer son propre profil.
+
+- **URL** : `/api/users/me`
+- **Méthode** : `GET`
+- **Authentification requise** : Oui
+- **Permissions requises** : Utilisateur authentifié
+
+#### Réponse en Cas de Succès
+
+- **Code** : 200 OK
+- **Exemple de contenu** :
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "email": "utilisateur@exemple.com",
+  "firstName": "Prénom",
+  "lastName": "Nom",
+  "role": "USER",
+  "isActivated": true,
+  "createdAt": "2023-01-15T10:30:00",
+  "updatedAt": "2023-01-15T10:30:00"
+}
+```
+
+### Mise à Jour du Profil de l'Utilisateur Courant
+
+Permet à un utilisateur authentifié de mettre à jour son propre profil.
+
+- **URL** : `/api/users/me`
+- **Méthode** : `PUT`
+- **Authentification requise** : Oui
+- **Permissions requises** : Utilisateur authentifié
+- **Corps de la Requête** :
+
+```json
+{
+  "firstName": "Nouveau Prénom",
+  "lastName": "Nouveau Nom"
+}
+```
+
+#### Réponse en Cas de Succès
+
+- **Code** : 200 OK
+- **Exemple de contenu** :
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "email": "utilisateur@exemple.com",
+  "firstName": "Nouveau Prénom",
+  "lastName": "Nouveau Nom",
+  "role": "USER",
+  "isActivated": true,
+  "createdAt": "2023-01-15T10:30:00",
+  "updatedAt": "2023-01-15T11:45:00"
+}
+```
+
+### Suppression du Compte de l'Utilisateur Courant
+
+Permet à un utilisateur authentifié de supprimer son propre compte.
+
+- **URL** : `/api/users/me`
+- **Méthode** : `DELETE`
+- **Authentification requise** : Oui
+- **Permissions requises** : Utilisateur authentifié
+
+#### Réponse en Cas de Succès
+
+- **Code** : 204 No Content
+
+### Récupération de Tous les Utilisateurs (Admin)
+
+Permet à un administrateur de récupérer la liste de tous les utilisateurs.
+
+- **URL** : `/api/users`
+- **Méthode** : `GET`
+- **Authentification requise** : Oui
+- **Permissions requises** : Administrateur
+
+#### Réponse en Cas de Succès
+
+- **Code** : 200 OK
+- **Exemple de contenu** :
+
+```json
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "email": "utilisateur1@exemple.com",
+    "firstName": "Prénom1",
+    "lastName": "Nom1",
+    "role": "USER",
+    "isActivated": true,
+    "createdAt": "2023-01-15T10:30:00",
+    "updatedAt": "2023-01-15T10:30:00"
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440001",
+    "email": "utilisateur2@exemple.com",
+    "firstName": "Prénom2",
+    "lastName": "Nom2",
+    "role": "ADMIN",
+    "isActivated": true,
+    "createdAt": "2023-01-14T09:15:00",
+    "updatedAt": "2023-01-14T09:15:00"
+  }
+]
+```
+
+### Récupération d'un Utilisateur par ID (Admin)
+
+Permet à un administrateur de récupérer un utilisateur spécifique par son ID.
+
+- **URL** : `/api/users/{id}`
+- **Méthode** : `GET`
+- **Authentification requise** : Oui
+- **Permissions requises** : Administrateur
+
+#### Réponse en Cas de Succès
+
+- **Code** : 200 OK
+- **Exemple de contenu** :
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "email": "utilisateur@exemple.com",
+  "firstName": "Prénom",
+  "lastName": "Nom",
+  "role": "USER",
+  "isActivated": true,
+  "createdAt": "2023-01-15T10:30:00",
+  "updatedAt": "2023-01-15T10:30:00"
+}
+```
+
+### Activation/Désactivation d'un Utilisateur (Admin)
+
+Permet à un administrateur d'activer ou de désactiver un compte utilisateur.
+
+- **URL** : `/api/users/{id}/activate`
+- **Méthode** : `PUT`
+- **Authentification requise** : Oui
+- **Permissions requises** : Administrateur
+- **Paramètres de Requête** : `isActivated=true|false`
+
+#### Réponse en Cas de Succès
+
+- **Code** : 200 OK
+- **Exemple de contenu** :
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "email": "utilisateur@exemple.com",
+  "firstName": "Prénom",
+  "lastName": "Nom",
+  "role": "USER",
+  "isActivated": false,
+  "createdAt": "2023-01-15T10:30:00",
+  "updatedAt": "2023-01-16T14:20:00"
+}
+```
+
 ## Points de Terminaison de Gestion des Listes
 
 ### Création d'une Liste
