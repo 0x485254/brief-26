@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 /**
  * Entity representing the association between a group and a person.
@@ -36,7 +37,7 @@ public class GroupPerson {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class GroupPersonId implements Serializable {
-        private Integer group;
-        private Integer person;
+        private UUID group;
+        private UUID person;
     }
 }
