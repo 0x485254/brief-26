@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.UUID;
@@ -34,7 +35,7 @@ public class UserController {
      *
      * @return the current user
      */
-    @GetMapping("/profile")
+    @GetMapping("/me")
     @IsAuthenticated
     public ResponseEntity<User> getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -86,6 +87,51 @@ public class UserController {
                 .map(user -> {
                     user.setIsActivated(isActivated);
                     return ResponseEntity.ok(userService.save(user));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    /**
+     * Update the current user's profile.
+     * This endpoint is protected by the IsAuthenticated guard.
+     *
+     * @param updatedUser the updated user data
+     * @return the updated user
+     */
+    @PutMapping("/me")
+    @IsAuthenticated
+    public ResponseEntity<User> updateCurrentUser(@RequestBody @Valid User updatedUser) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        return userService.findByEmail(email)
+                .map(user -> {
+                    // Only update allowed fields (prevent changing role, etc.)
+                    user.setFirstName(updatedUser.getFirstName());
+                    user.setLastName(updatedUser.getLastName());
+                    // Email update would require re-authentication, so it's not included here
+
+                    return ResponseEntity.ok(userService.save(user));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    /**
+     * Delete the current user's account.
+     * This endpoint is protected by the IsAuthenticated guard.
+     *
+     * @return a success response with no content
+     */
+    @DeleteMapping("/me")
+    @IsAuthenticated
+    public ResponseEntity<Void> deleteCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        return userService.findByEmail(email)
+                .map(user -> {
+                    userService.deleteById(user.getId());
+                    return ResponseEntity.noContent().<Void>build();
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
