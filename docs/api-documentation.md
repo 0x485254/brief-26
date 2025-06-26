@@ -17,13 +17,25 @@ Lors de l'exécution en local, l'URL de base est :
 http://localhost:8080
 ```
 
-## Points de Terminaison d'Authentification
+## Authentification et Sécurité
 
-### Authentification par JWT (Token)
+EasyGroup utilise une authentification basée sur des cookies HTTP-only contenant des tokens JWT (JSON Web Tokens) pour sécuriser l'API. Cette approche offre une meilleure protection contre les attaques XSS (Cross-Site Scripting) par rapport aux tokens stockés dans le localStorage ou sessionStorage.
+
+### Architecture de Sécurité
+
+L'application implémente une architecture de sécurité robuste avec les caractéristiques suivantes :
+
+- **Cookies HTTP-only** : Les tokens JWT sont stockés dans des cookies HTTP-only, inaccessibles via JavaScript
+- **Protection CSRF** : Mise en œuvre via CookieCsrfTokenRepository
+- **Sessions stateless** : Aucune session n'est stockée côté serveur
+- **Hachage de mot de passe Argon2id** : Algorithme de hachage résistant aux attaques par GPU et par canal auxiliaire
+- **Filtres de sécurité** : Validation des tokens JWT à chaque requête
+
+### Points de Terminaison d'Authentification
 
 #### Inscription d'un Utilisateur
 
-Permet de créer un nouveau compte utilisateur et d'obtenir un token JWT.
+Permet de créer un nouveau compte utilisateur et de définir un cookie HTTP-only contenant un token JWT.
 
 - **URL** : `/api/auth/register`
 - **Méthode** : `POST`
@@ -34,29 +46,32 @@ Permet de créer un nouveau compte utilisateur et d'obtenir un token JWT.
 ```json
 {
   "email": "utilisateur@exemple.com",
-  "password": "motdepasse123"
+  "password": "motdepasse123",
+  "firstName": "Prénom",
+  "lastName": "Nom"
 }
 ```
 
 #### Réponse en Cas de Succès
 
 - **Code** : 201 Created
+- **Cookies définis** : `JWT_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` (HTTP-only)
 - **Exemple de contenu** :
 
 ```json
 {
   "userId": "550e8400-e29b-41d4-a716-446655440000",
   "email": "utilisateur@exemple.com",
-  "firstName": null,
-  "lastName": null,
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "role": "USER"
+  "firstName": "Prénom",
+  "lastName": "Nom",
+  "role": "USER",
+  "isActivated": true
 }
 ```
 
 #### Connexion d'un Utilisateur
 
-Permet à un utilisateur de se connecter et d'obtenir un token JWT.
+Permet à un utilisateur de se connecter et de recevoir un cookie HTTP-only contenant un token JWT.
 
 - **URL** : `/api/auth/login`
 - **Méthode** : `POST`
@@ -74,74 +89,6 @@ Permet à un utilisateur de se connecter et d'obtenir un token JWT.
 #### Réponse en Cas de Succès
 
 - **Code** : 200 OK
-- **Exemple de contenu** :
-
-```json
-{
-  "userId": "550e8400-e29b-41d4-a716-446655440000",
-  "email": "utilisateur@exemple.com",
-  "firstName": "Prénom",
-  "lastName": "Nom",
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "role": "USER"
-}
-```
-
-### Authentification par Cookie (HTTP-Only)
-
-#### Inscription d'un Utilisateur avec Cookie
-
-Permet de créer un nouveau compte utilisateur et de définir un cookie HTTP-only contenant un token JWT.
-
-- **URL** : `/api/auth/cookie/register`
-- **Méthode** : `POST`
-- **Authentification requise** : Non
-- **Permissions requises** : Aucune
-- **Corps de la Requête** :
-
-```json
-{
-  "email": "utilisateur@exemple.com",
-  "password": "motdepasse123"
-}
-```
-
-#### Réponse en Cas de Succès
-
-- **Code** : 201 Created
-- **Cookies définis** : `JWT_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` (HTTP-only)
-- **Exemple de contenu** :
-
-```json
-{
-  "userId": "550e8400-e29b-41d4-a716-446655440000",
-  "email": "utilisateur@exemple.com",
-  "firstName": null,
-  "lastName": null,
-  "role": "USER"
-}
-```
-
-#### Connexion d'un Utilisateur avec Cookie
-
-Permet à un utilisateur de se connecter et de recevoir un cookie HTTP-only contenant un token JWT.
-
-- **URL** : `/api/auth/cookie/login`
-- **Méthode** : `POST`
-- **Authentification requise** : Non
-- **Permissions requises** : Aucune
-- **Corps de la Requête** :
-
-```json
-{
-  "email": "utilisateur@exemple.com",
-  "password": "motdepasse123"
-}
-```
-
-#### Réponse en Cas de Succès
-
-- **Code** : 200 OK
 - **Cookies définis** : `JWT_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` (HTTP-only)
 - **Exemple de contenu** :
 
@@ -151,15 +98,16 @@ Permet à un utilisateur de se connecter et de recevoir un cookie HTTP-only cont
   "email": "utilisateur@exemple.com",
   "firstName": "Prénom",
   "lastName": "Nom",
-  "role": "USER"
+  "role": "USER",
+  "isActivated": true
 }
 ```
 
-#### Déconnexion d'un Utilisateur (Cookie)
+#### Déconnexion d'un Utilisateur
 
 Permet à un utilisateur de se déconnecter en supprimant le cookie d'authentification.
 
-- **URL** : `/api/auth/cookie/logout`
+- **URL** : `/api/auth/logout`
 - **Méthode** : `POST`
 - **Authentification requise** : Non
 - **Permissions requises** : Aucune
@@ -168,6 +116,53 @@ Permet à un utilisateur de se déconnecter en supprimant le cookie d'authentifi
 
 - **Code** : 200 OK
 - **Cookies supprimés** : `JWT_TOKEN` (valeur vide, Max-Age=0)
+
+### Flux d'Authentification
+
+1. **Inscription** :
+   - L'utilisateur envoie ses informations d'inscription
+   - Le serveur valide les données et crée un nouvel utilisateur
+   - Le mot de passe est haché avec Argon2id avant d'être stocké
+   - Un token JWT est généré et placé dans un cookie HTTP-only
+   - Les détails de l'utilisateur sont renvoyés dans la réponse (sans le token)
+
+2. **Connexion** :
+   - L'utilisateur envoie ses identifiants
+   - Le serveur authentifie l'utilisateur en vérifiant le mot de passe
+   - Un token JWT est généré et placé dans un cookie HTTP-only
+   - Les détails de l'utilisateur sont renvoyés dans la réponse (sans le token)
+
+3. **Requêtes authentifiées** :
+   - Le cookie contenant le token JWT est automatiquement envoyé avec chaque requête
+   - Le filtre CookieAuthenticationFilter extrait et valide le token
+   - Si le token est valide, l'utilisateur est authentifié pour la requête
+   - Si le token est invalide ou absent, la requête est rejetée pour les endpoints protégés
+
+4. **Déconnexion** :
+   - L'utilisateur envoie une requête de déconnexion
+   - Le serveur supprime le cookie d'authentification en définissant sa durée de vie à 0
+
+### Configuration des Cookies
+
+Les cookies d'authentification sont configurés avec les attributs de sécurité suivants :
+
+- **HttpOnly** : Empêche l'accès au cookie via JavaScript
+- **Secure** : Le cookie n'est envoyé que sur des connexions HTTPS (en production)
+- **SameSite=Strict** : Le cookie n'est pas envoyé lors des requêtes cross-site
+- **Path=/** : Le cookie est disponible pour tout le domaine
+- **Expiration** : 24 heures par défaut
+
+### Hachage de Mot de Passe Argon2id
+
+EasyGroup utilise l'algorithme Argon2id pour le hachage des mots de passe, avec les paramètres suivants :
+
+- **Longueur du sel** : 16 octets
+- **Longueur du hachage** : 32 octets
+- **Itérations** : 3
+- **Mémoire** : 64 Mo
+- **Parallélisme** : 4 threads
+
+Cette configuration offre une excellente protection contre les attaques par force brute, y compris celles utilisant des GPU ou des ASIC.
 
 ## Points de Terminaison de Gestion des Listes
 
