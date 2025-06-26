@@ -1,10 +1,8 @@
-package com.easygroup.security.cookie;
+package com.easygroup.service;
 
 import com.easygroup.dto.AuthResponse;
 import com.easygroup.entity.User;
 import com.easygroup.repository.UserRepository;
-import com.easygroup.service.CustomUserDetailsService;
-import com.easygroup.service.JwtService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -63,6 +61,14 @@ public class CookieAuthService {
             throw new IllegalArgumentException("Email already in use");
         }
 
+        // Validate that firstName and lastName are provided
+        if (firstName == null || firstName.trim().isEmpty()) {
+            throw new IllegalArgumentException("First name is required");
+        }
+        if (lastName == null || lastName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Last name is required");
+        }
+
         User user = new User();
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));
@@ -98,14 +104,16 @@ public class CookieAuthService {
         cookieService.addTokenCookie(response, jwtToken);
 
         // Return user details without the token
-        return new AuthResponse(
-                user.getId(),
-                user.getEmail(),
-                user.getFirstName(),
-                user.getLastName(),
-                null, // No token in response body
-                user.getRole().toString()
-        );
+        AuthResponse authResponse = new AuthResponse();
+        authResponse.setUserId(user.getId());
+        authResponse.setEmail(user.getEmail());
+        authResponse.setFirstName(user.getFirstName());
+        authResponse.setLastName(user.getLastName());
+        authResponse.setToken(null); // No token in response body
+        authResponse.setRole(user.getRole().toString());
+        authResponse.setIsActivated(user.getIsActivated());
+
+        return authResponse;
     }
 
     /**

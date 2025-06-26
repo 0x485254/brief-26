@@ -1,5 +1,6 @@
-package com.easygroup.security.cookie;
+package com.easygroup.security;
 
+import com.easygroup.service.CookieService;
 import com.easygroup.service.CustomUserDetailsService;
 import com.easygroup.service.JwtService;
 import jakarta.servlet.FilterChain;

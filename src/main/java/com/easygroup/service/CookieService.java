@@ -1,4 +1,4 @@
-package com.easygroup.security.cookie;
+package com.easygroup.service;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
