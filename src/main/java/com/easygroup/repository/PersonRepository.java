@@ -44,4 +44,6 @@ public interface PersonRepository extends JpaRepository<Person, UUID> {
      * @param list the list containing the persons to delete
      */
     void deleteByList(ListEntity list);
+
+    Person update(Person person);
 }
