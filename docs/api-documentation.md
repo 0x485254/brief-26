@@ -2,6 +2,13 @@
 
 Ce document fournit des informations sur les points de terminaison REST API disponibles dans l'application EasyGroup pour la création intelligente de groupes d'apprenants.
 
+## Modèles de Données
+
+Pour comprendre la structure des données manipulées par cette API, consultez la [documentation des modèles de données](./database-models.md) qui détaille :
+- Le Modèle Conceptuel de Données (MCD)
+- Le Modèle Logique de Données (MLD)
+- Le Modèle Physique de Données (MPD)
+
 ## URL de Base
 
 Lors de l'exécution en local, l'URL de base est :
