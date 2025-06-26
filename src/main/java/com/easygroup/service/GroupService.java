@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -45,7 +46,7 @@ public class GroupService {
      * @param id the group ID
      * @return an Optional containing the group if found
      */
-    public Optional<Group> findById(Integer id) {
+    public Optional<Group> findById(UUID id) {
         return groupRepository.findById(id);
     }
 
@@ -84,7 +85,7 @@ public class GroupService {
      *
      * @param id the group ID
      */
-    public void deleteById(Integer id) {
+    public void deleteById(UUID id) {
         groupRepository.deleteById(id);
     }
 

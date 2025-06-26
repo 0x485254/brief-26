@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Service for managing draws and creating groups.
@@ -49,7 +50,7 @@ public class DrawService {
      * @param id the draw ID
      * @return an Optional containing the draw if found
      */
-    public Optional<Draw> findById(Integer id) {
+    public Optional<Draw> findById(UUID id) {
         return drawRepository.findById(id);
     }
 
@@ -88,7 +89,7 @@ public class DrawService {
      *
      * @param id the draw ID
      */
-    public void deleteById(Integer id) {
+    public void deleteById(UUID id) {
         drawRepository.deleteById(id);
     }
 
@@ -109,10 +110,10 @@ public class DrawService {
 
         // Get all persons from the list
         List<Person> persons = personRepository.findByList(list);
-        
+
         // Shuffle the persons to randomize the groups
         Collections.shuffle(persons);
-        
+
         // Create the groups
         List<Group> groups = new ArrayList<>();
         for (int i = 0; i < numberOfGroups; i++) {
@@ -121,11 +122,11 @@ public class DrawService {
             group.setDraw(draw);
             groups.add(groupRepository.save(group));
         }
-        
+
         // This is a placeholder for the actual group creation logic
         // In a real implementation, you would need to distribute persons to groups
         // based on various criteria and create GroupPerson associations
-        
+
         return draw;
     }
 

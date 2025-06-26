@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Service for managing users.
@@ -38,7 +39,7 @@ public class UserService {
      * @param id the user ID
      * @return an Optional containing the user if found
      */
-    public Optional<User> findById(Integer id) {
+    public Optional<User> findById(UUID id) {
         return userRepository.findById(id);
     }
 
@@ -67,7 +68,7 @@ public class UserService {
      *
      * @param id the user ID
      */
-    public void deleteById(Integer id) {
+    public void deleteById(UUID id) {
         userRepository.deleteById(id);
     }
 

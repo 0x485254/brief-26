@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Service for managing persons.
@@ -39,7 +40,7 @@ public class PersonService {
      * @param id the person ID
      * @return an Optional containing the person if found
      */
-    public Optional<Person> findById(Integer id) {
+    public Optional<Person> findById(UUID id) {
         return personRepository.findById(id);
     }
 
@@ -78,7 +79,7 @@ public class PersonService {
      *
      * @param id the person ID
      */
-    public void deleteById(Integer id) {
+    public void deleteById(UUID id) {
         personRepository.deleteById(id);
     }
 

@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -44,7 +45,7 @@ public class ListService {
      * @param id the list ID
      * @return an Optional containing the list if found
      */
-    public Optional<ListEntity> findById(Integer id) {
+    public Optional<ListEntity> findById(UUID id) {
         return listRepository.findById(id);
     }
 
@@ -86,7 +87,7 @@ public class ListService {
      *
      * @param id the list ID
      */
-    public void deleteById(Integer id) {
+    public void deleteById(UUID id) {
         listRepository.deleteById(id);
     }
 
@@ -100,7 +101,7 @@ public class ListService {
     public ListShare shareList(ListEntity list, User user) {
         list.setIsShared(true);
         listRepository.save(list);
-        
+
         ListShare listShare = new ListShare();
         listShare.setList(list);
         listShare.setSharedWithUser(user);
@@ -116,7 +117,7 @@ public class ListService {
     public void unshareList(ListEntity list, User user) {
         listShareRepository.findByListAndSharedWithUser(list, user)
                 .ifPresent(listShareRepository::delete);
-        
+
         // If no more shares exist, update the list's shared status
         if (listShareRepository.findByList(list).isEmpty()) {
             list.setIsShared(false);
