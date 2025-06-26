@@ -1,84 +1,83 @@
 package com.easygroup.controller;
 
-import com.easygroup.dto.AuthRequest;
 import com.easygroup.dto.AuthResponse;
+import com.easygroup.dto.LoginRequest;
+import com.easygroup.dto.RegisterRequest;
 import com.easygroup.entity.User;
-import com.easygroup.service.AuthService;
+import com.easygroup.service.CookieAuthService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
 /**
- * Controller for authentication endpoints.
+ * Controller for cookie-based authentication endpoints.
  */
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final AuthService authService;
+    private final CookieAuthService cookieAuthService;
 
     @Autowired
-    public AuthController(AuthService authService) {
-        this.authService = authService;
+    public AuthController(CookieAuthService cookieAuthService) {
+        this.cookieAuthService = cookieAuthService;
     }
 
     /**
-     * Register a new user.
+     * Register a new user and set a JWT token cookie.
      *
      * @param request the registration request
-     * @return the created user
+     * @param response the HTTP response to set the cookie on
+     * @return the created user details (without the token in the response body)
      */
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody @Valid AuthRequest request) {
+    public ResponseEntity<AuthResponse> register(
+            @RequestBody @Valid RegisterRequest request,
+            HttpServletResponse response) {
         try {
-            User user = authService.register(request.getEmail(), request.getPassword(), null, null);
-            
-            // In a real application, you would generate a token here
-            AuthResponse response = new AuthResponse(
-                    user.getId(),
-                    user.getEmail(),
-                    user.getFirstName(),
-                    user.getLastName(),
-                    "token_placeholder",
-                    user.getRole().toString()
-            );
-            
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            User user = cookieAuthService.register(request.getEmail(), request.getPassword(), request.getFirstName(), request.getLastName());
+
+            // Authenticate the user after registration to generate a token and set it as a cookie
+            AuthResponse authResponse = cookieAuthService.authenticate(request.getEmail(), request.getPassword(), response);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(authResponse);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }
 
     /**
-     * Authenticate a user.
+     * Authenticate a user and set a JWT token cookie.
      *
      * @param request the authentication request
-     * @return the authenticated user
+     * @param response the HTTP response to set the cookie on
+     * @return the authenticated user details (without the token in the response body)
      */
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody @Valid AuthRequest request) {
-        Optional<User> userOpt = authService.authenticate(request.getEmail(), request.getPassword());
-        
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            
-            // In a real application, you would generate a token here
-            AuthResponse response = new AuthResponse(
-                    user.getId(),
-                    user.getEmail(),
-                    user.getFirstName(),
-                    user.getLastName(),
-                    "token_placeholder",
-                    user.getRole().toString()
-            );
-            
-            return ResponseEntity.ok(response);
+    public ResponseEntity<AuthResponse> login(
+            @RequestBody @Valid LoginRequest request,
+            HttpServletResponse response) {
+        try {
+            AuthResponse authResponse = cookieAuthService.authenticate(request.getEmail(), request.getPassword(), response);
+            return ResponseEntity.ok(authResponse);
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    /**
+     * Logout a user by clearing the JWT token cookie.
+     *
+     * @param response the HTTP response to clear the cookie from
+     * @return a success response
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletResponse response) {
+        cookieAuthService.logout(response);
+        return ResponseEntity.ok().build();
     }
 }

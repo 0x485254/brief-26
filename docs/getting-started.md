@@ -61,9 +61,19 @@ java -jar target/easygroup-0.0.1-SNAPSHOT.jar
 
 ## Points de Terminaison Disponibles
 
+### Authentification par JWT (Token)
 - `POST /api/auth/register` - Enregistrement d'un nouvel utilisateur
 - `POST /api/auth/login` - Authentification d'un utilisateur
-- Autres points de terminaison pour la gestion des listes et des groupes (voir la documentation API complète)
+
+### Authentification par Cookie (HTTP-Only)
+- `POST /api/auth/cookie/register` - Enregistrement d'un nouvel utilisateur avec cookie
+- `POST /api/auth/cookie/login` - Authentification d'un utilisateur avec cookie
+- `POST /api/auth/cookie/logout` - Déconnexion d'un utilisateur (suppression du cookie)
+
+Pour plus de détails, consultez la [documentation d'authentification](./authentication.md) et la [documentation d'authentification par cookie](./cookie-authentication.md).
+
+### Autres Points de Terminaison
+- Gestion des listes et des groupes (voir la [documentation API complète](./api-documentation.md))
 
 ## Configuration
 
@@ -80,3 +90,11 @@ Propriétés clés :
 - `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD` - Informations de connexion à la base de données
 - `APP_PORT` - Le port sur lequel l'application s'exécute (par défaut : 8080)
 - `APP_ENV` - L'environnement d'exécution (dev, preprod, prod)
+
+## Structure de la Base de Données
+
+Pour comprendre la structure de la base de données utilisée par EasyGroup, consultez la [documentation des modèles de données](./database-models.md) qui inclut :
+
+- Le Modèle Conceptuel de Données (MCD)
+- Le Modèle Logique de Données (MLD)
+- Le Modèle Physique de Données (MPD)
