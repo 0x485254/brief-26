@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 /**
  * DTO for group-person associations.
  */
@@ -13,9 +15,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class GroupPersonDTO {
 
-    private Integer groupId;
+    private UUID groupId;
     private String groupName;
-    private Integer personId;
+    private UUID personId;
     private String personName;
     private Person.Gender gender;
     private Integer age;
