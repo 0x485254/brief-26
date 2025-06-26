@@ -7,13 +7,14 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Repository for ListEntity.
  */
 @Repository
-public interface ListRepository extends JpaRepository<ListEntity, Integer> {
-    
+public interface ListRepository extends JpaRepository<ListEntity, UUID> {
+
     /**
      * Find all lists owned by a user.
      * 
@@ -21,7 +22,7 @@ public interface ListRepository extends JpaRepository<ListEntity, Integer> {
      * @return a list of ListEntity objects
      */
     List<ListEntity> findByUser(User user);
-    
+
     /**
      * Find a list by its name and owner.
      * 
@@ -30,7 +31,7 @@ public interface ListRepository extends JpaRepository<ListEntity, Integer> {
      * @return an Optional containing the list if found
      */
     Optional<ListEntity> findByNameAndUser(String name, User user);
-    
+
     /**
      * Check if a list exists with the given name and owner.
      * 

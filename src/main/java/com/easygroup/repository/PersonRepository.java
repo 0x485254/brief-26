@@ -6,13 +6,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Repository for Person entity.
  */
 @Repository
-public interface PersonRepository extends JpaRepository<Person, Integer> {
-    
+public interface PersonRepository extends JpaRepository<Person, UUID> {
+
     /**
      * Find all persons in a specific list.
      * 
@@ -20,7 +21,7 @@ public interface PersonRepository extends JpaRepository<Person, Integer> {
      * @return a list of Person objects
      */
     List<Person> findByList(ListEntity list);
-    
+
     /**
      * Find all persons in a specific list ordered by name.
      * 
@@ -28,7 +29,7 @@ public interface PersonRepository extends JpaRepository<Person, Integer> {
      * @return a list of Person objects ordered by name
      */
     List<Person> findByListOrderByNameAsc(ListEntity list);
-    
+
     /**
      * Count the number of persons in a specific list.
      * 
@@ -36,7 +37,7 @@ public interface PersonRepository extends JpaRepository<Person, Integer> {
      * @return the number of persons in the list
      */
     long countByList(ListEntity list);
-    
+
     /**
      * Delete all persons in a specific list.
      * 

@@ -8,13 +8,14 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Repository for ListShare entity.
  */
 @Repository
-public interface ListShareRepository extends JpaRepository<ListShare, Integer> {
-    
+public interface ListShareRepository extends JpaRepository<ListShare, UUID> {
+
     /**
      * Find all list shares for a specific user.
      * 
@@ -22,7 +23,7 @@ public interface ListShareRepository extends JpaRepository<ListShare, Integer> {
      * @return a list of ListShare objects
      */
     List<ListShare> findBySharedWithUser(User sharedWithUser);
-    
+
     /**
      * Find all list shares for a specific list.
      * 
@@ -30,7 +31,7 @@ public interface ListShareRepository extends JpaRepository<ListShare, Integer> {
      * @return a list of ListShare objects
      */
     List<ListShare> findByList(ListEntity list);
-    
+
     /**
      * Find a list share by list and user.
      * 
@@ -39,7 +40,7 @@ public interface ListShareRepository extends JpaRepository<ListShare, Integer> {
      * @return an Optional containing the ListShare if found
      */
     Optional<ListShare> findByListAndSharedWithUser(ListEntity list, User sharedWithUser);
-    
+
     /**
      * Check if a list is shared with a specific user.
      * 

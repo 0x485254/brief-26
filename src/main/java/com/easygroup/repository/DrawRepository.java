@@ -6,13 +6,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Repository for Draw entity.
  */
 @Repository
-public interface DrawRepository extends JpaRepository<Draw, Integer> {
-    
+public interface DrawRepository extends JpaRepository<Draw, UUID> {
+
     /**
      * Find all draws for a specific list.
      * 
@@ -20,7 +21,7 @@ public interface DrawRepository extends JpaRepository<Draw, Integer> {
      * @return a list of Draw objects
      */
     List<Draw> findByList(ListEntity list);
-    
+
     /**
      * Find all draws for a specific list ordered by creation date (newest first).
      * 
@@ -28,7 +29,7 @@ public interface DrawRepository extends JpaRepository<Draw, Integer> {
      * @return a list of Draw objects ordered by creation date
      */
     List<Draw> findByListOrderByCreatedAtDesc(ListEntity list);
-    
+
     /**
      * Count the number of draws for a specific list.
      * 
