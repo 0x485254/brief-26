@@ -20,4 +20,5 @@ public class AuthResponse {
     private String lastName;
     private String token;
     private String role;
+    private Boolean isActivated;
 }

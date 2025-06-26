@@ -7,12 +7,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * DTO for authentication requests.
+ * DTO for login requests.
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthRequest {
+public class LoginRequest {
 
     @NotBlank(message = "Email is required")
     @Email(message = "Email should be valid")
