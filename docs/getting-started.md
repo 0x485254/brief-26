@@ -90,3 +90,11 @@ Propriétés clés :
 - `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD` - Informations de connexion à la base de données
 - `APP_PORT` - Le port sur lequel l'application s'exécute (par défaut : 8080)
 - `APP_ENV` - L'environnement d'exécution (dev, preprod, prod)
+
+## Structure de la Base de Données
+
+Pour comprendre la structure de la base de données utilisée par EasyGroup, consultez la [documentation des modèles de données](./database-models.md) qui inclut :
+
+- Le Modèle Conceptuel de Données (MCD)
+- Le Modèle Logique de Données (MLD)
+- Le Modèle Physique de Données (MPD)
