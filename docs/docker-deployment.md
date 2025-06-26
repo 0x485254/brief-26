@@ -1,6 +1,6 @@
-# Guide de Déploiement Docker
+# Guide de Déploiement Docker pour EasyGroup
 
-Ce guide explique comment déployer l'application Spring Boot en utilisant Docker et Docker Compose pour différents environnements (développement, pré-production et production).
+Ce guide explique comment déployer l'application EasyGroup en utilisant Docker et Docker Compose pour différents environnements (développement, pré-production et production).
 
 ## Prérequis
 
@@ -19,16 +19,16 @@ Ce projet inclut trois configurations Docker Compose spécifiques à l'environne
 
 ### Construction de l'Image Docker
 
-Pour construire l'image Docker pour l'application :
+Pour construire l'image Docker pour l'application EasyGroup :
 
 ```bash
-docker build -t spring-boot-starter .
+docker build -t easygroup/app .
 ```
 
 Vous pouvez spécifier l'environnement pendant la construction :
 
 ```bash
-docker build --build-arg SPRING_PROFILES_ACTIVE=prod -t spring-boot-starter .
+docker build --build-arg SPRING_PROFILES_ACTIVE=prod -t easygroup/app .
 ```
 
 ### Exécution du Conteneur Docker
@@ -36,10 +36,12 @@ docker build --build-arg SPRING_PROFILES_ACTIVE=prod -t spring-boot-starter .
 Pour exécuter l'application dans un conteneur Docker :
 
 ```bash
-docker run -p 8080:8080 -e SPRING_PROFILES_ACTIVE=dev spring-boot-starter
+docker run -p 8080:8080 -e SPRING_PROFILES_ACTIVE=dev -e DB_HOST=localhost easygroup/app
 ```
 
 L'application sera accessible à l'adresse http://localhost:8080.
+
+> **Note** : Pour une utilisation en production, assurez-vous de configurer correctement les variables d'environnement pour la connexion à la base de données et autres paramètres sensibles.
 
 ## Déploiement avec Docker Compose
 
@@ -110,24 +112,51 @@ docker-compose -f docker-compose.[env].yml down
 
 ### Variables d'Environnement
 
-Chaque environnement a son propre ensemble de variables d'environnement par défaut dans les fichiers Docker Compose. Vous pouvez les remplacer par :
+EasyGroup utilise des variables d'environnement pour configurer l'application. Un fichier `.env.example` est fourni comme modèle. Pour configurer l'application :
 
-1. Création d'un fichier `.env` à la racine du projet
-2. Passage de variables directement dans la ligne de commande :
+1. Créez un fichier `.env` à la racine du projet en copiant le fichier `.env.example` :
 
 ```bash
-POSTGRES_PASSWORD=secure_password docker-compose -f docker-compose.prod.yml up -d
+cp .env.example .env
+```
+
+2. Modifiez les valeurs dans le fichier `.env` selon votre environnement :
+
+```
+# Database Configuration
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=easygroup
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+
+# Application Configuration
+APP_PORT=8080
+APP_ENV=dev
+
+# Security Configuration
+JWT_SECRET=your_jwt_secret_key_here
+JWT_EXPIRATION_MS=86400000
+
+# Logging Configuration
+LOG_LEVEL=INFO
+```
+
+3. Les variables d'environnement peuvent également être passées directement dans la ligne de commande :
+
+```bash
+DB_PASSWORD=secure_password docker-compose -f docker-compose.prod.yml up -d
 ```
 
 ### Propriétés Spécifiques à l'Environnement
 
 L'application inclut des fichiers de propriétés spécifiques à l'environnement :
 
-- `application-dev.properties` : Paramètres de développement
-- `application-preprod.properties` : Paramètres de pré-production
-- `application-prod.properties` : Paramètres de production
+- `application-dev.properties` : Paramètres de développement (journalisation détaillée, rechargement à chaud, etc.)
+- `application-preprod.properties` : Paramètres de pré-production (mise en cache, connexions de base de données optimisées, etc.)
+- `application-prod.properties` : Paramètres de production (journalisation minimale, optimisations de performance, etc.)
 
-Ces fichiers sont activés automatiquement en fonction de la variable d'environnement `SPRING_PROFILES_ACTIVE`.
+Ces fichiers sont activés automatiquement en fonction de la variable d'environnement `APP_ENV` ou `SPRING_PROFILES_ACTIVE`.
 
 ## Considérations pour la Production
 
