@@ -17,40 +17,22 @@ Le pipeline complet comprend les étapes suivantes :
 
 ### Configuration du Flux de Travail
 
-Le flux de travail est défini dans `.github/workflows/ci.yml`. Voici une décomposition de la configuration :
+Le flux de travail est défini dans deux fichiers séparés mais dépendants : `.github/workflows/build.yml` et `.github/workflows/test.yml`. Voici une décomposition de la configuration :
+
+### Workflow de Build (`.github/workflows/build.yml`)
 
 ```yaml
-name: CI/CD
+name: Build
 
 on:
   push:
-    branches: [ 'main', 'dev' ]
-    tags: [ 'v*' ]
+    branches: [ '*' ]
   pull_request:
-    branches: [ 'main', 'dev' ]
+    branches: [ '*' ]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Set up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: maven
-
-    - name: Run tests
-      run: mvn test
-
-    - name: Run code quality checks
-      run: mvn verify -DskipTests
-
   build:
     runs-on: ubuntu-latest
-    needs: test
     steps:
     - uses: actions/checkout@v3
 
@@ -64,76 +46,52 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml -DskipTests
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-
-    - name: Login to Docker Hub
-      if: github.event_name != 'pull_request'
-      uses: docker/login-action@v2
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
       with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+        name: app-build
+        path: target/*.jar
+        retention-days: 1
+```
 
-    - name: Extract metadata for Docker
-      id: meta
-      uses: docker/metadata-action@v4
-      with:
-        images: easygroup/app
-        tags: |
-          type=ref,event=branch
-          type=ref,event=pr
-          type=semver,pattern={{version}}
-          type=semver,pattern={{major}}.{{minor}}
-          type=sha,format=short
+### Workflow de Test (`.github/workflows/test.yml`)
 
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v4
-      with:
-        context: .
-        push: ${{ github.event_name != 'pull_request' }}
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+```yaml
+name: Test
 
-  deploy-dev:
+on:
+  workflow_run:
+    workflows: ["Build"]
+    types:
+      - completed
+
+jobs:
+  test:
     runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/develop'
-    environment: development
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
     - uses: actions/checkout@v3
 
-    - name: Deploy to development environment
-      run: |
-        echo "Deploying to development environment"
-        # Add deployment commands here
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
 
-  deploy-preprod:
-    runs-on: ubuntu-latest
-    needs: build
-    if: startsWith(github.ref, 'refs/tags/v')
-    environment: pre-production
-    steps:
-    - uses: actions/checkout@v3
+    - name: Download build artifacts
+      uses: dawidd6/action-download-artifact@v2
+      with:
+        workflow: Build
+        name: app-build
+        path: target/
+        workflow_conclusion: success
 
-    - name: Deploy to pre-production environment
-      run: |
-        echo "Deploying to pre-production environment"
-        # Add deployment commands here
+    - name: Run tests
+      run: mvn test
 
-  deploy-prod:
-    runs-on: ubuntu-latest
-    needs: deploy-preprod
-    if: startsWith(github.ref, 'refs/tags/v')
-    environment: production
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Deploy to production environment
-      run: |
-        echo "Deploying to production environment"
-        # Add deployment commands here
+    - name: Run code quality checks
+      run: mvn verify -DskipTests
 ```
 
 ## Avantages
