@@ -5,9 +5,8 @@ Ce projet utilise GitHub Actions pour l'intégration continue et le déploiement
 ## Flux de Travail CI/CD
 
 Le flux de travail CI/CD est configuré pour s'exécuter automatiquement lors des événements suivants :
-- Push sur les branches `main` et `dev`
-- Push de tags commençant par `v` (ex: v1.0.0)
-- Pull requests vers les branches `main` et `dev`
+- Push sur toutes les branches
+- Pull requests vers toutes les branches
 
 Le pipeline complet comprend les étapes suivantes :
 
@@ -17,12 +16,12 @@ Le pipeline complet comprend les étapes suivantes :
 
 ### Configuration du Flux de Travail
 
-Le flux de travail est défini dans deux fichiers séparés mais dépendants : `.github/workflows/build.yml` et `.github/workflows/test.yml`. Voici une décomposition de la configuration :
+Le flux de travail est défini dans un fichier unique : `.github/workflows/build.yml`. Voici une décomposition de la configuration :
 
-### Workflow de Build (`.github/workflows/build.yml`)
+### Workflow de Build & Tests (`.github/workflows/build.yml`)
 
 ```yaml
-name: Build
+name: Build & Tests
 
 on:
   push:
@@ -52,47 +51,33 @@ jobs:
         name: app-build
         path: target/*.jar
         retention-days: 1
-```
-
-### Workflow de Test (`.github/workflows/test.yml`)
-
-```yaml
-name: Test
-
-on:
-  workflow_run:
-    workflows: ["Build"]
-    types:
-      - completed
-
-jobs:
   test:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: maven
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
 
-    - name: Download build artifacts
-      uses: dawidd6/action-download-artifact@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        workflow: Build
-        name: app-build
-        path: target/
-        workflow_conclusion: success
+      - name: Download build artifacts
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: Build
+          name: app-build
+          path: target/
+          workflow_conclusion: success
 
-    - name: Run tests
-      run: mvn test
+      - name: Run tests
+        run: mvn test
 
-    - name: Run code quality checks
-      run: mvn verify -DskipTests
+      - name: Run code quality checks
+        run: mvn verify -DskipTests
 ```
 
 ## Avantages
