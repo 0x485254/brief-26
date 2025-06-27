@@ -7,7 +7,6 @@ import com.easygroup.entity.Person;
 import com.easygroup.repository.DrawRepository;
 import com.easygroup.repository.GroupRepository;
 import com.easygroup.repository.PersonRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +27,6 @@ public class DrawService {
     private final GroupRepository groupRepository;
     private final PersonRepository personRepository;
 
-    @Autowired
     public DrawService(DrawRepository drawRepository, GroupRepository groupRepository, PersonRepository personRepository) {
         this.drawRepository = drawRepository;
         this.groupRepository = groupRepository;

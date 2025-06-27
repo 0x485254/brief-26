@@ -4,7 +4,6 @@ import com.easygroup.dto.AuthResponse;
 import com.easygroup.entity.User;
 import com.easygroup.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -30,7 +29,6 @@ public class CookieAuthService {
     private final CustomUserDetailsService userDetailsService;
     private final CookieService cookieService;
 
-    @Autowired
     public CookieAuthService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,

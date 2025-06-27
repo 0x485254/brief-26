@@ -1,12 +1,9 @@
 package com.easygroup.controller;
 
-import com.easygroup.dto.AuthResponse;
 import com.easygroup.dto.PersonRequest;
 import com.easygroup.entity.Person;
-import com.easygroup.service.AuthService;
 import com.easygroup.service.PersonService;
 import com.easygroup.dto.PersonResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +19,6 @@ public class PersonController {
 
     private final PersonService personService;
 
-    @Autowired
     public PersonController(PersonService personService) {
         this.personService = personService;
     }
