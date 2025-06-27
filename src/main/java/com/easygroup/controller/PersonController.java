@@ -1,9 +1,7 @@
 package com.easygroup.controller;
 
-import com.easygroup.dto.AuthResponse;
 import com.easygroup.dto.PersonRequest;
 import com.easygroup.entity.Person;
-import com.easygroup.service.AuthService;
 import com.easygroup.service.PersonService;
 import com.easygroup.dto.PersonResponse;
 import org.springframework.beans.factory.annotation.Autowired;

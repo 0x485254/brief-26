@@ -2,9 +2,12 @@ package com.easygroup.config;
 
 import org.bouncycastle.crypto.generators.Argon2BytesGenerator;
 import org.bouncycastle.crypto.params.Argon2Parameters;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -12,22 +15,50 @@ import java.security.SecureRandom;
 import java.util.Base64;
 
 /**
- * Base configuration class for security settings.
- * Contains common beans and methods used by other security configurations.
+ * Configuration class for security beans.
+ * This prevents circular dependencies by separating security beans
+ * from the security configurations.
  */
 @Configuration
-@EnableWebSecurity
-@EnableMethodSecurity
-public abstract class BaseSecurityConfig {
+public class PasswordEncoderConfig {
 
-    protected final UserDetailsService userDetailsService;
-    protected final PasswordEncoder passwordEncoder;
+    /**
+     * Creates a password encoder bean for secure password storage using Argon2id.
+     *
+     * @return an Argon2id password encoder instance
+     */
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new Argon2idPasswordEncoder();
+    }
 
-    public BaseSecurityConfig(
+    /**
+     * Creates an authentication manager bean.
+     *
+     * @param config the AuthenticationConfiguration
+     * @return the AuthenticationManager
+     * @throws Exception if an error occurs
+     */
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    /**
+     * Creates an authentication provider bean.
+     *
+     * @param userDetailsService the user details service
+     * @param passwordEncoder the password encoder
+     * @return the DaoAuthenticationProvider
+     */
+    @Bean
+    public AuthenticationProvider authenticationProvider(
             UserDetailsService userDetailsService,
             PasswordEncoder passwordEncoder) {
-        this.userDetailsService = userDetailsService;
-        this.passwordEncoder = passwordEncoder;
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder);
+        return authProvider;
     }
 
     /**
