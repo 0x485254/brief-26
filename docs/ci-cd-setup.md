@@ -53,7 +53,7 @@ jobs:
         retention-days: 1
   test:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    needs: build
     steps:
       - uses: actions/checkout@v4
 
@@ -65,13 +65,10 @@ jobs:
           cache: maven
 
       - name: Download build artifacts
-        uses: dawidd6/action-download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: Build
           name: app-build
           path: target/
-          workflow_conclusion: success
 
       - name: Run tests
         run: mvn test
