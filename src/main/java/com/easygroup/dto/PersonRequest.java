@@ -1,18 +1,12 @@
 package com.easygroup.dto;
 import com.easygroup.entity.Person;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jdk.jfr.BooleanFlag;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.UUID;
 import jakarta.validation.constraints.NotNull;
-
 
 @Data
 @NoArgsConstructor
