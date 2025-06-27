@@ -23,6 +23,7 @@ jobs:
     - name: Download build artifacts
       uses: dawidd6/action-download-artifact@v3
       with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
         workflow: Build
         name: app-build
         path: target/
