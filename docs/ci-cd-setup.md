@@ -5,9 +5,8 @@ Ce projet utilise GitHub Actions pour l'intégration continue et le déploiement
 ## Flux de Travail CI/CD
 
 Le flux de travail CI/CD est configuré pour s'exécuter automatiquement lors des événements suivants :
-- Push sur les branches `main` et `dev`
-- Push de tags commençant par `v` (ex: v1.0.0)
-- Pull requests vers les branches `main` et `dev`
+- Push sur toutes les branches
+- Pull requests vers toutes les branches
 
 Le pipeline complet comprend les étapes suivantes :
 
@@ -17,45 +16,27 @@ Le pipeline complet comprend les étapes suivantes :
 
 ### Configuration du Flux de Travail
 
-Le flux de travail est défini dans `.github/workflows/ci.yml`. Voici une décomposition de la configuration :
+Le flux de travail est défini dans un fichier unique : `.github/workflows/build.yml`. Voici une décomposition de la configuration :
+
+### Workflow de Build & Tests (`.github/workflows/build.yml`)
 
 ```yaml
-name: CI/CD
+name: Build & Tests
 
 on:
   push:
-    branches: [ 'main', 'dev' ]
-    tags: [ 'v*' ]
+    branches: [ '*' ]
   pull_request:
-    branches: [ 'main', 'dev' ]
+    branches: [ '*' ]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Set up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: maven
-
-    - name: Run tests
-      run: mvn test
-
-    - name: Run code quality checks
-      run: mvn verify -DskipTests
-
   build:
     runs-on: ubuntu-latest
-    needs: test
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Set up JDK 17
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
@@ -64,76 +45,36 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml -DskipTests
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-
-    - name: Login to Docker Hub
-      if: github.event_name != 'pull_request'
-      uses: docker/login-action@v2
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
       with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-    - name: Extract metadata for Docker
-      id: meta
-      uses: docker/metadata-action@v4
-      with:
-        images: easygroup/app
-        tags: |
-          type=ref,event=branch
-          type=ref,event=pr
-          type=semver,pattern={{version}}
-          type=semver,pattern={{major}}.{{minor}}
-          type=sha,format=short
-
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v4
-      with:
-        context: .
-        push: ${{ github.event_name != 'pull_request' }}
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-
-  deploy-dev:
+        name: app-build
+        path: target/*.jar
+        retention-days: 1
+  test:
     runs-on: ubuntu-latest
     needs: build
-    if: github.ref == 'refs/heads/develop'
-    environment: development
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-    - name: Deploy to development environment
-      run: |
-        echo "Deploying to development environment"
-        # Add deployment commands here
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
 
-  deploy-preprod:
-    runs-on: ubuntu-latest
-    needs: build
-    if: startsWith(github.ref, 'refs/tags/v')
-    environment: pre-production
-    steps:
-    - uses: actions/checkout@v3
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: app-build
+          path: target/
 
-    - name: Deploy to pre-production environment
-      run: |
-        echo "Deploying to pre-production environment"
-        # Add deployment commands here
+      - name: Run tests
+        run: mvn test
 
-  deploy-prod:
-    runs-on: ubuntu-latest
-    needs: deploy-preprod
-    if: startsWith(github.ref, 'refs/tags/v')
-    environment: production
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Deploy to production environment
-      run: |
-        echo "Deploying to production environment"
-        # Add deployment commands here
+      - name: Run code quality checks
+        run: mvn verify -DskipTests
 ```
 
 ## Avantages
