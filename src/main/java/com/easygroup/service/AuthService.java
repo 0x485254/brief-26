@@ -3,6 +3,8 @@ package com.easygroup.service;
 import com.easygroup.dto.AuthResponse;
 import com.easygroup.entity.User;
 import com.easygroup.repository.UserRepository;
+
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,7 +23,7 @@ import java.time.LocalDateTime;
  */
 @Service
 @Transactional
-public class CookieAuthService {
+public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -31,7 +33,7 @@ public class CookieAuthService {
     private final CookieService cookieService;
 
     @Autowired
-    public CookieAuthService(
+    public AuthService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
             JwtService jwtService,
@@ -46,13 +48,14 @@ public class CookieAuthService {
         this.cookieService = cookieService;
     }
 
+    @Operation(summary = "Inscription d'un nouvel utilisateur", description = "Crée un nouveau compte utilisateur à partir d'un email, mot de passe, prénom et nom")
     /**
      * Register a new user.
      *
-     * @param email the user's email
-     * @param password the user's password
+     * @param email     the user's email
+     * @param password  the user's password
      * @param firstName the user's first name
-     * @param lastName the user's last name
+     * @param lastName  the user's last name
      * @return the created user
      * @throws IllegalArgumentException if a user with the email already exists
      */
@@ -84,7 +87,7 @@ public class CookieAuthService {
     /**
      * Authenticate a user and set a JWT token cookie.
      *
-     * @param email the user's email
+     * @param email    the user's email
      * @param password the user's password
      * @param response the HTTP response to set the cookie on
      * @return an AuthResponse containing the user details (without the token)
@@ -93,8 +96,7 @@ public class CookieAuthService {
     public AuthResponse authenticate(String email, String password, HttpServletResponse response) {
         // Use Spring Security's AuthenticationManager to authenticate
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(email, password)
-        );
+                new UsernamePasswordAuthenticationToken(email, password));
 
         // If we get here, authentication was successful
         var user = userDetailsService.getUserByEmail(email);
@@ -128,7 +130,7 @@ public class CookieAuthService {
     /**
      * Change a user's password.
      *
-     * @param user the user
+     * @param user        the user
      * @param newPassword the new password
      * @return the updated user
      */
@@ -141,7 +143,7 @@ public class CookieAuthService {
     /**
      * Activate or deactivate a user.
      *
-     * @param user the user
+     * @param user        the user
      * @param isActivated whether the user should be activated
      * @return the updated user
      */

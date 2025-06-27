@@ -5,14 +5,14 @@ import com.easygroup.entity.ListShare;
 import com.easygroup.entity.User;
 import com.easygroup.repository.ListRepository;
 import com.easygroup.repository.ListShareRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ListShareService {
 
     private final ListRepository listRepository;
     private final ListShareRepository listShareRepository;
 
-    @Autowired
     public ListShareService(ListRepository listRepository, ListShareRepository listShareRepository) {
         this.listRepository = listRepository;
         this.listShareRepository = listShareRepository;
