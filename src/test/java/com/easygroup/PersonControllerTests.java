@@ -1,6 +1,5 @@
 package com.easygroup;
 
-import com.easygroup.controller.PersonController;
 import com.easygroup.dto.PersonRequest;
 import com.easygroup.entity.Person;
 import com.easygroup.service.PersonService;
@@ -9,7 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
