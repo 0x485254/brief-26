@@ -1,0 +1,35 @@
+name: Test
+
+on:
+  workflow_run:
+    workflows: ["Build"]
+    types:
+      - completed
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Download build artifacts
+      uses: dawidd6/action-download-artifact@v2
+      with:
+        workflow: Build
+        name: app-build
+        path: target/
+        workflow_conclusion: success
+
+    - name: Run tests
+      run: mvn test
+
+    - name: Run code quality checks
+      run: mvn verify -DskipTests
