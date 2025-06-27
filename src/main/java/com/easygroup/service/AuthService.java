@@ -3,8 +3,6 @@ package com.easygroup.service;
 import com.easygroup.dto.AuthResponse;
 import com.easygroup.entity.User;
 import com.easygroup.repository.UserRepository;
-
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -48,7 +46,6 @@ public class AuthService {
         this.cookieService = cookieService;
     }
 
-    @Operation(summary = "Inscription d'un nouvel utilisateur", description = "Crée un nouveau compte utilisateur à partir d'un email, mot de passe, prénom et nom")
     /**
      * Register a new user.
      *
