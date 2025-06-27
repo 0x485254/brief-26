@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateListRequest {
+public class ListRequest {
 
     @NotBlank(message = "List name is required")
     @Size(min = 3, max = 255, message = "List name must be between 3 and 255 characters")

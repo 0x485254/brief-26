@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -20,7 +19,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ListEntity {
+public class List {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -37,11 +36,11 @@ public class ListEntity {
     private Boolean isShared = false;
 
     @OneToMany(mappedBy = "list", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Person> persons = new ArrayList<>();
+    private java.util.List<Person> persons = new ArrayList<>();
 
     @OneToMany(mappedBy = "list", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ListShare> shares = new ArrayList<>();
+    private java.util.List<ListShare> shares = new ArrayList<>();
 
     @OneToMany(mappedBy = "list", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Draw> draws = new ArrayList<>();
+    private java.util.List<Draw> draws = new ArrayList<>();
 }

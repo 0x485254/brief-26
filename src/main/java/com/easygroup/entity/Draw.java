@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -29,13 +28,13 @@ public class Draw {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "list_id", nullable = false)
-    private ListEntity list;
+    private List list;
 
     @Column
     private String title;
 
     @OneToMany(mappedBy = "draw", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Group> groups = new ArrayList<>();
+    private java.util.List<Group> groups = new ArrayList<>();
 
     /**
      * Sets creation timestamp before persisting.

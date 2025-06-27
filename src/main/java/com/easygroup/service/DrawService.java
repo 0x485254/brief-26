@@ -3,7 +3,7 @@ package com.easygroup.service;
 import com.easygroup.dto.DrawResponse;
 import com.easygroup.dto.GenerateGroupsRequest;
 import com.easygroup.entity.Draw;
-import com.easygroup.entity.ListEntity;
+import com.easygroup.entity.List;
 import com.easygroup.entity.User;
 import com.easygroup.repository.DrawRepository;
 import com.easygroup.repository.ListRepository;
@@ -16,7 +16,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -39,7 +38,7 @@ public class DrawService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with id: " + userId));
 
-        ListEntity list = validateUserListAccess(userId, listId);
+        List list = validateUserListAccess(userId, listId);
 
         Draw draw = convertDtoToEntity(request, list);
         Draw savedDraw = drawRepository.save(draw);
@@ -47,16 +46,16 @@ public class DrawService {
         return convertEntityToDto(savedDraw);
     }
 
-    public List<DrawResponse> getDrawsForList(UUID userId, UUID listId) {
-        ListEntity list = validateUserListAccess(userId, listId);
-        List<Draw> draws = drawRepository.findByListOrderByCreatedAtDesc(list);
+    public java.util.List<DrawResponse> getDrawsForList(UUID userId, UUID listId) {
+        List list = validateUserListAccess(userId, listId);
+        java.util.List<Draw> draws = drawRepository.findByListOrderByCreatedAtDesc(list);
         return draws.stream()
                 .map(this::convertEntityToDto)
                 .collect(Collectors.toList());
     }
 
-    private ListEntity validateUserListAccess(UUID userId, UUID listId) {
-        ListEntity list = listRepository.findById(listId)
+    private List validateUserListAccess(UUID userId, UUID listId) {
+        List list = listRepository.findById(listId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "List not found with id: " + listId));
 
         //to be added && !hasSharedAccess(userId, listId)
@@ -75,7 +74,7 @@ public class DrawService {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
         return "Groups for " + listName + " - " + timestamp;
     }
-    private Draw convertDtoToEntity(GenerateGroupsRequest request, ListEntity list) {
+    private Draw convertDtoToEntity(GenerateGroupsRequest request, List list) {
         Draw draw = new Draw();
         draw.setTitle(generateTitle(request.getTitle(), list.getName()));
         draw.setList(list);
