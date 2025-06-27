@@ -1,6 +1,6 @@
 package com.easygroup.service;
 
-import com.easygroup.entity.ListEntity;
+import com.easygroup.entity.List;
 import com.easygroup.entity.Person;
 import com.easygroup.repository.ListRepository;
 import com.easygroup.repository.PersonRepository;
@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,7 +32,7 @@ public class PersonService {
      *
      * @return a list of all persons
      */
-    public List<Person> findAll() {
+    public java.util.List<Person> findAll() {
         return personRepository.findAll();
     }
 
@@ -53,7 +52,7 @@ public class PersonService {
      * @param list the list containing the persons
      * @return a list of persons in the list
      */
-    public List<Person> findByList(ListEntity list) {
+    public java.util.List<Person> findByList(List list) {
 
         return personRepository.findByList(list);
     }
@@ -64,8 +63,8 @@ public class PersonService {
      * @param listId the list's UUID containing the persons
      * @return a list of persons in the list ordered by name
      */
-    public List<Person> findByListIdOrderByName(UUID listId) {
-        ListEntity list = listRepository.findById(listId)
+    public java.util.List<Person> findByListIdOrderByName(UUID listId) {
+        List list = listRepository.findById(listId)
                 .orElseThrow(() -> new IllegalArgumentException("List not found with id: " + listId));
 
         return personRepository.findByListOrderByNameAsc(list);
@@ -86,7 +85,7 @@ public class PersonService {
      */
     public Person save(Integer age, Integer frenchLevel, Person.Gender gender, String name, Boolean oldDWWM, Person.Profile profile, Integer techLevel, UUID listId){
 
-        ListEntity list = listRepository.findById(listId)
+        List list = listRepository.findById(listId)
                 .orElseThrow(() -> new IllegalArgumentException("List not found with id: " + listId));
 
         Person person = new Person();
@@ -150,7 +149,7 @@ public class PersonService {
      * @param list the list containing the persons
      * @return the number of persons in the list
      */
-    public long countByList(ListEntity list) {
+    public long countByList(List list) {
         return personRepository.countByList(list);
     }
 
@@ -159,7 +158,7 @@ public class PersonService {
      *
      * @param list the list containing the persons to delete
      */
-    public void deleteByList(ListEntity list) {
+    public void deleteByList(List list) {
         personRepository.deleteByList(list);
     }
 }
