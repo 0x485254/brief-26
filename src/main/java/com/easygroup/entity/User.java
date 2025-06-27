@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -55,10 +54,10 @@ public class User {
     private Role role = Role.USER;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ListEntity> lists = new ArrayList<>();
+    private java.util.List<List> lists = new ArrayList<>();
 
     @OneToMany(mappedBy = "sharedWithUser", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ListShare> sharedLists = new ArrayList<>();
+    private java.util.List<ListShare> sharedLists = new ArrayList<>();
 
     /**
      * Enum representing user roles in the system.
