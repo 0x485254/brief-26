@@ -4,7 +4,7 @@ import com.easygroup.dto.AuthResponse;
 import com.easygroup.dto.LoginRequest;
 import com.easygroup.dto.RegisterRequest;
 import com.easygroup.entity.User;
-import com.easygroup.service.CookieAuthService;
+import com.easygroup.service.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +20,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final CookieAuthService cookieAuthService;
+    private final AuthService cookieAuthService;
 
     @Autowired
-    public AuthController(CookieAuthService cookieAuthService) {
+    public AuthController(AuthService cookieAuthService) {
         this.cookieAuthService = cookieAuthService;
     }
 
