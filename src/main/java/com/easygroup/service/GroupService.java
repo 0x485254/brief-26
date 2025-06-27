@@ -1,149 +1,142 @@
 package com.easygroup.service;
 
+import com.easygroup.dto.GroupResponse;
+import com.easygroup.dto.PersonResponse;
 import com.easygroup.entity.Draw;
 import com.easygroup.entity.Group;
 import com.easygroup.entity.GroupPerson;
 import com.easygroup.entity.Person;
-import com.easygroup.repository.GroupPersonRepository;
+import com.easygroup.repository.DrawRepository;
 import com.easygroup.repository.GroupRepository;
+import com.easygroup.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-/**
- * Service for managing groups.
- */
 @Service
 @Transactional
 public class GroupService {
 
-    private final GroupRepository groupRepository;
-    private final GroupPersonRepository groupPersonRepository;
+    @Autowired
+    private GroupRepository groupRepository;
 
     @Autowired
-    public GroupService(GroupRepository groupRepository, GroupPersonRepository groupPersonRepository) {
-        this.groupRepository = groupRepository;
-        this.groupPersonRepository = groupPersonRepository;
+    private DrawRepository drawRepository;
+
+    @Autowired
+    private PersonRepository personRepository;
+
+    public Group createGroup(Group group, UUID drawId) {
+        Optional<Draw> draw = drawRepository.findById(drawId);
+        if (draw.isPresent()) {
+            group.setDraw(draw.get());
+            return groupRepository.save(group);
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Draw not found with id: " + drawId);
     }
 
-    /**
-     * Find all groups.
-     *
-     * @return a list of all groups
-     */
-    public List<Group> findAll() {
-        return groupRepository.findAll();
-    }
-
-    /**
-     * Find a group by ID.
-     *
-     * @param id the group ID
-     * @return an Optional containing the group if found
-     */
-    public Optional<Group> findById(UUID id) {
+    public Optional<Group> getGroupById(UUID id) {
         return groupRepository.findById(id);
     }
 
-    /**
-     * Find all groups for a draw.
-     *
-     * @param draw the draw for which groups were created
-     * @return a list of groups for the draw
-     */
-    public List<Group> findByDraw(Draw draw) {
-        return groupRepository.findByDraw(draw);
-    }
+    public List<GroupResponse> getGroupsByDrawId(UUID drawId) {
+        Optional<Draw> draw = drawRepository.findById(drawId);
+        if (draw.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Draw not found with id: " + drawId);
+        }
 
-    /**
-     * Find all groups for a draw ordered by name.
-     *
-     * @param draw the draw for which groups were created
-     * @return a list of groups for the draw ordered by name
-     */
-    public List<Group> findByDrawOrderByName(Draw draw) {
-        return groupRepository.findByDrawOrderByNameAsc(draw);
-    }
-
-    /**
-     * Save a group.
-     *
-     * @param group the group to save
-     * @return the saved group
-     */
-    public Group save(Group group) {
-        return groupRepository.save(group);
-    }
-
-    /**
-     * Delete a group by ID.
-     *
-     * @param id the group ID
-     */
-    public void deleteById(UUID id) {
-        groupRepository.deleteById(id);
-    }
-
-    /**
-     * Add a person to a group.
-     *
-     * @param group the group to add the person to
-     * @param person the person to add to the group
-     * @return the created GroupPerson
-     */
-    public GroupPerson addPersonToGroup(Group group, Person person) {
-        GroupPerson groupPerson = new GroupPerson();
-        groupPerson.setGroup(group);
-        groupPerson.setPerson(person);
-        return groupPersonRepository.save(groupPerson);
-    }
-
-    /**
-     * Remove a person from a group.
-     *
-     * @param group the group to remove the person from
-     * @param person the person to remove from the group
-     */
-    public void removePersonFromGroup(Group group, Person person) {
-        groupPersonRepository.findByGroupAndPerson(group, person)
-                .ifPresent(groupPersonRepository::delete);
-    }
-
-    /**
-     * Find all persons in a group.
-     *
-     * @param group the group to find persons for
-     * @return a list of persons in the group
-     */
-    public List<Person> findPersonsByGroup(Group group) {
-        return groupPersonRepository.findByGroup(group)
-                .stream()
-                .map(GroupPerson::getPerson)
+        List<Group> groups = groupRepository.findByDrawOrderByNameAsc(draw.get());
+        return groups.stream()
+                .map(this::convertEntityToDto)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Count the number of persons in a group.
-     *
-     * @param group the group to count persons for
-     * @return the number of persons in the group
-     */
-    public long countPersonsByGroup(Group group) {
-        return groupPersonRepository.countByGroup(group);
+    public List<Group> getAllGroups() {
+        return groupRepository.findAll();
     }
 
-    /**
-     * Count the number of groups for a draw.
-     *
-     * @param draw the draw to count groups for
-     * @return the number of groups for the draw
-     */
-    public long countByDraw(Draw draw) {
-        return groupRepository.countByDraw(draw);
+    public Group updateGroup(UUID id, Group group) {
+        Optional<Group> existingGroup = groupRepository.findById(id);
+        if (existingGroup.isPresent()) {
+            Group groupToUpdate = existingGroup.get();
+            groupToUpdate.setName(group.getName());
+            return groupRepository.save(groupToUpdate);
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Group not found with id: " + id);
+    }
+
+    public boolean deleteGroup(UUID id) {
+        if (groupRepository.existsById(id)) {
+            groupRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+
+    public Group addPersonToGroup(UUID groupId, UUID personId) {
+        Optional<Group> group = groupRepository.findById(groupId);
+        Optional<Person> person = personRepository.findById(personId);
+
+        if (group.isPresent() && person.isPresent()) {
+            Group groupToUpdate = group.get();
+
+            boolean alreadyExists = groupToUpdate.getGroupPersons().stream()
+                    .anyMatch(gp -> gp.getPerson().getId().equals(personId));
+
+            if (!alreadyExists) {
+                GroupPerson groupPerson = new GroupPerson();
+                groupPerson.setGroup(groupToUpdate);
+                groupPerson.setPerson(person.get());
+                groupToUpdate.getGroupPersons().add(groupPerson);
+                return groupRepository.save(groupToUpdate);
+            }
+            return groupToUpdate;
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Group or Person not found");
+    }
+
+    public Group removePersonFromGroup(UUID groupId, UUID personId) {
+        Optional<Group> group = groupRepository.findById(groupId);
+
+        if (group.isPresent()) {
+            Group groupToUpdate = group.get();
+            groupToUpdate.getGroupPersons().removeIf(gp -> gp.getPerson().getId().equals(personId));
+            return groupRepository.save(groupToUpdate);
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Group not found");
+    }
+
+    private GroupResponse convertEntityToDto(Group group) {
+        List<PersonResponse> personResponses = group.getGroupPersons().stream()
+                .map(groupPerson -> convertPersonToDto(groupPerson.getPerson()))
+                .collect(Collectors.toList());
+
+        return GroupResponse.builder()
+                .id(group.getId())
+                .name(group.getName())
+                .drawId(group.getDraw().getId())
+                .persons(personResponses)
+                .personCount(personResponses.size())
+                .build();
+    }
+
+    private PersonResponse convertPersonToDto(Person person) {
+        return new PersonResponse(
+                person.getId(),
+                person.getName(),
+                person.getGender().toString(),
+                person.getAge(),
+                person.getFrenchLevel(),
+                person.getOldDwwm(),
+                person.getTechLevel(),
+                person.getProfile().toString()
+        );
     }
 }
