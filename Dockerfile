@@ -5,7 +5,7 @@ COPY pom.xml .
 # Download all required dependencies into one layer
 RUN mvn dependency:go-offline -B
 COPY src ./src
-RUN mvn package -DskipTests
+RUN mvn package -Dmaven.test.skip=true
 
 # Run stage
 FROM eclipse-temurin:17-jre-jammy
