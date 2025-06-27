@@ -337,9 +337,11 @@ Permet à un administrateur d'activer ou de désactiver un compte utilisateur.
 
 ## Points de Terminaison de Gestion des Listes
 
-### Création d'une Liste
+> **Note**: Les endpoints de gestion des listes décrits ci-dessous sont planifiés pour une implémentation future et ne sont pas encore disponibles dans la version actuelle de l'API.
 
-Permet de créer une nouvelle liste de personnes.
+### Création d'une Liste (Planifié)
+
+Permettra de créer une nouvelle liste de personnes.
 
 - **URL** : `/api/lists`
 - **Méthode** : `POST`
@@ -366,9 +368,9 @@ Permet de créer une nouvelle liste de personnes.
 }
 ```
 
-### Récupération des Listes d'un Utilisateur
+### Récupération des Listes d'un Utilisateur (Planifié)
 
-Permet de récupérer toutes les listes appartenant à l'utilisateur connecté.
+Permettra de récupérer toutes les listes appartenant à l'utilisateur connecté.
 
 - **URL** : `/api/lists`
 - **Méthode** : `GET`
@@ -401,7 +403,7 @@ Permet de récupérer toutes les listes appartenant à l'utilisateur connecté.
 
 Permet d'ajouter une nouvelle personne à une liste existante.
 
-- **URL** : `/api/lists/{listId}/persons`
+- **URL** : `/users/{userId}/lists/{listId}/persons`
 - **Méthode** : `POST`
 - **Authentification requise** : Oui
 - **Permissions requises** : Propriétaire de la liste ou utilisateur avec accès partagé
@@ -441,7 +443,7 @@ Permet d'ajouter une nouvelle personne à une liste existante.
 
 Permet de récupérer toutes les personnes d'une liste spécifique.
 
-- **URL** : `/api/lists/{listId}/persons`
+- **URL** : `/users/{userId}/lists/{listId}/persons`
 - **Méthode** : `GET`
 - **Authentification requise** : Oui
 - **Permissions requises** : Propriétaire de la liste ou utilisateur avec accès partagé
@@ -476,13 +478,66 @@ Permet de récupérer toutes les personnes d'une liste spécifique.
 ]
 ```
 
+### Modification d'une Personne
+
+Permet de modifier les informations d'une personne existante.
+
+- **URL** : `/users/{userId}/lists/{listId}/persons/{personId}`
+- **Méthode** : `PUT`
+- **Authentification requise** : Oui
+- **Permissions requises** : Propriétaire de la liste ou utilisateur avec accès partagé
+- **Corps de la Requête** :
+
+```json
+{
+  "name": "Jean Dupont Modifié",
+  "gender": "MALE",
+  "age": 26,
+  "frenchLevel": 4,
+  "oldDwwm": false,
+  "techLevel": 3,
+  "profile": "A_LAISE"
+}
+```
+
+#### Réponse en Cas de Succès
+
+- **Code** : 200 OK
+- **Exemple de contenu** :
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "name": "Jean Dupont Modifié",
+  "gender": "MALE",
+  "age": 26,
+  "frenchLevel": 4,
+  "oldDwwm": false,
+  "techLevel": 3,
+  "profile": "A_LAISE"
+}
+```
+
+### Suppression d'une Personne
+
+Permet de supprimer une personne d'une liste.
+
+- **URL** : `/users/{userId}/lists/{listId}/persons/{personId}`
+- **Méthode** : `DELETE`
+- **Authentification requise** : Oui
+- **Permissions requises** : Propriétaire de la liste ou utilisateur avec accès partagé
+
+#### Réponse en Cas de Succès
+
+- **Code** : 200 OK
+
 ## Points de Terminaison de Gestion des Tirages et Groupes
 
 ### Création d'un Tirage
 
-Permet de créer un nouveau tirage à partir d'une liste existante.
+Permet de créer un nouveau tirage à partir d'une liste existante et de générer des groupes.
 
-- **URL** : `/api/lists/{listId}/draws`
+- **URL** : `/api/users/{userId}/lists/{listId}/draws`
 - **Méthode** : `POST`
 - **Authentification requise** : Oui
 - **Permissions requises** : Propriétaire de la liste ou utilisateur avec accès partagé
@@ -522,12 +577,121 @@ Permet de créer un nouveau tirage à partir d'une liste existante.
 }
 ```
 
-### Récupération des Personnes d'un Groupe
+### Récupération des Tirages d'une Liste
 
-Permet de récupérer toutes les personnes d'un groupe spécifique.
+Permet de récupérer tous les tirages associés à une liste spécifique.
 
-- **URL** : `/api/draws/{drawId}/groups/{groupId}/persons`
+- **URL** : `/api/users/{userId}/lists/{listId}/draws`
 - **Méthode** : `GET`
+- **Authentification requise** : Oui
+- **Permissions requises** : Propriétaire de la liste ou utilisateur avec accès partagé
+
+#### Réponse en Cas de Succès
+
+- **Code** : 200 OK
+- **Exemple de contenu** :
+
+```json
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "title": "Tirage du 15 janvier",
+    "createdAt": "2023-01-15T10:30:00",
+    "groups": [
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440001",
+        "name": "Group 1"
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440002",
+        "name": "Group 2"
+      }
+    ]
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440003",
+    "title": "Tirage du 20 janvier",
+    "createdAt": "2023-01-20T14:15:00",
+    "groups": [
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440004",
+        "name": "Group 1"
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440005",
+        "name": "Group 2"
+      }
+    ]
+  }
+]
+```
+
+### Récupération des Groupes d'un Tirage
+
+Permet de récupérer tous les groupes générés pour un tirage spécifique.
+
+- **URL** : `/api/draws/{drawId}/groups`
+- **Méthode** : `GET`
+- **Authentification requise** : Oui
+- **Permissions requises** : Propriétaire de la liste ou utilisateur avec accès partagé
+
+#### Réponse en Cas de Succès
+
+- **Code** : 200 OK
+- **Exemple de contenu** :
+
+```json
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440001",
+    "name": "Group 1",
+    "persons": [
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440010",
+        "name": "Jean Dupont"
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440011",
+        "name": "Marie Martin"
+      }
+    ]
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440002",
+    "name": "Group 2",
+    "persons": [
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440012",
+        "name": "Pierre Durand"
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440013",
+        "name": "Sophie Petit"
+      }
+    ]
+  }
+]
+```
+
+### Ajout d'une Personne à un Groupe
+
+Permet d'ajouter manuellement une personne à un groupe existant.
+
+- **URL** : `/api/groups/{groupId}/persons/{personId}`
+- **Méthode** : `POST`
+- **Authentification requise** : Oui
+- **Permissions requises** : Propriétaire de la liste ou utilisateur avec accès partagé
+
+#### Réponse en Cas de Succès
+
+- **Code** : 200 OK
+
+### Suppression d'une Personne d'un Groupe
+
+Permet de retirer manuellement une personne d'un groupe.
+
+- **URL** : `/api/groups/{groupId}/persons/{personId}`
+- **Méthode** : `DELETE`
 - **Authentification requise** : Oui
 - **Permissions requises** : Propriétaire de la liste ou utilisateur avec accès partagé
 
