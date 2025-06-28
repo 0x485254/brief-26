@@ -75,16 +75,19 @@ public class ListService {
      * Save a list.
      *
      * @param listName the list name
-     * @param user the user who owns the list
+     * @param user     the user who owns the list
      * @return the saved list
      */
     public List save(String listName, User user) {
-        if (findByUser(user).stream().anyMatch(l -> l.getName().equals(listName))){
+        System.out.println("User inside save = " + user);
+
+        if (findByUser(user).stream().anyMatch(l -> l.getName().equals(listName))) {
             throw new IllegalArgumentException("List name already exists for user: " + user.getEmail());
         }
 
         List list = new List();
         list.setName(listName);
+        list.setUser(user); // 🔥 Obligatoire !
 
         return listRepository.save(list);
     }

@@ -2,8 +2,10 @@ package com.easygroup.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,9 +18,12 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "\"user\"") // Quoted because "user" is a reserved keyword in PostgreSQL
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"lists", "sharedLists"})
+
 public class User {
 
     @Id

@@ -11,7 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/lists")
+@RequestMapping("/api/lists")
 public class ListController {
 
     private final ListService listService;
@@ -24,6 +24,8 @@ public class ListController {
     //Create a list for a user
     @PostMapping
     public ResponseEntity<ListResponse> createList(@RequestBody ListRequest request, @AuthenticationPrincipal User user){
+        System.out.println("USER = " + user);
+
         try{
             List list = listService.save(request.getName(), user);
 
