@@ -4,7 +4,6 @@ import com.easygroup.dto.GroupResponse;
 import com.easygroup.dto.PersonResponse;
 import com.easygroup.entity.Draw;
 import com.easygroup.entity.Group;
-import com.easygroup.entity.GroupPerson;
 import com.easygroup.entity.Person;
 import com.easygroup.repository.DrawRepository;
 import com.easygroup.repository.GroupRepository;
@@ -80,42 +79,56 @@ public class GroupService {
         return false;
     }
 
-    public Group addPersonToGroup(UUID groupId, UUID personId) {
+    public void addPersonToGroup(UUID groupId, UUID personId) {
         Optional<Group> group = groupRepository.findById(groupId);
         Optional<Person> person = personRepository.findById(personId);
 
-        if (group.isPresent() && person.isPresent()) {
-            Group groupToUpdate = group.get();
-
-            boolean alreadyExists = groupToUpdate.getGroupPersons().stream()
-                    .anyMatch(gp -> gp.getPerson().getId().equals(personId));
-
-            if (!alreadyExists) {
-                GroupPerson groupPerson = new GroupPerson();
-                groupPerson.setGroup(groupToUpdate);
-                groupPerson.setPerson(person.get());
-                groupToUpdate.getGroupPersons().add(groupPerson);
-                return groupRepository.save(groupToUpdate);
-            }
-            return groupToUpdate;
+        if (group.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Group not found");
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Group or Person not found");
+        if (person.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Person not found");
+        }
+
+        Group groupToUpdate = group.get();
+        Person personToAdd = person.get();
+
+        boolean alreadyExists = groupToUpdate.getPersons().stream()
+                .anyMatch(p -> p.getId().equals(personId));
+
+        if (alreadyExists) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Person already in group");
+        }
+
+        groupToUpdate.getPersons().add(personToAdd);
+        groupRepository.save(groupToUpdate);
     }
 
-    public Group removePersonFromGroup(UUID groupId, UUID personId) {
+    public void removePersonFromGroup(UUID groupId, UUID personId) {
         Optional<Group> group = groupRepository.findById(groupId);
 
-        if (group.isPresent()) {
-            Group groupToUpdate = group.get();
-            groupToUpdate.getGroupPersons().removeIf(gp -> gp.getPerson().getId().equals(personId));
-            return groupRepository.save(groupToUpdate);
+        if (group.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Group not found");
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Group not found");
+
+        Group groupToUpdate = group.get();
+
+        long remainingCount = groupToUpdate.getPersons().stream()
+                .filter(p -> !p.getId().equals(personId))
+                .count();
+
+        if (remainingCount == 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Cannot remove last person from group");
+        }
+
+        groupToUpdate.getPersons().removeIf(p -> p.getId().equals(personId));
+        groupRepository.save(groupToUpdate);
     }
 
     private GroupResponse convertEntityToDto(Group group) {
-        List<PersonResponse> personResponses = group.getGroupPersons().stream()
-                .map(groupPerson -> convertPersonToDto(groupPerson.getPerson()))
+        List<PersonResponse> personResponses = group.getPersons().stream()
+                .map(this::convertPersonToDto)
                 .collect(Collectors.toList());
 
         return GroupResponse.builder()

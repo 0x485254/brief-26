@@ -3,7 +3,6 @@ package com.easygroup.service;
 import com.easygroup.dto.GenerateGroupsRequest;
 import com.easygroup.entity.Draw;
 import com.easygroup.entity.Group;
-import com.easygroup.entity.GroupPerson;
 import com.easygroup.entity.Person;
 import com.easygroup.repository.DrawRepository;
 import com.easygroup.repository.GroupRepository;
@@ -47,8 +46,12 @@ public class GroupGenerationService {
         }
 
         List<Group> groups = createEmptyGroups(request, draw);
-        initialDistribution(persons, groups);
-        applySelectedCriteria(groups, request);
+
+        // Improved algorithm: balance criteria while maintaining even distribution
+        distributePersonsWithBalancing(persons, groups, request);
+
+        // Set the groups to the draw before saving
+        draw.setGroups(groups);
         groupRepository.saveAll(groups);
 
         System.out.println("Group generation completed successfully");
@@ -62,190 +65,228 @@ public class GroupGenerationService {
             Group group = new Group();
             group.setName(request.getGroupNames().get(i));
             group.setDraw(draw);
-            group.setGroupPersons(new ArrayList<>());
+            group.setPersons(new ArrayList<>());
             groups.add(group);
         }
 
         return groups;
     }
 
-    private void initialDistribution(List<Person> persons, List<Group> groups) {
-        System.out.println("Starting initial random distribution");
+    /**
+     * New improved algorithm that maintains even distribution while balancing criteria
+     */
+    private void distributePersonsWithBalancing(List<Person> persons, List<Group> groups, GenerateGroupsRequest request) {
+        System.out.println("Starting intelligent distribution with balancing");
 
-        Collections.shuffle(persons);
-        System.out.println("Shuffled all persons randomly");
+        // Calculate target group sizes
+        int totalPersons = persons.size();
+        int numberOfGroups = groups.size();
+        int baseSize = totalPersons / numberOfGroups;
+        int remainder = totalPersons % numberOfGroups;
 
-        for (int i = 0; i < persons.size(); i++) {
-            Group targetGroup = groups.get(i % groups.size());
-
-            GroupPerson groupPerson = new GroupPerson();
-            groupPerson.setGroup(targetGroup);
-            groupPerson.setPerson(persons.get(i));
-            targetGroup.getGroupPersons().add(groupPerson);
-
-            System.out.println(persons.get(i).getName() + " assigned to " + targetGroup.getName());
+        // Calculate exact target sizes for each group
+        int[] targetSizes = new int[numberOfGroups];
+        for (int i = 0; i < numberOfGroups; i++) {
+            targetSizes[i] = baseSize + (i < remainder ? 1 : 0);
         }
-    }
 
-    private void applySelectedCriteria(List<Group> groups, GenerateGroupsRequest request) {
-        System.out.println("Applying selected balancing criteria");
+        System.out.println("Target group sizes: " + Arrays.toString(targetSizes));
 
+        // Create a working copy of persons
+        List<Person> availablePersons = new ArrayList<>(persons);
+
+        // Apply balancing criteria in order of priority
         if (request.getBalanceByGender()) {
-            System.out.println("Applying gender rebalancing");
-            rebalanceByGender(groups);
+            System.out.println("Applying gender balancing");
+            distributeByAttribute(availablePersons, groups, targetSizes, Person::getGender, "gender");
         }
 
         if (request.getBalanceByTechLevel()) {
-            System.out.println("Applying tech level rebalancing");
-            rebalanceByTechLevel(groups);
-        }
-
-        if (request.getBalanceByAge()) {
-            System.out.println("Applying age rebalancing");
-            rebalanceByAge(groups);
-        }
-
-        if (request.getBalanceByOldDwwm()) {
-            System.out.println("Applying old DWWM rebalancing");
-            rebalanceByOldDwwm(groups);
+            System.out.println("Applying tech level balancing");
+            distributeByAttribute(availablePersons, groups, targetSizes, Person::getTechLevel, "tech level");
         }
 
         if (request.getBalanceByFrenchLevel()) {
-            System.out.println("Applying French level rebalancing");
-            rebalanceByFrenchLevel(groups);
+            System.out.println("Applying French level balancing");
+            distributeByAttribute(availablePersons, groups, targetSizes, Person::getFrenchLevel, "French level");
+        }
+
+        if (request.getBalanceByOldDwwm()) {
+            System.out.println("Applying old DWWM balancing");
+            distributeByAttribute(availablePersons, groups, targetSizes, Person::getOldDwwm, "old DWWM");
         }
 
         if (request.getBalanceByProfile()) {
-            System.out.println("Applying personality profile rebalancing");
-            rebalanceByProfile(groups);
+            System.out.println("Applying personality profile balancing");
+            distributeByAttribute(availablePersons, groups, targetSizes, Person::getProfile, "profile");
         }
+
+        if (request.getBalanceByAge()) {
+            System.out.println("Applying age balancing");
+            distributeByAge(availablePersons, groups, targetSizes);
+        }
+
+        // Final step: ensure all remaining persons are distributed evenly
+        distributeRemainingPersons(availablePersons, groups, targetSizes);
+
+        // Verify final distribution
+        verifyDistribution(groups, targetSizes);
     }
 
-    private void rebalanceByGender(List<Group> groups) {
-        List<Person> allPersons = extractAllPersons(groups);
-        clearAllGroups(groups);
+    /**
+     * Distribute persons by a specific attribute while maintaining group size targets
+     */
+    private <T> void distributeByAttribute(List<Person> availablePersons, List<Group> groups,
+                                           int[] targetSizes, java.util.function.Function<Person, T> attributeGetter,
+                                           String attributeName) {
 
-        Map<Person.Gender, List<Person>> genderGroups = allPersons.stream()
-                .collect(Collectors.groupingBy(Person::getGender));
+        // Only work with persons that haven't been assigned yet
+        List<Person> unassignedPersons = availablePersons.stream()
+                .filter(person -> groups.stream().noneMatch(group -> group.getPersons().contains(person)))
+                .collect(Collectors.toList());
 
-        System.out.println("Grouped by gender:");
-        for (Map.Entry<Person.Gender, List<Person>> entry : genderGroups.entrySet()) {
+        if (unassignedPersons.isEmpty()) {
+            return; // All persons already assigned
+        }
+
+        // Group unassigned persons by attribute
+        Map<T, List<Person>> attributeGroups = unassignedPersons.stream()
+                .collect(Collectors.groupingBy(attributeGetter));
+
+        System.out.println("Grouped by " + attributeName + ":");
+        for (Map.Entry<T, List<Person>> entry : attributeGroups.entrySet()) {
             System.out.println(entry.getKey() + ": " + entry.getValue().size() + " persons");
         }
 
-        for (Map.Entry<Person.Gender, List<Person>> entry : genderGroups.entrySet()) {
-            List<Person> genderPersons = entry.getValue();
-            Collections.shuffle(genderPersons);
-            distributeRoundRobin(genderPersons, groups);
+        // Distribute each attribute group across all groups
+        List<Person> personsToRemove = new ArrayList<>();
+
+        for (Map.Entry<T, List<Person>> entry : attributeGroups.entrySet()) {
+            List<Person> personsWithAttribute = new ArrayList<>(entry.getValue());
+            Collections.shuffle(personsWithAttribute); // Add randomness
+
+            // Distribute these persons across groups that still need people
+            for (Person person : personsWithAttribute) {
+                Group bestGroup = findBestGroupForPerson(groups, targetSizes, person, attributeGetter);
+                if (bestGroup != null) {
+                    bestGroup.getPersons().add(person);
+                    personsToRemove.add(person);
+                }
+            }
+        }
+
+        // Remove assigned persons from available list
+        availablePersons.removeAll(personsToRemove);
+    }
+
+    /**
+     * Special handling for age balancing (sort by age for even distribution)
+     */
+    private void distributeByAge(List<Person> availablePersons, List<Group> groups, int[] targetSizes) {
+        // Only work with persons that haven't been assigned yet
+        List<Person> unassignedPersons = availablePersons.stream()
+                .filter(person -> groups.stream().noneMatch(group -> group.getPersons().contains(person)))
+                .sorted(Comparator.comparing(Person::getAge))
+                .collect(Collectors.toList());
+
+        System.out.println("Distributing " + unassignedPersons.size() + " unassigned persons by age (sorted)");
+
+        List<Person> personsToRemove = new ArrayList<>();
+
+        for (Person person : unassignedPersons) {
+            Group bestGroup = findBestGroupForPerson(groups, targetSizes, person, Person::getAge);
+            if (bestGroup != null) {
+                bestGroup.getPersons().add(person);
+                personsToRemove.add(person);
+            }
+        }
+
+        // Remove assigned persons from available list
+        availablePersons.removeAll(personsToRemove);
+    }
+
+    /**
+     * Find the best group for a person considering group size limits and diversity
+     */
+    private <T> Group findBestGroupForPerson(List<Group> groups, int[] targetSizes, Person person,
+                                             java.util.function.Function<Person, T> attributeGetter) {
+
+        T personAttribute = attributeGetter.apply(person);
+
+        // Find groups that can still accept more people
+        List<Group> availableGroups = new ArrayList<>();
+        for (int i = 0; i < groups.size(); i++) {
+            if (groups.get(i).getPersons().size() < targetSizes[i]) {
+                availableGroups.add(groups.get(i));
+            }
+        }
+
+        if (availableGroups.isEmpty()) {
+            return null; // No groups can accept more people
+        }
+
+        // Prefer groups that have fewer people with this attribute (for diversity)
+        return availableGroups.stream()
+                .min(Comparator.<Group>comparingInt(group ->
+                                (int) group.getPersons().stream()
+                                        .filter(p -> attributeGetter.apply(p).equals(personAttribute))
+                                        .count())
+                        .thenComparingInt(group -> group.getPersons().size())) // Then prefer smaller groups
+                .orElse(availableGroups.get(0));
+    }
+
+    /**
+     * Distribute any remaining persons using simple round-robin
+     */
+    private void distributeRemainingPersons(List<Person> availablePersons, List<Group> groups, int[] targetSizes) {
+        System.out.println("Distributing " + availablePersons.size() + " remaining persons");
+
+        Collections.shuffle(availablePersons); // Add final randomness
+
+        for (Person person : new ArrayList<>(availablePersons)) {
+            // Find any group that can still accept people
+            for (int i = 0; i < groups.size(); i++) {
+                if (groups.get(i).getPersons().size() < targetSizes[i]) {
+                    groups.get(i).getPersons().add(person);
+                    availablePersons.remove(person);
+                    break;
+                }
+            }
         }
     }
 
-    private void rebalanceByTechLevel(List<Group> groups) {
-        List<Person> allPersons = extractAllPersons(groups);
-        clearAllGroups(groups);
+    /**
+     * Verify that the final distribution matches target sizes
+     */
+    private void verifyDistribution(List<Group> groups, int[] targetSizes) {
+        System.out.println("Final distribution verification:");
+        for (int i = 0; i < groups.size(); i++) {
+            int actualSize = groups.get(i).getPersons().size();
+            int targetSize = targetSizes[i];
+            System.out.println(groups.get(i).getName() + ": " + actualSize + "/" + targetSize + " persons");
 
-        Map<Integer, List<Person>> techGroups = allPersons.stream()
-                .collect(Collectors.groupingBy(Person::getTechLevel));
-
-        System.out.println("Grouped by tech level:");
-        for (Map.Entry<Integer, List<Person>> entry : techGroups.entrySet()) {
-            System.out.println("Level " + entry.getKey() + ": " + entry.getValue().size() + " persons");
-        }
-
-        for (Map.Entry<Integer, List<Person>> entry : techGroups.entrySet()) {
-            List<Person> techPersons = entry.getValue();
-            Collections.shuffle(techPersons);
-            distributeRoundRobin(techPersons, groups);
+            if (actualSize != targetSize) {
+                System.out.println("WARNING: Group " + groups.get(i).getName() +
+                        " has " + actualSize + " persons but target was " + targetSize);
+            }
         }
     }
 
-    private void rebalanceByAge(List<Group> groups) {
-        List<Person> allPersons = extractAllPersons(groups);
-        clearAllGroups(groups);
-
-        allPersons.sort(Comparator.comparing(Person::getAge));
-        System.out.println("Sorted by age for balanced distribution");
-
-        distributeRoundRobin(allPersons, groups);
-    }
-
-    private void rebalanceByOldDwwm(List<Group> groups) {
-        List<Person> allPersons = extractAllPersons(groups);
-        clearAllGroups(groups);
-
-        Map<Boolean, List<Person>> dwwmGroups = allPersons.stream()
-                .collect(Collectors.groupingBy(Person::getOldDwwm));
-
-        System.out.println("Grouped by old DWWM:");
-        for (Map.Entry<Boolean, List<Person>> entry : dwwmGroups.entrySet()) {
-            String label = entry.getKey() ? "Former DWWM" : "Not former DWWM";
-            System.out.println(label + ": " + entry.getValue().size() + " persons");
-        }
-
-        for (Map.Entry<Boolean, List<Person>> entry : dwwmGroups.entrySet()) {
-            List<Person> dwwmPersons = entry.getValue();
-            Collections.shuffle(dwwmPersons);
-            distributeRoundRobin(dwwmPersons, groups);
-        }
-    }
-
-    private void rebalanceByFrenchLevel(List<Group> groups) {
-        List<Person> allPersons = extractAllPersons(groups);
-        clearAllGroups(groups);
-
-        Map<Integer, List<Person>> frenchGroups = allPersons.stream()
-                .collect(Collectors.groupingBy(Person::getFrenchLevel));
-
-        System.out.println("Grouped by French level:");
-        for (Map.Entry<Integer, List<Person>> entry : frenchGroups.entrySet()) {
-            System.out.println("Level " + entry.getKey() + ": " + entry.getValue().size() + " persons");
-        }
-
-        for (Map.Entry<Integer, List<Person>> entry : frenchGroups.entrySet()) {
-            List<Person> frenchPersons = entry.getValue();
-            Collections.shuffle(frenchPersons);
-            distributeRoundRobin(frenchPersons, groups);
-        }
-    }
-
-    private void rebalanceByProfile(List<Group> groups) {
-        List<Person> allPersons = extractAllPersons(groups);
-        clearAllGroups(groups);
-
-        Map<Person.Profile, List<Person>> profileGroups = allPersons.stream()
-                .collect(Collectors.groupingBy(Person::getProfile));
-
-        System.out.println("Grouped by personality profile:");
-        for (Map.Entry<Person.Profile, List<Person>> entry : profileGroups.entrySet()) {
-            System.out.println(entry.getKey() + ": " + entry.getValue().size() + " persons");
-        }
-
-        for (Map.Entry<Person.Profile, List<Person>> entry : profileGroups.entrySet()) {
-            List<Person> profilePersons = entry.getValue();
-            Collections.shuffle(profilePersons);
-            distributeRoundRobin(profilePersons, groups);
-        }
-    }
-
+    // Legacy methods for compatibility (no longer used in new algorithm)
     private List<Person> extractAllPersons(List<Group> groups) {
         return groups.stream()
-                .flatMap(group -> group.getGroupPersons().stream())
-                .map(GroupPerson::getPerson)
+                .flatMap(group -> group.getPersons().stream())
                 .collect(Collectors.toList());
     }
 
     private void clearAllGroups(List<Group> groups) {
-        groups.forEach(group -> group.getGroupPersons().clear());
+        groups.forEach(group -> group.getPersons().clear());
     }
 
     private void distributeRoundRobin(List<Person> persons, List<Group> groups) {
         for (int i = 0; i < persons.size(); i++) {
             Group targetGroup = groups.get(i % groups.size());
-
-            GroupPerson groupPerson = new GroupPerson();
-            groupPerson.setGroup(targetGroup);
-            groupPerson.setPerson(persons.get(i));
-            targetGroup.getGroupPersons().add(groupPerson);
+            targetGroup.getPersons().add(persons.get(i));
         }
     }
 }
