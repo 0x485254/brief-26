@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/lists/{listId}/share")
+@RequestMapping("/api/lists/{listId}/share")
 public class ListShareController {
 
     private final ListShareService listShareService;
