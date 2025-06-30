@@ -5,7 +5,6 @@ import com.easygroup.entity.Person;
 import com.easygroup.repository.ListRepository;
 import com.easygroup.repository.PersonRepository;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +22,6 @@ public class PersonService {
     private final PersonRepository personRepository;
     private final ListRepository listRepository;
 
-    @Autowired
     public PersonService(PersonRepository personRepository, ListRepository listRepository) {
         this.personRepository = personRepository;
         this.listRepository = listRepository;

@@ -1,12 +1,10 @@
 package com.easygroup.controller;
 
-import com.easygroup.dto.ListResponse;
 import com.easygroup.entity.ListEntity;
 import com.easygroup.entity.ListShare;
 import com.easygroup.entity.User;
 import com.easygroup.service.ListService;
 import com.easygroup.service.ListShareService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +18,6 @@ public class ListShareController {
     private final ListShareService listShareService;
     private final ListService listService;
 
-    @Autowired
     public ListShareController(ListShareService listShareService, ListService listService){
         this.listShareService = listShareService;
         this.listService = listService;

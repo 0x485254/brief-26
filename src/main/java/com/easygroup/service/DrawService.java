@@ -35,9 +35,6 @@ public class DrawService {
     @Autowired
     private GroupGenerationService groupGenerationService;
     public DrawResponse generateGroups(GenerateGroupsRequest request, UUID userId, UUID listId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with id: " + userId));
-
         ListEntity list = validateUserListAccess(userId, listId);
 
         Draw draw = convertDtoToEntity(request, list);
