@@ -1,0 +1,193 @@
+{
+  "info": {
+    "name": "EasyGroup API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth - Register",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\",\n  \"firstName\": \"Jean\",\n  \"lastName\": \"Dupont\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/auth/register",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "auth",
+            "register"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Auth - Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Listes - Get all",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/api/lists",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "lists"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Listes - Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"CDA - Mai\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/lists",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "lists"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Personnes - Ajouter",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Jean Dupont\",\n  \"gender\": \"MALE\",\n  \"age\": 32,\n  \"frenchLevel\": 3,\n  \"oldDwwm\": true,\n  \"techLevel\": 2,\n  \"profile\": \"A_LAISE\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/lists/1/persons",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "lists",
+            "1",
+            "persons"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Partage - Partager liste",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "http://localhost:8080/api/lists/1/share/2",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "lists",
+            "1",
+            "share",
+            "2"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Groupes - Tirage",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Tirage juin\",\n  \"criteria\": [\n    \"AGE\",\n    \"OLD_DWWM\"\n  ],\n  \"numberOfGroups\": 3\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/lists/1/draws",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "lists",
+            "1",
+            "draws"
+          ]
+        }
+      }
+    }
+  ]
+}

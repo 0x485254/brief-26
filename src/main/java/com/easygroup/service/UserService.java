@@ -5,6 +5,7 @@ import com.easygroup.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -81,4 +82,12 @@ public class UserService {
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
+
+public User getActivatedUserByEmail(String email) {
+    return userRepository.findByEmail(email)
+            .filter(User::getIsActivated)
+            .orElseThrow(() ->
+                    new UsernameNotFoundException("User not found or not activated: " + email));
+}
+
 }

@@ -4,7 +4,9 @@ import com.easygroup.dto.AuthResponse;
 import com.easygroup.dto.LoginRequest;
 import com.easygroup.dto.RegisterRequest;
 import com.easygroup.entity.User;
-import com.easygroup.service.CookieAuthService;
+import com.easygroup.service.AuthService;
+
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +22,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final CookieAuthService cookieAuthService;
+    private final AuthService cookieAuthService;
 
     @Autowired
-    public AuthController(CookieAuthService cookieAuthService) {
+    public AuthController(AuthService cookieAuthService) {
         this.cookieAuthService = cookieAuthService;
     }
 
@@ -34,6 +36,7 @@ public class AuthController {
      * @param response the HTTP response to set the cookie on
      * @return the created user details (without the token in the response body)
      */
+    @Operation(summary = "Inscription d'un nouvel utilisateur", description = "Crée un nouveau compte utilisateur à partir d'un email, mot de passe, prénom et nom")
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(
             @RequestBody @Valid RegisterRequest request,
