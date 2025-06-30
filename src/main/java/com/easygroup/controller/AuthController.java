@@ -22,11 +22,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final AuthService cookieAuthService;
+    private final AuthService authService;
 
     @Autowired
-    public AuthController(AuthService cookieAuthService) {
-        this.cookieAuthService = cookieAuthService;
+    public AuthController(AuthService authService) {
+        this.authService = authService;
     }
 
     /**
@@ -42,10 +42,10 @@ public class AuthController {
             @RequestBody @Valid RegisterRequest request,
             HttpServletResponse response) {
         try {
-            User user = cookieAuthService.register(request.getEmail(), request.getPassword(), request.getFirstName(), request.getLastName());
+            User user = authService.register(request.getEmail(), request.getPassword(), request.getFirstName(), request.getLastName());
 
             // Authenticate the user after registration to generate a token and set it as a cookie
-            AuthResponse authResponse = cookieAuthService.authenticate(request.getEmail(), request.getPassword(), response);
+            AuthResponse authResponse = authService.authenticate(request.getEmail(), request.getPassword(), response);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(authResponse);
         } catch (IllegalArgumentException e) {
@@ -65,7 +65,7 @@ public class AuthController {
             @RequestBody @Valid LoginRequest request,
             HttpServletResponse response) {
         try {
-            AuthResponse authResponse = cookieAuthService.authenticate(request.getEmail(), request.getPassword(), response);
+            AuthResponse authResponse = authService.authenticate(request.getEmail(), request.getPassword(), response);
             return ResponseEntity.ok(authResponse);
         } catch (AuthenticationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -80,7 +80,7 @@ public class AuthController {
      */
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletResponse response) {
-        cookieAuthService.logout(response);
+        authService.logout(response);
         return ResponseEntity.ok().build();
     }
 }
