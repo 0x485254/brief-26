@@ -3,6 +3,7 @@ package com.easygroup.config;
 import com.easygroup.entity.User;
 import com.easygroup.repository.UserRepository;
 import com.easygroup.security.Argon;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -34,6 +35,9 @@ import java.util.List;
 @Configuration
 public class SecurityConfig {
 
+    @Value("${cors.urls}")
+    private String corsUrl;
+
     /**
      * Déclare le bean `PasswordEncoder` utilisé pour le chiffrement des mots de
      * passe.
@@ -49,6 +53,13 @@ public class SecurityConfig {
         return new Argon();
     }
 
+
+
+
+    private List<String> getAllowedOrigins() {
+        return List.of(corsUrl.split(","));
+    }
+
     /**
      * Déclare le bean `CorsConfigurationSource`, qui définit les règles CORS
      * globales.
@@ -62,7 +73,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost")); // Frontend Angular local
+        System.out.println("-------------------------------------");
+        System.out.println("CORS URL : " + corsUrl);
+        config.setAllowedOrigins(getAllowedOrigins()); // Frontend Angular local
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Méthodes autorisées
         config.setAllowedHeaders(List.of("*")); // Tous les headers acceptés
         config.setAllowCredentials(true); // Permet l'envoi des cookies/session
