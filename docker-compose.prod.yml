@@ -1,14 +1,22 @@
 version: '3.8'
 
 services:
-  app:
+  easygroup-app:
     build: .
-    container_name: spring-boot-starter-prod
+    container_name: easygroup-app
     ports:
-      - "8080:8080"
+      - "${APP_PORT:-8080}:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      # Add any production-specific environment variables here
+      - DB_HOST=${DB_HOST:-easygroup-db}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_NAME=${DB_NAME:-easygroup}
+      - DB_USERNAME=${DB_USERNAME:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATION_MS=${JWT_EXPIRATION_MS:-86400000}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - CORS_URLS=${CORS_URLS:-http://localhost:5173,http://localhost:8080}
     restart: always
     networks:
       - spring-network
@@ -30,15 +38,15 @@ services:
       start_period: 40s
 
   # Production database
-  db:
+  easygroup-db:
     image: postgres:14-alpine
     container_name: postgres-prod
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5432}:5432"
     environment:
-      - POSTGRES_USER=${POSTGRES_USER:-postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB:-starter_db_prod}
+      - POSTGRES_USER=${DB_USERNAME:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
+      - POSTGRES_DB=${DB_NAME:-easygroup}
     volumes:
       - postgres-data-prod:/var/lib/postgresql/data
     networks:
