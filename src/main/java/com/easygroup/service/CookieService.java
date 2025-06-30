@@ -61,15 +61,9 @@ public class CookieService {
      */
     public void addTokenCookie(HttpServletResponse response, String token) {
         Cookie cookie = createCookie(token);
+        
         response.addCookie(cookie);
         
-        // Set SameSite attribute (not directly supported by javax.servlet.http.Cookie)
-        String cookieHeader = String.format("%s=%s; Max-Age=%d; Path=%s; HttpOnly=%b; Secure=%b; SameSite=%s", 
-                cookieName, token, cookieMaxAge, path, httpOnly, secure, sameSite);
-        if (!domain.isEmpty()) {
-            cookieHeader += "; Domain=" + domain;
-        }
-        response.setHeader("Set-Cookie", cookieHeader);
     }
 
     /**

@@ -6,7 +6,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -28,10 +27,10 @@ public class JwtService {
     private long jwtExpiration;
 
     /**
-     * Extract username from token.
+     * Extract username (email) from token.
      *
      * @param token the JWT token
-     * @return the username
+     * @return the email stored in the subject
      */
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -79,59 +78,55 @@ public class JwtService {
      * @param token the JWT token
      * @return true if token is expired
      */
-    private Boolean isTokenExpired(String token) {
+    private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
     /**
-     * Generate token for user.
+     * Generate a token from a User entity.
      *
-     * @param userDetails the user details
-     * @return the JWT token
+     * @param user the user entity
+     * @return the generated JWT token
      */
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(User user) {
         Map<String, Object> claims = new HashMap<>();
-        
-        if (userDetails instanceof User) {
-            User user = (User) userDetails;
-            claims.put("userId", user.getId().toString());
-            claims.put("role", user.getRole().toString());
-        }
-        
-        return createToken(claims, userDetails.getUsername());
+        claims.put("userId", user.getId().toString());
+        claims.put("role", user.getRole().toString());
+
+        return createToken(claims, user.getEmail());
     }
 
     /**
-     * Create token with claims and subject.
+     * Create a token with custom claims and subject (email).
      *
-     * @param claims the claims
-     * @param subject the subject
+     * @param claims  the claims map
+     * @param subject the subject (user email)
      * @return the JWT token
      */
     private String createToken(Map<String, Object> claims, String subject) {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
     /**
-     * Validate token.
+     * Validate token against expected email and expiration.
      *
      * @param token the JWT token
-     * @param userDetails the user details
-     * @return true if token is valid
+     * @param expectedEmail the expected email (subject)
+     * @return true if valid and not expired
      */
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    public boolean validateToken(String token, String expectedEmail) {
+        String extractedEmail = extractUsername(token);
+        return extractedEmail.equals(expectedEmail) && !isTokenExpired(token);
     }
 
     /**
-     * Get signing key.
+     * Generate the HMAC signing key from the configured secret.
      *
      * @return the signing key
      */
