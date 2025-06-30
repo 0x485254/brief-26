@@ -3,6 +3,7 @@ package com.easygroup.controller;
 import com.easygroup.dto.AuthResponse;
 import com.easygroup.dto.LoginRequest;
 import com.easygroup.dto.RegisterRequest;
+import com.easygroup.entity.User;
 import com.easygroup.service.AuthService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,6 +40,9 @@ public class AuthController {
             @RequestBody @Valid RegisterRequest request,
             HttpServletResponse response) {
         try {
+            // Register the user
+            User userResponse = authService.register(request.getEmail(), request.getPassword(), request.getFirstName(), request.getLastName());
+
             // Authenticate the user after registration to generate a token and set it as a cookie
             AuthResponse authResponse = authService.authenticate(request.getEmail(), request.getPassword(), response);
 
