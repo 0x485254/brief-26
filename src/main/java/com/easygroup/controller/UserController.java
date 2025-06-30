@@ -1,16 +1,20 @@
 package com.easygroup.controller;
 
+import com.easygroup.dto.AuthResponse;
 import com.easygroup.entity.User;
 import com.easygroup.security.IsAdmin;
 import com.easygroup.security.IsAuthenticated;
 import com.easygroup.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -34,13 +38,23 @@ public class UserController {
      * @return the current user
      */
     @GetMapping("/me")
-    @IsAuthenticated
-    public ResponseEntity<User> getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-        return userService.findByEmail(email)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<AuthResponse> getCurrentUser(@AuthenticationPrincipal User user) {
+        String email = user.getEmail();
+        Optional<User> userFound = userService.findByEmail(email);
+        
+        if (userFound.isPresent()) {
+            AuthResponse userResponse = new AuthResponse();
+            userResponse.setUserId(userFound.get().getId());
+            userResponse.setEmail(userFound.get().getEmail());
+            userResponse.setFirstName(userFound.get().getFirstName());
+            userResponse.setLastName(userFound.get().getLastName());
+            userResponse.setRole(String.valueOf(userFound.get().getRole()));
+            userResponse.setIsActivated(userFound.get().getIsActivated());
+
+            return ResponseEntity.ok(userResponse);
+        }
+
+        return ResponseEntity.notFound().build();
     }
 
     /**
