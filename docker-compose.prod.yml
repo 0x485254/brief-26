@@ -37,7 +37,6 @@ services:
       retries: 3
       start_period: 40s
 
-  # Production database
   easygroup-db:
     image: postgres:14-alpine
     container_name: postgres-prod
