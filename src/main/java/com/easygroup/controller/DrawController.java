@@ -2,11 +2,13 @@ package com.easygroup.controller;
 
 import com.easygroup.dto.DrawResponse;
 import com.easygroup.dto.GenerateGroupsRequest;
+import com.easygroup.entity.User;
 import com.easygroup.service.DrawService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,24 +22,24 @@ public class DrawController {
     private DrawService drawService;
 
     /**
-     * POST /api/users/{userId}/lists/{listId}/draws
+     * POST /api/lists/{listId}/draws
      * Create a new draw (tirage) and generate groups
      */
-    @PostMapping("/users/{userId}/lists/{listId}/draws")
+    @PostMapping("/lists/{listId}/draws")
     public ResponseEntity<DrawResponse> createDraw(
-            @PathVariable UUID userId,
+            @AuthenticationPrincipal User user,
             @PathVariable UUID listId,
             @Valid @RequestBody GenerateGroupsRequest request) {
 
-        DrawResponse response = drawService.generateGroups(request, userId, listId);
+        DrawResponse response = drawService.generateGroups(request, user.getId(), listId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /**
-     * GET /api/users/{userId}/lists/{listId}/draws
+     * GET /api/lists/{listId}/draws
      * List all draws for a specific list
      */
-    @GetMapping("/users/{userId}/lists/{listId}/draws")
+    @GetMapping("/lists/{listId}/draws")
     public ResponseEntity<List<DrawResponse>> getDrawsForList(
             @PathVariable UUID userId,
             @PathVariable UUID listId) {
