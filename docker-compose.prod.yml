@@ -19,7 +19,7 @@ services:
       - CORS_URLS=${CORS_URLS:-http://localhost:5173,http://localhost:8080}
     restart: always
     networks:
-      - spring-network
+      - nw_caddy
     deploy:
       replicas: 2
       resources:
@@ -65,8 +65,8 @@ services:
       start_period: 10s
 
 networks:
-  spring-network:
-    driver: bridge
+  nw_caddy:
+    external: true
 
 volumes:
   postgres-data-prod:
