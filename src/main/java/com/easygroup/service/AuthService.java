@@ -4,11 +4,8 @@ import com.easygroup.dto.AuthResponse;
 import com.easygroup.entity.User;
 import com.easygroup.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,11 +20,9 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-    private final AuthenticationManager authenticationManager;
     private final UserService userService;
     private final CookieService cookieService;
 
-    @Autowired
     public AuthService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
@@ -38,7 +33,7 @@ public class AuthService {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
-        this.authenticationManager = authenticationConfiguration.getAuthenticationManager(); // 👈 Appel direct
+        authenticationConfiguration.getAuthenticationManager();
         this.userService = userService;
         this.cookieService = cookieService;
     }
@@ -67,9 +62,6 @@ public class AuthService {
     }
 
     public AuthResponse authenticate(String email, String password, HttpServletResponse response) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(email, password));
-
         User user = userService.getActivatedUserByEmail(email);
         String token = jwtService.generateToken(user);
 

@@ -19,7 +19,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class List {
+public class ListEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

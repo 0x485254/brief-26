@@ -1,6 +1,6 @@
 package com.easygroup.repository;
 
-import com.easygroup.entity.List;
+import com.easygroup.entity.ListEntity;
 import com.easygroup.entity.Person;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -19,7 +19,7 @@ public interface PersonRepository extends JpaRepository<Person, UUID> {
      * @param list the list containing the persons
      * @return a list of Person objects
      */
-    java.util.List<Person> findByList(List list);
+    java.util.List<Person> findByList(ListEntity list);
 
     /**
      * Find all persons in a specific list ordered by name.
@@ -27,7 +27,7 @@ public interface PersonRepository extends JpaRepository<Person, UUID> {
      * @param list the list containing the persons
      * @return a list of Person objects ordered by name
      */
-    java.util.List<Person> findByListOrderByNameAsc(List list);
+    java.util.List<Person> findByListOrderByNameAsc(ListEntity list);
 
     /**
      * Count the number of persons in a specific list.
@@ -35,12 +35,14 @@ public interface PersonRepository extends JpaRepository<Person, UUID> {
      * @param list the list containing the persons
      * @return the number of persons in the list
      */
-    long countByList(List list);
+    long countByList(ListEntity list);
 
     /**
      * Delete all persons in a specific list.
      * 
      * @param list the list containing the persons to delete
      */
-    void deleteByList(List list);
+    void deleteByList(ListEntity list);
+
+
 }

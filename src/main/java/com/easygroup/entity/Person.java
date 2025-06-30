@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * Entity representing a person in a list.
  * Each person has various attributes used for group creation.
@@ -46,9 +48,11 @@ public class Person {
     @Column(nullable = false)
     private Profile profile;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "list_id", nullable = false)
-    private List list;
+@ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "list_id", nullable = false)
+@JsonIgnoreProperties({"user", "persons", "listShares","shares"})  // 👈 évite cascade
+private ListEntity list;
+
 
     @OneToMany(mappedBy = "person")
     private java.util.List<GroupPerson> groupPersons = new ArrayList<>();

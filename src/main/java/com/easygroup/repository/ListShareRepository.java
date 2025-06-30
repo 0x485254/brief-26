@@ -1,6 +1,6 @@
 package com.easygroup.repository;
 
-import com.easygroup.entity.List;
+import com.easygroup.entity.ListEntity;
 import com.easygroup.entity.ListShare;
 import com.easygroup.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -29,7 +29,7 @@ public interface ListShareRepository extends JpaRepository<ListShare, UUID> {
      * @param list the list that is shared
      * @return a list of ListShare objects
      */
-    java.util.List<ListShare> findByList(List list);
+    java.util.List<ListShare> findByList(ListEntity list);
 
     /**
      * Find a list share by list and user.
@@ -38,7 +38,7 @@ public interface ListShareRepository extends JpaRepository<ListShare, UUID> {
      * @param sharedWithUser the user who has access to the shared list
      * @return an Optional containing the ListShare if found
      */
-    Optional<ListShare> findByListAndSharedWithUser(List list, User sharedWithUser);
+    Optional<ListShare> findByListAndSharedWithUser(ListEntity list, User sharedWithUser);
 
     /**
      * Check if a list is shared with a specific user.
@@ -47,5 +47,5 @@ public interface ListShareRepository extends JpaRepository<ListShare, UUID> {
      * @param sharedWithUser the user to check
      * @return true if the list is shared with the user
      */
-    boolean existsByListAndSharedWithUser(List list, User sharedWithUser);
+    boolean existsByListAndSharedWithUser(ListEntity list, User sharedWithUser);
 }

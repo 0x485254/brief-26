@@ -2,10 +2,9 @@ package com.easygroup.controller;
 
 import com.easygroup.dto.ListRequest;
 import com.easygroup.dto.ListResponse;
-import com.easygroup.entity.List;
+import com.easygroup.entity.ListEntity;
 import com.easygroup.entity.User;
 import com.easygroup.service.ListService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +15,6 @@ public class ListController {
 
     private final ListService listService;
 
-    @Autowired
     public ListController(ListService listService){
         this.listService = listService;
     }
@@ -27,7 +25,7 @@ public class ListController {
         System.out.println("USER = " + user);
 
         try{
-            List list = listService.save(request.getName(), user);
+            ListEntity list = listService.save(request.getName(), user);
 
             ListResponse response = new ListResponse(
                     list.getId(),
