@@ -41,19 +41,24 @@ public class PersonController {
      * @param user   the authenticated user
      * @return the list of persons if the list is owned by the user, 403 otherwise
      */
-    @GetMapping
-    public ResponseEntity<List<Person>> getPersons(
-            @PathVariable UUID listId,
-            @AuthenticationPrincipal User user) {
+@GetMapping
+public ResponseEntity<List<PersonResponse>> getPersons(
+        @PathVariable UUID listId,
+        @AuthenticationPrincipal User user) {
 
-        ListEntity list = listService.findByIdAndUserId(listId, user.getId());
-        if (list == null) {
-            return ResponseEntity.status(403).build();
-        }
-
-        List<Person> persons = personService.findByList(list);
-        return ResponseEntity.ok(persons);
+    ListEntity list = listService.findByIdAndUserId(listId, user.getId());
+    if (list == null) {
+        return ResponseEntity.status(403).build();
     }
+
+    List<Person> persons = personService.findByList(list);
+    List<PersonResponse> response = persons.stream()
+            .map(PersonMapper::toDto)
+            .toList();
+
+    return ResponseEntity.ok(response);
+}
+
 
     /**
      * Create a new person in a specific list.
