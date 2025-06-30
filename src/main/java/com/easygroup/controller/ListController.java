@@ -16,7 +16,6 @@ public class ListController {
 
     private final ListService listService;
 
-    @Autowired
     public ListController(ListService listService){
         this.listService = listService;
     }
