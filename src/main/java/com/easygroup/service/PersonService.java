@@ -1,13 +1,15 @@
 package com.easygroup.service;
 
-import com.easygroup.entity.List;
+import com.easygroup.entity.ListEntity;
 import com.easygroup.entity.Person;
 import com.easygroup.repository.ListRepository;
 import com.easygroup.repository.PersonRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,70 +24,81 @@ public class PersonService {
     private final ListRepository listRepository;
 
     @Autowired
-    public PersonService(PersonRepository personRepository, ListRepository listRespository) {
+    public PersonService(PersonRepository personRepository, ListRepository listRepository) {
         this.personRepository = personRepository;
-        this.listRepository = listRespository;
+        this.listRepository = listRepository;
     }
 
     /**
-     * Find all persons.
+     * Retrieve all persons in the database.
      *
-     * @return a list of all persons
+     * @return list of all persons
      */
-    public java.util.List<Person> findAll() {
+    public List<Person> findAll() {
         return personRepository.findAll();
     }
 
     /**
-     * Find a person by ID.
+     * Find a person by their UUID.
      *
-     * @param id the person ID
-     * @return an Optional containing the person if found
+     * @param id UUID of the person
+     * @return Optional containing the person if found
      */
     public Optional<Person> findById(UUID id) {
         return personRepository.findById(id);
     }
 
     /**
-     * Find all persons in a list.
+     * Retrieve all persons belonging to a given list.
      *
-     * @param list the list containing the persons
-     * @return a list of persons in the list
+     * @param list the list entity
+     * @return list of persons in the list
      */
-    public java.util.List<Person> findByList(List list) {
-
+    public List<Person> findByList(ListEntity list) {
         return personRepository.findByList(list);
     }
 
     /**
-     * Find all persons in a list ordered by name.
+     * Retrieve all persons in a list, sorted by name.
      *
-     * @param listId the list's UUID containing the persons
-     * @return a list of persons in the list ordered by name
+     * @param listId UUID of the list
+     * @return list of persons ordered by name
+     * @throws IllegalArgumentException if list not found
      */
-    public java.util.List<Person> findByListIdOrderByName(UUID listId) {
-        List list = listRepository.findById(listId)
+    public List<Person> findByListIdOrderByName(UUID listId) {
+        ListEntity list = listRepository.findById(listId)
                 .orElseThrow(() -> new IllegalArgumentException("List not found with id: " + listId));
-
         return personRepository.findByListOrderByNameAsc(list);
     }
 
     /**
-     * Save a person.
+     * Save a new person to the database.
      *
-     * @param age         the age of the person
-     * @param frenchLevel the French language proficiency level
-     * @param gender      the gender of the person
-     * @param name        the name of the person
-     * @param oldDWWM     indicates if the person is from old DWWM
-     * @param profile     the profile of the person
-     * @param techLevel   the technical proficiency level
-     * @param listId      the UUID of the associated list
+     * @param person the person to save
      * @return the saved person
      */
-    public Person save(Integer age, Integer frenchLevel, Person.Gender gender, String name, Boolean oldDWWM, Person.Profile profile, Integer techLevel, UUID listId){
+    public Person save(Person person) {
+        return personRepository.save(person);
+    }
 
-        List list = listRepository.findById(listId)
+    /**
+     * Save a new person using individual attributes.
+     *
+     * @param age         age of the person
+     * @param frenchLevel French level
+     * @param gender      gender of the person
+     * @param name        name of the person
+     * @param oldDWWM     true if from old DWWM
+     * @param profile     profile enum
+     * @param techLevel   technical level
+     * @param listId      UUID of the list
+     * @return the saved person
+     * @throws IllegalArgumentException if list not found
+     */
+    public Person save(Integer age, Integer frenchLevel, Person.Gender gender, String name,
+                       Boolean oldDWWM, Person.Profile profile, Integer techLevel, UUID listId) {
+
+        ListEntity list = listRepository.findById(listId)
                 .orElseThrow(() -> new IllegalArgumentException("List not found with id: " + listId));
 
         Person person = new Person();
@@ -102,21 +115,22 @@ public class PersonService {
     }
 
     /**
-     * Updates an existing person's attributes and saves the changes to the repository.
+     * Update an existing person.
      *
-     * @param id          the unique identifier of the person to edit
-     * @param age         the updated age of the person
-     * @param frenchLevel the updated French language proficiency level
-     * @param gender      the updated gender of the person
-     * @param name        the updated name of the person
-     * @param oldDWWM     indicates whether the person belongs to an old DWWM group
-     * @param profile     the updated profile of the person
-     * @param techLevel   the updated technical proficiency level of the person
-     * @return the updated and saved person instance
-     * @throws IllegalArgumentException if no person is found with the provided id
+     * @param id          UUID of the person to edit
+     * @param age         updated age
+     * @param frenchLevel updated French level
+     * @param gender      updated gender
+     * @param name        updated name
+     * @param oldDWWM     updated DWWM status
+     * @param profile     updated profile
+     * @param techLevel   updated technical level
+     * @return the updated person
+     * @throws IllegalArgumentException if person not found
      */
     public Person edit(UUID id, Integer age, Integer frenchLevel, Person.Gender gender,
-                  String name, Boolean oldDWWM, Person.Profile profile, Integer techLevel) {
+                       String name, Boolean oldDWWM, Person.Profile profile, Integer techLevel) {
+
         Person person = personRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Person not found with id: " + id));
 
@@ -128,37 +142,41 @@ public class PersonService {
         person.setProfile(profile);
         person.setTechLevel(techLevel);
 
-        return personRepository.save(person);  // Using save instead of update
+        return personRepository.save(person);
     }
 
     /**
-     * Delete a person by ID.
+     * Delete a person by UUID.
      *
-     * @param id the person ID
+     * @param id the UUID of the person
+     * @throws IllegalArgumentException if person not found
      */
     public void deleteById(UUID id) {
         personRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Person not found with id: " + id));
-
         personRepository.deleteById(id);
     }
 
     /**
      * Count the number of persons in a list.
      *
-     * @param list the list containing the persons
-     * @return the number of persons in the list
+     * @param list the list
+     * @return number of persons in the list
      */
-    public long countByList(List list) {
+    public long countByList(ListEntity list) {
         return personRepository.countByList(list);
     }
 
     /**
-     * Delete all persons in a list.
+     * Delete all persons from a given list.
      *
-     * @param list the list containing the persons to delete
+     * @param list the list from which to delete persons
      */
-    public void deleteByList(List list) {
+    public void deleteByList(ListEntity list) {
         personRepository.deleteByList(list);
     }
+
+    
+
+
 }

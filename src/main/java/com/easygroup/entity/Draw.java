@@ -28,7 +28,7 @@ public class Draw {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "list_id", nullable = false)
-    private List list;
+    private ListEntity list;
 
     @Column
     private String title;

@@ -1,6 +1,6 @@
 package com.easygroup.service;
 
-import com.easygroup.entity.List;
+import com.easygroup.entity.ListEntity;
 import com.easygroup.entity.ListShare;
 import com.easygroup.entity.User;
 import com.easygroup.repository.ListRepository;
@@ -34,7 +34,7 @@ public class ListService {
      *
      * @return a list of all lists
      */
-    public java.util.List<List> findAll() {
+    public java.util.List<ListEntity> findAll() {
         return listRepository.findAll();
     }
 
@@ -44,7 +44,7 @@ public class ListService {
      * @param id the list ID
      * @return an Optional containing the list if found
      */
-    public Optional<List> findById(UUID id) {
+    public Optional<ListEntity> findById(UUID id) {
         return listRepository.findById(id);
     }
 
@@ -54,7 +54,7 @@ public class ListService {
      * @param user the user who owns the lists
      * @return a list of lists owned by the user
      */
-    public java.util.List<List> findByUser(User user) {
+    public java.util.List<ListEntity> findByUser(User user) {
         return listRepository.findByUser(user);
     }
 
@@ -64,7 +64,7 @@ public class ListService {
      * @param user the user who has access to the shared lists
      * @return a list of lists shared with the user
      */
-    public java.util.List<List> findSharedWithUser(User user) {
+    public java.util.List<ListEntity> findSharedWithUser(User user) {
         return listShareRepository.findBySharedWithUser(user)
                 .stream()
                 .map(ListShare::getList)
@@ -78,14 +78,14 @@ public class ListService {
      * @param user     the user who owns the list
      * @return the saved list
      */
-    public List save(String listName, User user) {
+    public ListEntity save(String listName, User user) {
         System.out.println("User inside save = " + user);
 
         if (findByUser(user).stream().anyMatch(l -> l.getName().equals(listName))) {
             throw new IllegalArgumentException("List name already exists for user: " + user.getEmail());
         }
 
-        List list = new List();
+        ListEntity list = new ListEntity();
         list.setName(listName);
         list.setUser(user); // 🔥 Obligatoire !
 
@@ -100,4 +100,9 @@ public class ListService {
     public void deleteById(UUID id) {
         listRepository.deleteById(id);
     }
+
+public ListEntity findByIdAndUserId(UUID listId, UUID userId) {
+    return listRepository.findByIdAndUser_Id(listId, userId).orElse(null);
+}
+
 }

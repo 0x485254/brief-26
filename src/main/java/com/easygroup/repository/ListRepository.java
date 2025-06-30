@@ -1,6 +1,7 @@
 package com.easygroup.repository;
 
-import com.easygroup.entity.List;
+import com.easygroup.entity.ListEntity;
+import com.easygroup.entity.Person;
 import com.easygroup.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -12,7 +13,7 @@ import java.util.UUID;
  * Repository for ListEntity.
  */
 @Repository
-public interface ListRepository extends JpaRepository<List, UUID> {
+public interface ListRepository extends JpaRepository<ListEntity, UUID> {
 
     /**
      * Find all lists owned by a user.
@@ -20,7 +21,7 @@ public interface ListRepository extends JpaRepository<List, UUID> {
      * @param user the user who owns the lists
      * @return a list of ListEntity objects
      */
-    java.util.List<List> findByUser(User user);
+    java.util.List<ListEntity> findByUser(User user);
 
     /**
      * Find a list by its name and owner.
@@ -29,7 +30,7 @@ public interface ListRepository extends JpaRepository<List, UUID> {
      * @param user the owner of the list
      * @return an Optional containing the list if found
      */
-    Optional<List> findByNameAndUser(String name, User user);
+    Optional<ListEntity> findByNameAndUser(String name, User user);
 
     /**
      * Check if a list exists with the given name and owner.
@@ -39,4 +40,6 @@ public interface ListRepository extends JpaRepository<List, UUID> {
      * @return true if a list exists with the name and owner
      */
     boolean existsByNameAndUser(String name, User user);
+
+Optional<ListEntity> findByIdAndUser_Id(UUID listId, UUID userId);
 }

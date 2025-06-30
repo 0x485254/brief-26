@@ -48,7 +48,7 @@ public class Person {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "list_id", nullable = false)
-    private List list;
+    private ListEntity list;
 
     @OneToMany(mappedBy = "person")
     private java.util.List<GroupPerson> groupPersons = new ArrayList<>();

@@ -2,7 +2,7 @@ package com.easygroup.controller;
 
 import com.easygroup.dto.ListRequest;
 import com.easygroup.dto.ListResponse;
-import com.easygroup.entity.List;
+import com.easygroup.entity.ListEntity;
 import com.easygroup.entity.User;
 import com.easygroup.service.ListService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ public class ListController {
         System.out.println("USER = " + user);
 
         try{
-            List list = listService.save(request.getName(), user);
+            ListEntity list = listService.save(request.getName(), user);
 
             ListResponse response = new ListResponse(
                     list.getId(),

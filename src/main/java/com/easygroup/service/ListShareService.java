@@ -1,6 +1,6 @@
 package com.easygroup.service;
 
-import com.easygroup.entity.List;
+import com.easygroup.entity.ListEntity;
 import com.easygroup.entity.ListShare;
 import com.easygroup.entity.User;
 import com.easygroup.repository.ListRepository;
@@ -25,7 +25,7 @@ public class ListShareService {
      * @param user the user to share with
      * @return the created ListShare
      */
-    public ListShare shareList(List list, User user) {
+    public ListShare shareList(ListEntity list, User user) {
         list.setIsShared(true);
         listRepository.save(list);
 
@@ -41,7 +41,7 @@ public class ListShareService {
      * @param list the list to unshare
      * @param user the user to unshare with
      */
-    public List unshareList(List list, User user) {
+    public ListEntity unshareList(ListEntity list, User user) {
         listShareRepository.findByListAndSharedWithUser(list, user)
                 .ifPresent(listShareRepository::delete);
 
@@ -61,7 +61,7 @@ public class ListShareService {
      * @param user the user to check
      * @return true if the list is shared with the user
      */
-    public boolean isListSharedWithUser(List list, User user) {
+    public boolean isListSharedWithUser(ListEntity list, User user) {
         return listShareRepository.existsByListAndSharedWithUser(list, user);
     }
 }
