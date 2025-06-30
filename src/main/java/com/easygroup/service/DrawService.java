@@ -34,9 +34,8 @@ public class DrawService {
 
     @Autowired
     private GroupGenerationService groupGenerationService;
+
     public DrawResponse generateGroups(GenerateGroupsRequest request, UUID userId, UUID listId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with id: " + userId));
 
         List list = validateUserListAccess(userId, listId);
 
@@ -56,9 +55,9 @@ public class DrawService {
 
     private List validateUserListAccess(UUID userId, UUID listId) {
         List list = listRepository.findById(listId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "List not found with id: " + listId));
+                .orElseThrow(
+                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "List not found with id: " + listId));
 
-        //to be added && !hasSharedAccess(userId, listId)
         if (!list.getUser().getId().equals(userId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User does not have access to list: " + listId);
         }
@@ -74,6 +73,7 @@ public class DrawService {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
         return "Groups for " + listName + " - " + timestamp;
     }
+
     private Draw convertDtoToEntity(GenerateGroupsRequest request, List list) {
         Draw draw = new Draw();
         draw.setTitle(generateTitle(request.getTitle(), list.getName()));
@@ -81,6 +81,7 @@ public class DrawService {
         draw.setCreatedAt(LocalDateTime.now());
         return draw;
     }
+
     private DrawResponse convertEntityToDto(Draw draw) {
         return DrawResponse.builder()
                 .id(draw.getId())

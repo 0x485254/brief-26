@@ -47,12 +47,10 @@ class GroupGenerationServiceTests {
 
     @BeforeEach
     void setUp() {
-        // Create test list
         testList = new com.easygroup.entity.List();
         testList.setId(UUID.randomUUID());
         testList.setName("Test Class 2025");
 
-        // Create test draw
         testDraw = new Draw();
         testDraw.setId(UUID.randomUUID());
         testDraw.setTitle("Test Draw");
@@ -60,10 +58,8 @@ class GroupGenerationServiceTests {
         testDraw.setCreatedAt(LocalDateTime.now());
         testDraw.setGroups(new ArrayList<>());
 
-        // Create diverse test persons (20 people for good distribution testing)
         testPersons = createDiversePersonList();
 
-        // Setup default request
         request = new GenerateGroupsRequest();
         request.setTitle("Test Groups");
         request.setNumberOfGroups(4);
@@ -75,16 +71,13 @@ class GroupGenerationServiceTests {
         request.setBalanceByOldDwwm(false);
         request.setBalanceByProfile(false);
 
-        // Mock repository calls
         when(personRepository.findByList(testList)).thenReturn(testPersons);
         when(groupRepository.saveAll(any())).thenAnswer(invocation -> {
             java.util.List<Group> groups = invocation.getArgument(0);
-            // Simulate saving by setting IDs
             groups.forEach(group -> {
                 if (group.getId() == null) {
                     group.setId(UUID.randomUUID());
                 }
-                // Since we're using @ManyToMany, persons already have IDs
                 group.getPersons().forEach(person -> {
                     if (person.getId() == null) {
                         person.setId(UUID.randomUUID());
@@ -98,35 +91,34 @@ class GroupGenerationServiceTests {
     private java.util.List<Person> createDiversePersonList() {
         java.util.List<Person> persons = new ArrayList<>();
 
-        // Create 20 diverse persons for realistic testing
-        String[] names = {"Alice", "Bob", "Clara", "David", "Emma", "Frank", "Grace", "Henry",
+        String[] names = { "Alice", "Bob", "Clara", "David", "Emma", "Frank", "Grace", "Henry",
                 "Iris", "Jack", "Kate", "Liam", "Mia", "Noah", "Olivia", "Paul",
-                "Quinn", "Rose", "Sam", "Tina"};
+                "Quinn", "Rose", "Sam", "Tina" };
 
-        Person.Gender[] genders = {Person.Gender.FEMALE, Person.Gender.MALE, Person.Gender.FEMALE,
+        Person.Gender[] genders = { Person.Gender.FEMALE, Person.Gender.MALE, Person.Gender.FEMALE,
                 Person.Gender.MALE, Person.Gender.FEMALE, Person.Gender.MALE,
                 Person.Gender.OTHER, Person.Gender.MALE, Person.Gender.FEMALE,
                 Person.Gender.MALE, Person.Gender.FEMALE, Person.Gender.MALE,
                 Person.Gender.FEMALE, Person.Gender.MALE, Person.Gender.FEMALE,
                 Person.Gender.MALE, Person.Gender.OTHER, Person.Gender.FEMALE,
-                Person.Gender.MALE, Person.Gender.FEMALE};
+                Person.Gender.MALE, Person.Gender.FEMALE };
 
-        int[] ages = {22, 25, 28, 24, 26, 30, 23, 27, 25, 29, 24, 26, 22, 28, 25, 31, 24, 27, 26, 23};
+        int[] ages = { 22, 25, 28, 24, 26, 30, 23, 27, 25, 29, 24, 26, 22, 28, 25, 31, 24, 27, 26, 23 };
 
-        int[] techLevels = {1, 2, 3, 4, 2, 3, 1, 4, 2, 3, 1, 4, 2, 3, 1, 4, 2, 3, 1, 4};
+        int[] techLevels = { 1, 2, 3, 4, 2, 3, 1, 4, 2, 3, 1, 4, 2, 3, 1, 4, 2, 3, 1, 4 };
 
-        int[] frenchLevels = {2, 3, 4, 1, 3, 2, 4, 1, 3, 2, 4, 1, 3, 2, 4, 1, 3, 2, 4, 1};
+        int[] frenchLevels = { 2, 3, 4, 1, 3, 2, 4, 1, 3, 2, 4, 1, 3, 2, 4, 1, 3, 2, 4, 1 };
 
-        boolean[] oldDwwm = {false, true, false, false, true, false, true, false, false, true,
-                false, true, false, false, true, false, true, false, false, true};
+        boolean[] oldDwwm = { false, true, false, false, true, false, true, false, false, true,
+                false, true, false, false, true, false, true, false, false, true };
 
-        Person.Profile[] profiles = {Person.Profile.A_LAISE, Person.Profile.RESERVE, Person.Profile.TIMIDE,
+        Person.Profile[] profiles = { Person.Profile.A_LAISE, Person.Profile.RESERVE, Person.Profile.TIMIDE,
                 Person.Profile.A_LAISE, Person.Profile.RESERVE, Person.Profile.TIMIDE,
                 Person.Profile.A_LAISE, Person.Profile.RESERVE, Person.Profile.TIMIDE,
                 Person.Profile.A_LAISE, Person.Profile.RESERVE, Person.Profile.TIMIDE,
                 Person.Profile.A_LAISE, Person.Profile.RESERVE, Person.Profile.TIMIDE,
                 Person.Profile.A_LAISE, Person.Profile.RESERVE, Person.Profile.TIMIDE,
-                Person.Profile.A_LAISE, Person.Profile.RESERVE};
+                Person.Profile.A_LAISE, Person.Profile.RESERVE };
 
         for (int i = 0; i < 20; i++) {
             Person person = new Person();
@@ -147,19 +139,16 @@ class GroupGenerationServiceTests {
 
     @Test
     void generateGroups_BasicDistribution_Success() {
-        // Test basic group generation without any balancing
         groupGenerationService.generateGroups(testDraw, request);
 
         verify(groupRepository).saveAll(any());
         assertEquals(4, testDraw.getGroups().size());
 
-        // Verify all groups have names
         java.util.List<String> groupNames = testDraw.getGroups().stream()
                 .map(Group::getName)
                 .collect(Collectors.toList());
         assertTrue(groupNames.containsAll(Arrays.asList("Group A", "Group B", "Group C", "Group D")));
 
-        // Verify all persons are distributed
         int totalPersonsInGroups = testDraw.getGroups().stream()
                 .mapToInt(group -> group.getPersons().size())
                 .sum();
@@ -172,21 +161,15 @@ class GroupGenerationServiceTests {
 
         groupGenerationService.generateGroups(testDraw, request);
 
-        // Verify gender distribution is balanced
         for (Group group : testDraw.getGroups()) {
             Map<Person.Gender, Long> genderCount = group.getPersons().stream()
                     .collect(Collectors.groupingBy(Person::getGender, Collectors.counting()));
 
-            // Each group should have a reasonable gender distribution
-            // With 20 people and 4 groups, each group gets ~5 people
-            // Gender distribution should be relatively even
             assertNotNull(genderCount);
 
-            // Check that we don't have extreme gender imbalances
             long maxGenderInGroup = genderCount.values().stream().mapToLong(Long::longValue).max().orElse(0);
             long minGenderInGroup = genderCount.values().stream().mapToLong(Long::longValue).min().orElse(0);
 
-            // The difference shouldn't be too large (allowing for 2 person difference max)
             assertTrue(maxGenderInGroup - minGenderInGroup <= 2,
                     "Gender distribution too uneven in group: " + group.getName());
         }
@@ -198,13 +181,10 @@ class GroupGenerationServiceTests {
 
         groupGenerationService.generateGroups(testDraw, request);
 
-        // Verify tech level distribution
         for (Group group : testDraw.getGroups()) {
             Map<Integer, Long> techLevelCount = group.getPersons().stream()
                     .collect(Collectors.groupingBy(Person::getTechLevel, Collectors.counting()));
 
-            // Each tech level (1-4) should be represented if possible
-            // With good distribution, each group should have diverse tech levels
             assertTrue(techLevelCount.size() >= 2,
                     "Tech level diversity too low in group: " + group.getName());
         }
@@ -216,7 +196,6 @@ class GroupGenerationServiceTests {
 
         groupGenerationService.generateGroups(testDraw, request);
 
-        // Verify age distribution is spread
         for (Group group : testDraw.getGroups()) {
             java.util.List<Integer> ages = group.getPersons().stream()
                     .map(Person::getAge)
@@ -224,10 +203,8 @@ class GroupGenerationServiceTests {
                     .collect(Collectors.toList());
 
             if (ages.size() > 1) {
-                // Calculate age spread in group
                 int ageSpread = ages.get(ages.size() - 1) - ages.get(0);
 
-                // Age should be reasonably distributed (not all same age)
                 assertTrue(ageSpread >= 0, "Age distribution validation for group: " + group.getName());
             }
         }
@@ -239,13 +216,11 @@ class GroupGenerationServiceTests {
 
         groupGenerationService.generateGroups(testDraw, request);
 
-        // Verify French level distribution
         for (Group group : testDraw.getGroups()) {
             Set<Integer> frenchLevels = group.getPersons().stream()
                     .map(Person::getFrenchLevel)
                     .collect(Collectors.toSet());
 
-            // Each group should have diverse French levels
             assertTrue(frenchLevels.size() >= 2,
                     "French level diversity too low in group: " + group.getName());
         }
@@ -257,12 +232,10 @@ class GroupGenerationServiceTests {
 
         groupGenerationService.generateGroups(testDraw, request);
 
-        // Verify old DWWM distribution
         for (Group group : testDraw.getGroups()) {
             Map<Boolean, Long> dwwmCount = group.getPersons().stream()
                     .collect(Collectors.groupingBy(Person::getOldDwwm, Collectors.counting()));
 
-            // Each group should ideally have both old and new DWWM students
             if (group.getPersons().size() > 1) {
                 assertTrue(dwwmCount.size() <= 2, "DWWM distribution check for group: " + group.getName());
             }
@@ -275,13 +248,11 @@ class GroupGenerationServiceTests {
 
         groupGenerationService.generateGroups(testDraw, request);
 
-        // Verify personality profile distribution
         for (Group group : testDraw.getGroups()) {
             Set<Person.Profile> profiles = group.getPersons().stream()
                     .map(Person::getProfile)
                     .collect(Collectors.toSet());
 
-            // Each group should have diverse personality profiles
             assertTrue(profiles.size() >= 1,
                     "Profile diversity check for group: " + group.getName());
         }
@@ -289,7 +260,6 @@ class GroupGenerationServiceTests {
 
     @Test
     void generateGroups_AllCriteriaEnabled_PerfectMix() {
-        // THE BIG TEST - Enable all balancing criteria
         request.setBalanceByGender(true);
         request.setBalanceByAge(true);
         request.setBalanceByTechLevel(true);
@@ -299,36 +269,29 @@ class GroupGenerationServiceTests {
 
         groupGenerationService.generateGroups(testDraw, request);
 
-        // Verify all criteria are balanced simultaneously
         assertEquals(4, testDraw.getGroups().size());
 
         for (Group group : testDraw.getGroups()) {
-            // Gender diversity
             Set<Person.Gender> genders = group.getPersons().stream()
                     .map(Person::getGender)
                     .collect(Collectors.toSet());
 
-            // Tech level diversity
             Set<Integer> techLevels = group.getPersons().stream()
                     .map(Person::getTechLevel)
                     .collect(Collectors.toSet());
 
-            // French level diversity
             Set<Integer> frenchLevels = group.getPersons().stream()
                     .map(Person::getFrenchLevel)
                     .collect(Collectors.toSet());
 
-            // Profile diversity
             Set<Person.Profile> profiles = group.getPersons().stream()
                     .map(Person::getProfile)
                     .collect(Collectors.toSet());
 
-            // DWWM diversity
             Set<Boolean> dwwmTypes = group.getPersons().stream()
                     .map(Person::getOldDwwm)
                     .collect(Collectors.toSet());
 
-            // Assert diversity in each group
             assertTrue(genders.size() >= 1, "Gender diversity in " + group.getName());
             assertTrue(techLevels.size() >= 2, "Tech level diversity in " + group.getName());
             assertTrue(frenchLevels.size() >= 2, "French level diversity in " + group.getName());
@@ -344,7 +307,6 @@ class GroupGenerationServiceTests {
             System.out.println();
         }
 
-        // Global distribution check - ensure no group is too unbalanced
         int minGroupSize = testDraw.getGroups().stream()
                 .mapToInt(group -> group.getPersons().size())
                 .min().orElse(0);
@@ -352,15 +314,13 @@ class GroupGenerationServiceTests {
                 .mapToInt(group -> group.getPersons().size())
                 .max().orElse(0);
 
-        // Group sizes should be relatively even (difference of max 1 person)
         assertTrue(maxGroupSize - minGroupSize <= 1,
                 "Group sizes too uneven: min=" + minGroupSize + ", max=" + maxGroupSize);
     }
 
     @Test
     void generateGroups_NotEnoughPersons_ThrowsException() {
-        // Test edge case: more groups than persons
-        request.setNumberOfGroups(25); // More than 20 persons
+        request.setNumberOfGroups(25);
 
         when(personRepository.findByList(testList)).thenReturn(testPersons);
 
@@ -597,9 +557,11 @@ class GroupGenerationServiceTests {
 
         System.out.println("✅ Minimum valid scenario: 2 persons in 2 groups works perfectly");
     }
+
     @Test
     void generateGroups_LargeGroups_100PersonsIn10Groups() {
-        // Test large scale: 100 persons → 10 groups (should be [10,10,10,10,10,10,10,10,10,10])
+        // Test large scale: 100 persons → 10 groups (should be
+        // [10,10,10,10,10,10,10,10,10,10])
 
         List<Person> largePersonList = createLargePersonList(100);
         when(personRepository.findByList(testList)).thenReturn(largePersonList);
@@ -780,7 +742,7 @@ class GroupGenerationServiceTests {
     private List<Person> createLargePersonList(int count) {
         List<Person> persons = new ArrayList<>();
 
-        String[] nameBase = {"Alex", "Blake", "Casey", "Drew", "Emery", "Finley", "Grey", "Harper"};
+        String[] nameBase = { "Alex", "Blake", "Casey", "Drew", "Emery", "Finley", "Grey", "Harper" };
         Person.Gender[] genders = Person.Gender.values();
         Person.Profile[] profiles = Person.Profile.values();
 
