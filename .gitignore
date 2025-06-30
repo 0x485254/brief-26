@@ -1,3 +1,5 @@
 .env
 target
 .idea
+
+application-local.properties
