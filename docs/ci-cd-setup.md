@@ -115,12 +115,13 @@ jobs:
 
       - name: Transfer files to server
         run: |
-          scp easygroup.tar.gz docker-compose.prod.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/
+          scp -P ${{ secrets.SSH_PORT }} easygroup.tar.gz docker-compose.prod.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/
 
       - name: Deploy on server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
@@ -185,6 +186,7 @@ Pour que le déploiement fonctionne correctement, les secrets suivants doivent �
 - `SSH_PRIVATE_KEY` : Clé SSH privée pour l'accès au serveur
 - `SSH_KNOWN_HOSTS` : Empreintes des hôtes connus pour la vérification SSH
 - `SSH_HOST` : Adresse IP ou nom d'hôte du serveur de production
+- `SSH_PORT` : Port SSH du serveur de production
 - `SSH_USER` : Nom d'utilisateur pour la connexion SSH
 - Variables d'environnement de l'application : `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`, `APP_PORT`, `JWT_SECRET`, `JWT_EXPIRATION_MS`, `LOG_LEVEL`, `CORS_URLS`
 
