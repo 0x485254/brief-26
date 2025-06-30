@@ -29,32 +29,41 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         this.userService = userService;
     }
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain)
-            throws ServletException, IOException {
+@Override
+protected void doFilterInternal(HttpServletRequest request,
+                                HttpServletResponse response,
+                                FilterChain filterChain)
+        throws ServletException, IOException {
 
-        String jwt = extractJwtFromCookies(request);
+    String path = request.getRequestURI();
 
-        if (jwt != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            String email = jwtService.extractUsername(jwt);
-            if (email != null) {
-                User user = userService.getActivatedUserByEmail(email);
-                if (jwtService.validateToken(jwt, email)) {
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            user,
-                            null,
-                            getAuthorities(user));
+    // 🔒 Ignore les routes publiques
+    if (path.startsWith("/api/auth/") || path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")) {
+        filterChain.doFilter(request, response);
+        return;
+    }
 
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                }
+    String jwt = extractJwtFromCookies(request);
+
+    if (jwt != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        String email = jwtService.extractUsername(jwt);
+        if (email != null) {
+            User user = userService.getActivatedUserByEmail(email);
+            if (jwtService.validateToken(jwt, email)) {
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        user,
+                        null,
+                        getAuthorities(user));
+
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
-
-        filterChain.doFilter(request, response);
     }
+
+    filterChain.doFilter(request, response);
+}
+
 
     private String extractJwtFromCookies(HttpServletRequest request) {
         if (request.getCookies() == null)
