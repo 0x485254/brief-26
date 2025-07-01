@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import org.springframework.http.HttpStatus;
 
 
 /**
@@ -63,14 +64,46 @@ public ResponseEntity<List<PersonResponse>> getPersons(
     /**
      * Create a new person in a specific list.
      *
+     * @param personRequest the person object to edit
+     * @param user   the authenticated user
+     * @param personId   new version of person
+     * @return the created person, or 403 if the list is not owned by the user
+     */
+    @PutMapping("/{personId}")
+    public ResponseEntity<PersonResponse> createPerson(
+            @RequestBody @Valid PersonRequest personRequest,
+            @AuthenticationPrincipal User user,
+            @PathVariable UUID personId) {
+        
+        // Set the personId from path variable to the request
+        Person person = new Person();
+        person.setId(personId);
+        person.setName(personRequest.getName());
+        person.setGender(personRequest.getGender());
+        person.setAge(personRequest.getAge());
+        person.setFrenchLevel(personRequest.getFrenchLevel());
+        person.setOldDwwm(personRequest.getOldDwwm());
+        person.setTechLevel(personRequest.getTechLevel());
+        person.setProfile(personRequest.getProfile());
+        
+        // Create the person using the service, assuming there's a method like this
+        Person createdPerson = personService.edit(person);
+        PersonResponse response = PersonMapper.toDto(createdPerson);
+        
+        // Return created status (201) with the created person in the body
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    /**
+     * Create a new person in a specific list.
+     *
      * @param listId the ID of the list
      * @param person the person object to create
      * @param user   the authenticated user
      * @return the created person, or 403 if the list is not owned by the user
      */
-
     @PostMapping
-    public ResponseEntity<PersonResponse> createPerson(
+    public ResponseEntity<PersonResponse> updatePerson(
             @PathVariable UUID listId,
             @RequestBody @Valid PersonRequest personRequest,
             @AuthenticationPrincipal User user) {
