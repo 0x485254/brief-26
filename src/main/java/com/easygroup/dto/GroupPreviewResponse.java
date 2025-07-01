@@ -13,13 +13,13 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DrawResponse {
-
-    private UUID id;
-    private String title;
-    private LocalDateTime createdAt;
+public class GroupPreviewResponse {
     private UUID listId;
     private String listName;
-    private Integer groupCount;
+    private String title;
     private List<GroupResponse> groups;
+    private Integer groupCount;
+    private Integer totalPersons;
+    private LocalDateTime generatedAt;
+
 }

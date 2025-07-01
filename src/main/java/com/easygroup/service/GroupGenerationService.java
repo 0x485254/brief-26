@@ -1,10 +1,12 @@
 package com.easygroup.service;
 
 import com.easygroup.dto.GenerateGroupsRequest;
+import com.easygroup.dto.GroupResponse;
 import com.easygroup.entity.Draw;
 import com.easygroup.entity.Group;
-import com.easygroup.entity.GroupPerson;
+import com.easygroup.entity.ListEntity;
 import com.easygroup.entity.Person;
+import com.easygroup.mapper.GroupMapper;
 import com.easygroup.repository.GroupRepository;
 import com.easygroup.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,20 +36,24 @@ public class GroupGenerationService {
         System.out.println("Found " + persons.size() + " persons in list: " + draw.getList().getName());
 
         if (persons.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot create groups: No persons found in the list");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Cannot create groups: No persons found in the list");
         }
 
         if (persons.size() < request.getNumberOfGroups()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Not enough persons to create " + request.getNumberOfGroups() + " groups. Found: " + persons.size());
+                    "Not enough persons to create " + request.getNumberOfGroups() + " groups. Found: "
+                            + persons.size());
         }
 
         List<Group> groups = createEmptyGroups(request, draw);
-        initialDistribution(persons, groups);
-        applySelectedCriteria(groups, request);
+
+        distributePersons(persons, groups, request);
+
+        draw.setGroups(groups);
         groupRepository.saveAll(groups);
 
-        System.out.println("Group generation completed successfully");
+        System.out.println("Group generation completed ");
     }
 
     private List<Group> createEmptyGroups(GenerateGroupsRequest request, Draw draw) {
@@ -58,190 +64,234 @@ public class GroupGenerationService {
             Group group = new Group();
             group.setName(request.getGroupNames().get(i));
             group.setDraw(draw);
-            group.setGroupPersons(new ArrayList<>());
+            group.setPersons(new ArrayList<>());
             groups.add(group);
         }
 
         return groups;
     }
 
-    private void initialDistribution(List<Person> persons, List<Group> groups) {
-        System.out.println("Starting initial random distribution");
+    private void distributePersons(List<Person> persons, List<Group> groups,
+            GenerateGroupsRequest request) {
+        System.out.println("Starting distribution");
 
-        Collections.shuffle(persons);
-        System.out.println("Shuffled all persons randomly");
+        int totalPersons = persons.size();
+        int numberOfGroups = groups.size();
+        int baseSize = totalPersons / numberOfGroups;
+        int remainder = totalPersons % numberOfGroups;
 
-        for (int i = 0; i < persons.size(); i++) {
-            Group targetGroup = groups.get(i % groups.size());
-
-            GroupPerson groupPerson = new GroupPerson();
-            groupPerson.setGroup(targetGroup);
-            groupPerson.setPerson(persons.get(i));
-            targetGroup.getGroupPersons().add(groupPerson);
-
-            System.out.println(persons.get(i).getName() + " assigned to " + targetGroup.getName());
+        int[] targetSizes = new int[numberOfGroups];
+        for (int i = 0; i < numberOfGroups; i++) {
+            targetSizes[i] = baseSize + (i < remainder ? 1 : 0);
         }
+
+        System.out.println("Target group sizes: " + Arrays.toString(targetSizes));
+
+        List<Person> shuffledPersons = new ArrayList<>(persons);
+        Collections.shuffle(shuffledPersons);
+
+        for (Person person : shuffledPersons) {
+            Group bestGroup = findBestGroup(groups, targetSizes, person, request);
+            if (bestGroup != null) {
+                bestGroup.getPersons().add(person);
+                System.out.println("Assigned " + person.getName() + " to " + bestGroup.getName());
+            }
+        }
+
+        verifyDistribution(groups, targetSizes);
     }
 
-    private void applySelectedCriteria(List<Group> groups, GenerateGroupsRequest request) {
-        System.out.println("Applying selected balancing criteria");
+    private Group findBestGroup(List<Group> groups, int[] targetSizes,
+            Person person, GenerateGroupsRequest request) {
+
+        List<Group> availableGroups = new ArrayList<>();
+        for (int i = 0; i < groups.size(); i++) {
+            if (groups.get(i).getPersons().size() < targetSizes[i]) {
+                availableGroups.add(groups.get(i));
+            }
+        }
+
+        if (availableGroups.isEmpty()) {
+            return null;
+        }
+
+        Group bestGroup = null;
+        double bestScore = Double.NEGATIVE_INFINITY;
+
+        for (Group group : availableGroups) {
+            double balanceScore = calculateBalanceScore(group, person, request);
+
+            int groupIndex = groups.indexOf(group);
+            double sizeScore = (targetSizes[groupIndex] - group.getPersons().size()) * 10.0;
+
+            double totalScore = balanceScore + sizeScore;
+
+            System.out.println("Group " + group.getName() + " score for " + person.getName() +
+                    ": balance=" + balanceScore + ", size=" + sizeScore + ", total=" + totalScore);
+
+            if (totalScore > bestScore) {
+                bestScore = totalScore;
+                bestGroup = group;
+            }
+        }
+
+        return bestGroup;
+    }
+
+    private double calculateBalanceScore(Group group, Person person, GenerateGroupsRequest request) {
+        double score = 0.0;
 
         if (request.getBalanceByGender()) {
-            System.out.println("Applying gender rebalancing");
-            rebalanceByGender(groups);
+            score += calculateAttributeDiversityScore(group, person, Person::getGender, "Gender");
         }
 
         if (request.getBalanceByTechLevel()) {
-            System.out.println("Applying tech level rebalancing");
-            rebalanceByTechLevel(groups);
-        }
-
-        if (request.getBalanceByAge()) {
-            System.out.println("Applying age rebalancing");
-            rebalanceByAge(groups);
-        }
-
-        if (request.getBalanceByOldDwwm()) {
-            System.out.println("Applying old DWWM rebalancing");
-            rebalanceByOldDwwm(groups);
+            score += calculateAttributeDiversityScore(group, person, Person::getTechLevel, "TechLevel");
         }
 
         if (request.getBalanceByFrenchLevel()) {
-            System.out.println("Applying French level rebalancing");
-            rebalanceByFrenchLevel(groups);
+            score += calculateAttributeDiversityScore(group, person, Person::getFrenchLevel, "FrenchLevel");
+        }
+
+        if (request.getBalanceByOldDwwm()) {
+            score += calculateAttributeDiversityScore(group, person, Person::getOldDwwm, "OldDwwm");
         }
 
         if (request.getBalanceByProfile()) {
-            System.out.println("Applying personality profile rebalancing");
-            rebalanceByProfile(groups);
+            score += calculateAttributeDiversityScore(group, person, Person::getProfile, "Profile");
         }
+
+        if (request.getBalanceByAge()) {
+            score += calculateAgeDiversityScore(group, person);
+        }
+
+        return score;
     }
 
-    private void rebalanceByGender(List<Group> groups) {
-        List<Person> allPersons = extractAllPersons(groups);
-        clearAllGroups(groups);
+    private <T> double calculateAttributeDiversityScore(Group group, Person person,
+            java.util.function.Function<Person, T> attributeGetter, String attributeName) {
 
-        Map<Person.Gender, List<Person>> genderGroups = allPersons.stream()
-                .collect(Collectors.groupingBy(Person::getGender));
+        T personAttribute = attributeGetter.apply(person);
 
-        System.out.println("Grouped by gender:");
-        for (Map.Entry<Person.Gender, List<Person>> entry : genderGroups.entrySet()) {
-            System.out.println(entry.getKey() + ": " + entry.getValue().size() + " persons");
-        }
+        long countWithSameAttribute = group.getPersons().stream()
+                .filter(p -> attributeGetter.apply(p).equals(personAttribute))
+                .count();
 
-        for (Map.Entry<Person.Gender, List<Person>> entry : genderGroups.entrySet()) {
-            List<Person> genderPersons = entry.getValue();
-            Collections.shuffle(genderPersons);
-            distributeRoundRobin(genderPersons, groups);
-        }
+        double diversityScore = 10.0 - countWithSameAttribute;
+
+        System.out.println("  " + attributeName + " diversity for " + person.getName() +
+                " (" + personAttribute + "): existing=" + countWithSameAttribute +
+                ", score=" + diversityScore);
+
+        return diversityScore;
     }
 
-    private void rebalanceByTechLevel(List<Group> groups) {
-        List<Person> allPersons = extractAllPersons(groups);
-        clearAllGroups(groups);
-
-        Map<Integer, List<Person>> techGroups = allPersons.stream()
-                .collect(Collectors.groupingBy(Person::getTechLevel));
-
-        System.out.println("Grouped by tech level:");
-        for (Map.Entry<Integer, List<Person>> entry : techGroups.entrySet()) {
-            System.out.println("Level " + entry.getKey() + ": " + entry.getValue().size() + " persons");
+    private double calculateAgeDiversityScore(Group group, Person person) {
+        if (group.getPersons().isEmpty()) {
+            return 5.0;
         }
 
-        for (Map.Entry<Integer, List<Person>> entry : techGroups.entrySet()) {
-            List<Person> techPersons = entry.getValue();
-            Collections.shuffle(techPersons);
-            distributeRoundRobin(techPersons, groups);
-        }
-    }
-
-    private void rebalanceByAge(List<Group> groups) {
-        List<Person> allPersons = extractAllPersons(groups);
-        clearAllGroups(groups);
-
-        allPersons.sort(Comparator.comparing(Person::getAge));
-        System.out.println("Sorted by age for balanced distribution");
-
-        distributeRoundRobin(allPersons, groups);
-    }
-
-    private void rebalanceByOldDwwm(List<Group> groups) {
-        List<Person> allPersons = extractAllPersons(groups);
-        clearAllGroups(groups);
-
-        Map<Boolean, List<Person>> dwwmGroups = allPersons.stream()
-                .collect(Collectors.groupingBy(Person::getOldDwwm));
-
-        System.out.println("Grouped by old DWWM:");
-        for (Map.Entry<Boolean, List<Person>> entry : dwwmGroups.entrySet()) {
-            String label = entry.getKey() ? "Former DWWM" : "Not former DWWM";
-            System.out.println(label + ": " + entry.getValue().size() + " persons");
-        }
-
-        for (Map.Entry<Boolean, List<Person>> entry : dwwmGroups.entrySet()) {
-            List<Person> dwwmPersons = entry.getValue();
-            Collections.shuffle(dwwmPersons);
-            distributeRoundRobin(dwwmPersons, groups);
-        }
-    }
-
-    private void rebalanceByFrenchLevel(List<Group> groups) {
-        List<Person> allPersons = extractAllPersons(groups);
-        clearAllGroups(groups);
-
-        Map<Integer, List<Person>> frenchGroups = allPersons.stream()
-                .collect(Collectors.groupingBy(Person::getFrenchLevel));
-
-        System.out.println("Grouped by French level:");
-        for (Map.Entry<Integer, List<Person>> entry : frenchGroups.entrySet()) {
-            System.out.println("Level " + entry.getKey() + ": " + entry.getValue().size() + " persons");
-        }
-
-        for (Map.Entry<Integer, List<Person>> entry : frenchGroups.entrySet()) {
-            List<Person> frenchPersons = entry.getValue();
-            Collections.shuffle(frenchPersons);
-            distributeRoundRobin(frenchPersons, groups);
-        }
-    }
-
-    private void rebalanceByProfile(List<Group> groups) {
-        List<Person> allPersons = extractAllPersons(groups);
-        clearAllGroups(groups);
-
-        Map<Person.Profile, List<Person>> profileGroups = allPersons.stream()
-                .collect(Collectors.groupingBy(Person::getProfile));
-
-        System.out.println("Grouped by personality profile:");
-        for (Map.Entry<Person.Profile, List<Person>> entry : profileGroups.entrySet()) {
-            System.out.println(entry.getKey() + ": " + entry.getValue().size() + " persons");
-        }
-
-        for (Map.Entry<Person.Profile, List<Person>> entry : profileGroups.entrySet()) {
-            List<Person> profilePersons = entry.getValue();
-            Collections.shuffle(profilePersons);
-            distributeRoundRobin(profilePersons, groups);
-        }
-    }
-
-    private List<Person> extractAllPersons(List<Group> groups) {
-        return groups.stream()
-                .flatMap(group -> group.getGroupPersons().stream())
-                .map(GroupPerson::getPerson)
+        List<Integer> groupAges = group.getPersons().stream()
+                .map(Person::getAge)
                 .collect(Collectors.toList());
-    }
 
-    private void clearAllGroups(List<Group> groups) {
-        groups.forEach(group -> group.getGroupPersons().clear());
-    }
+        double avgAge = groupAges.stream().mapToInt(Integer::intValue).average().orElse(0);
+        double ageDifference = Math.abs(person.getAge() - avgAge);
 
-    private void distributeRoundRobin(List<Person> persons, List<Group> groups) {
-        for (int i = 0; i < persons.size(); i++) {
-            Group targetGroup = groups.get(i % groups.size());
-
-            GroupPerson groupPerson = new GroupPerson();
-            groupPerson.setGroup(targetGroup);
-            groupPerson.setPerson(persons.get(i));
-            targetGroup.getGroupPersons().add(groupPerson);
+        double ageScore;
+        if (ageDifference >= 2 && ageDifference <= 5) {
+            ageScore = 5.0;
+        } else if (ageDifference < 2) {
+            ageScore = 1.0;
+        } else {
+            ageScore = 3.0;
         }
+
+        System.out.println("  Age diversity for " + person.getName() +
+                " (age " + person.getAge() + "): avgGroupAge=" + avgAge +
+                ", difference=" + ageDifference + ", score=" + ageScore);
+
+        return ageScore;
+    }
+
+    private void verifyDistribution(List<Group> groups, int[] targetSizes) {
+        System.out.println("Final distribution verification:");
+        for (int i = 0; i < groups.size(); i++) {
+            int actualSize = groups.get(i).getPersons().size();
+            int targetSize = targetSizes[i];
+            System.out.println(groups.get(i).getName() + ": " + actualSize + "/" + targetSize + " persons");
+
+            if (actualSize != targetSize) {
+                System.out.println("WARNING: Group " + groups.get(i).getName() +
+                        " has " + actualSize + " persons but target was " + targetSize);
+            }
+        }
+
+    }
+
+    public List<GroupResponse> generateGroupsPreview(ListEntity list, GenerateGroupsRequest request) {
+        System.out.println("Starting PREVIEW group generation for list: " + list.getName());
+
+        List<Person> persons = personRepository.findByList(list);
+
+        if (persons.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Cannot create groups: No persons found in the list");
+        }
+
+        if (persons.size() < request.getNumberOfGroups()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Not enough persons to create " + request.getNumberOfGroups() + " groups. Found: "
+                            + persons.size());
+        }
+
+        List<Group> tempGroups = createEmptyGroupsForPreview(request);
+
+        distributePersons(persons, tempGroups, request);
+
+        List<GroupResponse> groupResponses = tempGroups.stream()
+                .map(GroupMapper::toDtoPreview)
+                .collect(Collectors.toList());
+
+        System.out.println("Preview generation completed successfully");
+        return groupResponses;
+    }
+
+    public void savePreviewToDatabase(Draw savedDraw, List<GroupResponse> preview) {
+        System.out.println("Saving preview groups to database for draw: " + savedDraw.getTitle());
+
+        List<Group> groups = new ArrayList<>();
+
+        for (GroupResponse groupResponse : preview) {
+            Group group = new Group();
+            group.setName(groupResponse.getName());
+            group.setDraw(savedDraw);
+
+            List<Person> persons = groupResponse.getPersons().stream()
+                    .map(personResponse -> personRepository.findById(personResponse.getPersonId())
+                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                    "Person not found: " + personResponse.getPersonId())))
+                    .collect(Collectors.toList());
+
+            group.setPersons(persons);
+            groups.add(group);
+        }
+
+        savedDraw.setGroups(groups);
+        groupRepository.saveAll(groups);
+
+        System.out.println("Preview saved successfully to database");
+    }
+
+    private List<Group> createEmptyGroupsForPreview(GenerateGroupsRequest request) {
+        List<Group> groups = new ArrayList<>();
+        for (int i = 0; i < request.getNumberOfGroups(); i++) {
+            Group group = new Group();
+            group.setName(request.getGroupNames().get(i));
+            group.setDraw(null);
+            group.setPersons(new ArrayList<>());
+            groups.add(group);
+        }
+        return groups;
     }
 }

@@ -2,8 +2,10 @@ package com.easygroup.controller;
 
 import com.easygroup.dto.DrawResponse;
 import com.easygroup.dto.GenerateGroupsRequest;
+import com.easygroup.dto.GroupPreviewResponse;
 import com.easygroup.entity.User;
 import com.easygroup.service.DrawService;
+
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,16 +24,27 @@ public class DrawController {
     private DrawService drawService;
 
     /**
-     * POST /api/lists/{listId}/draws
-     * Create a new draw (tirage) and generate groups
+     * POST /api/lists/{listId}/draws?save=false (PREVIEW)
+     * POST /api/lists/{listId}/draws?save=true (SAVE)
+     * Generate groups with optional save
      */
-    @PostMapping("/lists/{listId}/draws")
-    public ResponseEntity<DrawResponse> createDraw(
+    @PostMapping("/lists/{listId}/draws/preview")
+    public ResponseEntity<GroupPreviewResponse> generatePreview(
             @AuthenticationPrincipal User user,
             @PathVariable UUID listId,
             @Valid @RequestBody GenerateGroupsRequest request) {
 
-        DrawResponse response = drawService.generateGroups(request, user.getId(), listId);
+        GroupPreviewResponse response = drawService.generatePreview(request, user.getId(), listId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/lists/{listId}/draws")
+    public ResponseEntity<DrawResponse> saveGroups(
+            @AuthenticationPrincipal User user,
+            @PathVariable UUID listId,
+            @Valid @RequestBody GroupPreviewResponse request) { // Frontend sends back the modified preview!
+
+        DrawResponse response = drawService.saveModifiedGroups(request, user.getId(), listId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

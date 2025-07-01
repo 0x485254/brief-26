@@ -3,6 +3,7 @@ package com.easygroup.config;
 import com.easygroup.entity.*;
 import com.easygroup.repository.*;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +14,7 @@ import java.util.*;
  * Populate the database with demo data when starting the server.
  */
 @Component
+@Profile("!test")
 public class DataSeeder implements CommandLineRunner {
 
     private final UserRepository userRepository;
@@ -51,7 +53,7 @@ public class DataSeeder implements CommandLineRunner {
         // userRepository.deleteAll();
 
         if (userRepository.count() > 0) {
-            return; 
+            return;
         }
 
         Map<Integer, User> users = new HashMap<>();
@@ -117,15 +119,14 @@ public class DataSeeder implements CommandLineRunner {
                     group.setId(fixedUuid(4000 + (i - 1) * 40 + (j - 1) * 4 + g));
                     group.setName("G" + g);
                     group.setDraw(draw);
-                    group.setGroupPersons(new ArrayList<>());
+                    group.setPersons(new ArrayList<>());
                     groups.add(group);
                 }
 
                 int idx = 0;
                 for (Person p : persons) {
                     Group target = groups.get(idx % groups.size());
-                    GroupPerson gp = new GroupPerson(target, p);
-                    target.getGroupPersons().add(gp);
+                    target.getPersons().add(p);
                     idx++;
                 }
 

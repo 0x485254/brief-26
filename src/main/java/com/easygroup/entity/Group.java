@@ -11,7 +11,7 @@ import java.util.UUID;
 
 /**
  * Entity representing a group generated from a draw.
- * Each group contains multiple persons.
+ * Each group contains multiple persons via direct many-to-many relationship.
  */
 @Entity
 @Table(name = "\"group\"") // Quoted because "group" is a reserved keyword in SQL
@@ -31,6 +31,11 @@ public class Group {
     @JoinColumn(name = "draw_id", nullable = false)
     private Draw draw;
 
-    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<GroupPerson> groupPersons = new ArrayList<>();
+    @ManyToMany(cascade = CascadeType.PERSIST)
+    @JoinTable(
+            name = "group_person",
+            joinColumns = @JoinColumn(name = "group_id"),
+            inverseJoinColumns = @JoinColumn(name = "person_id")
+    )
+    private List<Person> persons = new ArrayList<>();
 }
