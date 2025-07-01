@@ -85,6 +85,49 @@ public class UserController {
     }
 
     /**
+     * Update a user by ID.
+     * This endpoint is protected by the IsAdmin guard.
+     *
+     * @param id the user ID
+     * @return the user
+     */
+    @PutMapping("/{id}")
+    @IsAdmin
+    public ResponseEntity<User> updateUserById(@PathVariable UUID id, @RequestBody @Valid User updatedUser) {
+        return userService.findById(id)
+                .map(user -> {
+                    // Update allowed fields
+                    user.setFirstName(updatedUser.getFirstName());
+                    user.setLastName(updatedUser.getLastName());
+                    user.setEmail(updatedUser.getEmail());
+                    user.setRole(updatedUser.getRole());
+                    user.setIsActivated(updatedUser.getIsActivated());
+                
+                    // Save and return updated user
+                    return ResponseEntity.ok(userService.save(user));
+                })
+                .orElse(ResponseEntity.notFound().build());
+}
+
+    /**
+     * Delete a user by ID.
+     * This endpoint is protected by the IsAdmin guard.
+     *
+     * @param id the user ID
+     * @return the user
+     */
+    @DeleteMapping("/{id}")
+    @IsAdmin
+    public ResponseEntity<User> deleteUserById(@PathVariable UUID id) {
+        return userService.findById(id)
+                .map(user -> {
+                    userService.deleteById(id);
+                    return ResponseEntity.ok(user);
+                })
+                .orElse(ResponseEntity.notFound().build());
+}
+
+    /**
      * Activate or deactivate a user.
      * This endpoint is protected by the IsAdmin guard.
      *
