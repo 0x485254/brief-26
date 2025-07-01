@@ -41,10 +41,10 @@ public class DrawController {
      */
     @GetMapping("/lists/{listId}/draws")
     public ResponseEntity<List<DrawResponse>> getDrawsForList(
-            @PathVariable UUID userId,
+            @AuthenticationPrincipal User user,
             @PathVariable UUID listId) {
 
-        List<DrawResponse> draws = drawService.getDrawsForList(userId, listId);
+        List<DrawResponse> draws = drawService.getDrawsForList(user.getId(), listId);
         return ResponseEntity.ok(draws);
     }
 }

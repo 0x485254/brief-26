@@ -33,6 +33,13 @@ public class GroupService {
     @Autowired
     private PersonRepository personRepository;
 
+    /**
+     * Create a new group associated with a draw.
+     *
+     * @param group  group entity to persist
+     * @param drawId identifier of the draw owning the group
+     * @return saved group
+     */
     public Group createGroup(Group group, UUID drawId) {
         Optional<Draw> draw = drawRepository.findById(drawId);
         if (draw.isPresent()) {
@@ -42,10 +49,16 @@ public class GroupService {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Draw not found with id: " + drawId);
     }
 
+    /**
+     * Find a group by its id.
+     */
     public Optional<Group> getGroupById(UUID id) {
         return groupRepository.findById(id);
     }
 
+    /**
+     * Retrieve all groups for a specific draw ordered by name.
+     */
     public List<GroupResponse> getGroupsByDrawId(UUID drawId) {
         Optional<Draw> draw = drawRepository.findById(drawId);
         if (draw.isEmpty()) {
@@ -58,10 +71,14 @@ public class GroupService {
                 .collect(Collectors.toList());
     }
 
+    /** Return every stored group. */
     public List<Group> getAllGroups() {
         return groupRepository.findAll();
     }
 
+    /**
+     * Update a group's name.
+     */
     public Group updateGroup(UUID id, Group group) {
         Optional<Group> existingGroup = groupRepository.findById(id);
         if (existingGroup.isPresent()) {
@@ -72,6 +89,11 @@ public class GroupService {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Group not found with id: " + id);
     }
 
+    /**
+     * Delete a group by id.
+     *
+     * @return true if deletion occurred
+     */
     public boolean deleteGroup(UUID id) {
         if (groupRepository.existsById(id)) {
             groupRepository.deleteById(id);
@@ -80,6 +102,9 @@ public class GroupService {
         return false;
     }
 
+    /**
+     * Manually add a person to a group.
+     */
     public Group addPersonToGroup(UUID groupId, UUID personId) {
         Optional<Group> group = groupRepository.findById(groupId);
         Optional<Person> person = personRepository.findById(personId);
@@ -102,6 +127,9 @@ public class GroupService {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Group or Person not found");
     }
 
+    /**
+     * Manually remove a person from a group.
+     */
     public Group removePersonFromGroup(UUID groupId, UUID personId) {
         Optional<Group> group = groupRepository.findById(groupId);
 
