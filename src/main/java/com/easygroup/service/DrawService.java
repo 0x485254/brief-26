@@ -151,13 +151,14 @@ public class DrawService {
         return "Groups for " + listName + " - " + timestamp;
     }
 
-    private Draw convertDtoToEntity(GenerateGroupsRequest request, ListEntity list) {
-        Draw draw = new Draw();
-        draw.setTitle(generateTitle(request.getTitle(), list.getName()));
-        draw.setList(list);
-        draw.setCreatedAt(LocalDateTime.now());
-        return draw;
-    }
+    // private Draw convertDtoToEntity(GenerateGroupsRequest request, ListEntity
+    // list) {
+    // Draw draw = new Draw();
+    // draw.setTitle(generateTitle(request.getTitle(), list.getName()));
+    // draw.setList(list);
+    // draw.setCreatedAt(LocalDateTime.now());
+    // return draw;
+    // }
 
     private int calculateTotalPersons(List<GroupResponse> groups) {
         return groups.stream()

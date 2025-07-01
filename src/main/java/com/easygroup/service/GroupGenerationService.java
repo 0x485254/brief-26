@@ -53,7 +53,7 @@ public class GroupGenerationService {
         draw.setGroups(groups);
         groupRepository.saveAll(groups);
 
-        System.out.println("Group generation completed successfully");
+        System.out.println("Group generation completed ");
     }
 
     private List<Group> createEmptyGroups(GenerateGroupsRequest request, Draw draw) {
@@ -73,7 +73,7 @@ public class GroupGenerationService {
 
     private void distributePersons(List<Person> persons, List<Group> groups,
             GenerateGroupsRequest request) {
-        System.out.println("Starting FAIR distribution (no priority order)");
+        System.out.println("Starting distribution");
 
         int totalPersons = persons.size();
         int numberOfGroups = groups.size();
@@ -227,32 +227,7 @@ public class GroupGenerationService {
             }
         }
 
-        // showDiversityStatistics(groups);
     }
-
-    // private void showDiversityStatistics(List<Group> groups) {
-    // System.out.println("\n=== DIVERSITY STATISTICS ===");
-
-    // for (Group group : groups) {
-    // System.out.println("\n" + group.getName() + ":");
-
-    // Map<Person.Gender, Long> genderCount = group.getPersons().stream()
-    // .collect(Collectors.groupingBy(Person::getGender, Collectors.counting()));
-    // System.out.println(" Genders: " + genderCount);
-
-    // Map<Integer, Long> techCount = group.getPersons().stream()
-    // .collect(Collectors.groupingBy(Person::getTechLevel, Collectors.counting()));
-    // System.out.println(" Tech Levels: " + techCount);
-
-    // IntSummaryStatistics ageStats = group.getPersons().stream()
-    // .mapToInt(Person::getAge)
-    // .summaryStatistics();
-    // System.out.println(" Age Range: " + ageStats.getMin() + "-" +
-    // ageStats.getMax() +
-    // " (avg: " + String.format("%.1f", ageStats.getAverage()) + ")");
-    // }
-    // System.out.println("===============================\n");
-    // }
 
     public List<GroupResponse> generateGroupsPreview(ListEntity list, GenerateGroupsRequest request) {
         System.out.println("Starting PREVIEW group generation for list: " + list.getName());
