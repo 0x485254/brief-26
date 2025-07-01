@@ -70,7 +70,7 @@ java -jar target/easygroup-0.0.1-SNAPSHOT.jar
 - `POST /api/auth/cookie/login` - Authentification d'un utilisateur avec cookie
 - `POST /api/auth/cookie/logout` - Déconnexion d'un utilisateur (suppression du cookie)
 
-Pour plus de détails, consultez la [documentation d'authentification](./authentication.md) et la [documentation d'authentification par cookie](./cookie-authentication.md).
+Pour plus de détails sur l'authentification, consultez la section Authentification et Sécurité dans la [documentation API complète](./api-documentation.md).
 
 ### Autres Points de Terminaison
 - Gestion des listes et des groupes (voir la [documentation API complète](./api-documentation.md))
