@@ -89,14 +89,14 @@
         {
           "name": "De/Activate user",
           "request": {
-            "method": "GET",
+            "method": "PUT",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/users/1/activate",
+              "raw": "http://localhost:8080/api/users/1/activate?isActivated=false",
               "protocol": "http",
               "host": ["localhost"],
               "port": "8080",
-              "path": ["api", "users", "1", "activate"]
+              "path": ["api", "users", "1", "activate?isActivated=false"]
             }
           }
         },
@@ -118,13 +118,22 @@
           "name": "Update current user",
           "request": {
             "method": "PUT",
-            "header": [],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "http://localhost:8080/api/users/me",
               "protocol": "http",
               "host": ["localhost"],
               "port": "8080",
               "path": ["api", "users", "me"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"firstName\": \"Jean\",\n  \"lastName\": \"Dupont\"}"
             }
           }
         },
@@ -325,6 +334,29 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Jean Dupont\",\n  \"gender\": \"MALE\",\n  \"age\": 32,\n  \"frenchLevel\": 3,\n  \"oldDwwm\": true,\n  \"techLevel\": 2,\n  \"profile\": \"A_LAISE\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update person",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/lists/1/persons/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "lists", "1", "persons", "1"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jean Dupont\",\n  \"gender\": \"MALE\",\n  \"age\": 37,\n  \"frenchLevel\": 3,\n  \"oldDwwm\": true,\n  \"techLevel\": 2,\n  \"profile\": \"A_LAISE\"\n}"
             }
           }
         },
