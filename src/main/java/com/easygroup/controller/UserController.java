@@ -1,6 +1,7 @@
 package com.easygroup.controller;
 
 import com.easygroup.dto.AuthResponse;
+import com.easygroup.dto.UserUpdateRequest;
 import com.easygroup.entity.User;
 import com.easygroup.security.IsAdmin;
 import com.easygroup.service.UserService;
@@ -50,11 +51,13 @@ public class UserController {
      * Update the current user's profile.
      */
     @PutMapping("/me")
-    public ResponseEntity<User> updateCurrentUser(@AuthenticationPrincipal User user, @RequestBody @Valid User updatedUser) {
+    public ResponseEntity<User> updateCurrentUser(
+            @AuthenticationPrincipal User user,
+            @RequestBody @Valid UserUpdateRequest request) {
         return userService.findByEmail(user.getEmail())
                 .map(existing -> {
-                    existing.setFirstName(updatedUser.getFirstName());
-                    existing.setLastName(updatedUser.getLastName());
+                    existing.setFirstName(request.getFirstName());
+                    existing.setLastName(request.getLastName());
                     return ResponseEntity.ok(userService.save(existing));
                 })
                 .orElse(ResponseEntity.notFound().build());
