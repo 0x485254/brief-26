@@ -77,7 +77,7 @@ public class UserController {
      * @return the user
      */
     @GetMapping("/{id}")
-    // @IsAdmin
+    @IsAdmin
     public ResponseEntity<User> getUserById(@PathVariable UUID id) {
         return userService.findById(id)
                 .map(ResponseEntity::ok)
@@ -135,16 +135,15 @@ public class UserController {
      * @param isActivated whether the user should be activated
      * @return the updated user
      */
-@PutMapping("/{id}/activate")
-@IsAdmin
-public ResponseEntity<User> activateUser(@PathVariable UUID id, @RequestParam boolean isActivated) {
+    @PutMapping("/{id}/activate")
+    @IsAdmin
+    public ResponseEntity<User> activateUser(@PathVariable UUID id, @RequestParam boolean isActivated) {
         return userService.findById(id)
-                .map(user -> {
-    user.setIsActivated(isActivated);
-    return ResponseEntity.ok(userService.save(user));
-                })
-                .orElse(ResponseEntity.notFound().build());
-}
+                    .map(user -> {
+                        user.setIsActivated(isActivated);
+                        return ResponseEntity.ok(userService.save(user));
+                    }).orElse(ResponseEntity.notFound().build());
+    }
 
     /**
      * Update the current user's profile.
