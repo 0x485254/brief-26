@@ -57,6 +57,16 @@ public class ListService {
     }
 
     /**
+     * Find all lists owned by a user using the user id.
+     *
+     * @param userId the id of the user who owns the lists
+     * @return a list of lists owned by the user
+     */
+    public java.util.List<ListEntity> findByUserId(UUID userId) {
+        return listRepository.findByUser_Id(userId);
+    }
+
+    /**
      * Find all lists shared with a user.
      *
      * @param user the user who has access to the shared lists

@@ -41,7 +41,13 @@ public class ListShareController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        User userSharedTo = userService.findById(request.userId()).orElse(null);
+        User userSharedTo = null;
+        if (request.userId() != null) {
+            userSharedTo = userService.findById(request.userId()).orElse(null);
+        } else if (request.email() != null) {
+            userSharedTo = userService.findByEmail(request.email()).orElse(null);
+        }
+
         if (userSharedTo == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
