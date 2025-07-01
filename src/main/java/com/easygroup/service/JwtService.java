@@ -9,10 +9,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Service for JWT token generation and validation.
@@ -20,11 +24,34 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    @Value("${jwt.secret:defaultSecretKey12345678901234567890123456789012}")
+    private static final Logger logger = LoggerFactory.getLogger(JwtService.class);
+
+    @Value("${jwt.secret:}")
     private String secretKey;
 
     @Value("${jwt.expiration:86400000}") // 24 hours in milliseconds
     private long jwtExpiration;
+
+    /**
+     * Constructor for JwtService.
+     * If no secret key is provided, generate a random one.
+     */
+    public JwtService() {
+        // The @Value annotation is processed after constructor execution
+        // We'll check and potentially generate the key in the getSigningKey method
+    }
+
+    /**
+     * Generate a random secret key for JWT signing.
+     * 
+     * @return a random secret key of 64 bytes (512 bits) encoded as Base64
+     */
+    private String generateRandomSecretKey() {
+        SecureRandom random = new SecureRandom();
+        byte[] keyBytes = new byte[64];
+        random.nextBytes(keyBytes);
+        return Base64.getEncoder().encodeToString(keyBytes);
+    }
 
     /**
      * Extract username (email) from token.
@@ -127,10 +154,18 @@ public class JwtService {
 
     /**
      * Generate the HMAC signing key from the configured secret.
+     * If no secret key is provided, generate a random one.
      *
      * @return the signing key
      */
     private Key getSigningKey() {
+        // Check if secret key is empty and generate a random one if needed
+        if (secretKey == null || secretKey.isEmpty()) {
+            logger.info("No JWT secret key provided. Generating a random one...");
+            secretKey = generateRandomSecretKey();
+            logger.info("Random JWT secret key generated successfully.");
+        }
+
         byte[] keyBytes = secretKey.getBytes();
         return Keys.hmacShaKeyFor(keyBytes);
     }

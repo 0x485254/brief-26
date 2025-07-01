@@ -5,7 +5,6 @@ import com.easygroup.entity.Draw;
 import com.easygroup.entity.Group;
 import com.easygroup.entity.GroupPerson;
 import com.easygroup.entity.Person;
-import com.easygroup.repository.DrawRepository;
 import com.easygroup.repository.GroupRepository;
 import com.easygroup.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +22,6 @@ public class GroupGenerationService {
 
     @Autowired
     private GroupRepository groupRepository;
-
-    @Autowired
-    private DrawRepository drawRepository;
 
     @Autowired
     private PersonRepository personRepository;
