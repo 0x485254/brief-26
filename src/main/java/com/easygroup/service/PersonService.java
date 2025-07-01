@@ -115,31 +115,11 @@ public class PersonService {
     /**
      * Update an existing person.
      *
-     * @param id          UUID of the person to edit
-     * @param age         updated age
-     * @param frenchLevel updated French level
-     * @param gender      updated gender
-     * @param name        updated name
-     * @param oldDWWM     updated DWWM status
-     * @param profile     updated profile
-     * @param techLevel   updated technical level
+     * @param person Person to update
      * @return the updated person
      * @throws IllegalArgumentException if person not found
      */
-    public Person edit(UUID id, Integer age, Integer frenchLevel, Person.Gender gender,
-                       String name, Boolean oldDWWM, Person.Profile profile, Integer techLevel) {
-
-        Person person = personRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Person not found with id: " + id));
-
-        person.setAge(age);
-        person.setFrenchLevel(frenchLevel);
-        person.setGender(gender);
-        person.setName(name);
-        person.setOldDwwm(oldDWWM);
-        person.setProfile(profile);
-        person.setTechLevel(techLevel);
-
+    public Person edit(Person person) {
         return personRepository.save(person);
     }
 
