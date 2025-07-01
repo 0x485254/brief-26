@@ -115,7 +115,7 @@
           }
         },
         {
-          "name": "Update user",
+          "name": "Update current user",
           "request": {
             "method": "PUT",
             "header": [
@@ -125,11 +125,11 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:8080/api/users/1",
+              "raw": "http://localhost:8080/api/users/me",
               "protocol": "http",
               "host": ["localhost"],
               "port": "8080",
-              "path": ["api", "users", "1"]
+              "path": ["api", "users", "me"]
             },
             "body": {
               "mode": "raw",
