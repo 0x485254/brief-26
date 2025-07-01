@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
 @SpringBootTest
-class ComprehensiveFairGroupTests {
+class GroupGenerationServiceTests {
 
     @Autowired
     private GroupGenerationService groupGenerationService;
