@@ -48,7 +48,8 @@ public class GroupGenerationService {
 
         List<Group> groups = createEmptyGroups(request, draw);
 
-        distributePersonsWithBalancing(persons, groups, request);
+        distributePersons(persons, groups, request);
+
         draw.setGroups(groups);
         groupRepository.saveAll(groups);
 
@@ -70,9 +71,9 @@ public class GroupGenerationService {
         return groups;
     }
 
-    private void distributePersonsWithBalancing(List<Person> persons, List<Group> groups,
+    private void distributePersons(List<Person> persons, List<Group> groups,
             GenerateGroupsRequest request) {
-        System.out.println("Starting intelligent distribution with balancing");
+        System.out.println("Starting FAIR distribution (no priority order)");
 
         int totalPersons = persons.size();
         int numberOfGroups = groups.size();
@@ -85,112 +86,23 @@ public class GroupGenerationService {
         }
 
         System.out.println("Target group sizes: " + Arrays.toString(targetSizes));
-        System.out.println("Total persons: " + totalPersons);
 
-        List<Person> availablePersons = new ArrayList<>(persons);
+        List<Person> shuffledPersons = new ArrayList<>(persons);
+        Collections.shuffle(shuffledPersons);
 
-        if (request.getBalanceByGender()) {
-            System.out.println("Applying gender balancing");
-            distributeByAttribute(availablePersons, groups, targetSizes, Person::getGender);
+        for (Person person : shuffledPersons) {
+            Group bestGroup = findBestGroup(groups, targetSizes, person, request);
+            if (bestGroup != null) {
+                bestGroup.getPersons().add(person);
+                System.out.println("Assigned " + person.getName() + " to " + bestGroup.getName());
+            }
         }
-
-        if (request.getBalanceByTechLevel()) {
-            System.out.println("Applying tech level balancing");
-            distributeByAttribute(availablePersons, groups, targetSizes, Person::getTechLevel);
-        }
-
-        if (request.getBalanceByFrenchLevel()) {
-            System.out.println("Applying French level balancing");
-            distributeByAttribute(availablePersons, groups, targetSizes, Person::getFrenchLevel);
-        }
-
-        if (request.getBalanceByOldDwwm()) {
-            System.out.println("Applying old DWWM balancing");
-            distributeByAttribute(availablePersons, groups, targetSizes, Person::getOldDwwm);
-        }
-
-        if (request.getBalanceByProfile()) {
-            System.out.println("Applying personality profile balancing");
-            distributeByAttribute(availablePersons, groups, targetSizes, Person::getProfile);
-        }
-
-        if (request.getBalanceByAge()) {
-            System.out.println("Applying age balancing");
-            distributeByAge(availablePersons, groups, targetSizes);
-        }
-
-        distributeRemainingPersons(availablePersons, groups, targetSizes);
 
         verifyDistribution(groups, targetSizes);
     }
 
-    private <T> void distributeByAttribute(List<Person> availablePersons, List<Group> groups,
-            int[] targetSizes, java.util.function.Function<Person, T> attributeGetter) {
-
-        // unassignedPersons = [dodo, bobo, nono, mimi, lala] // All the people
-        List<Person> unassignedPersons = availablePersons.stream()
-                .filter(person -> groups.stream().noneMatch(group -> group.getPersons().contains(person)))
-                .collect(Collectors.toList());
-
-        if (unassignedPersons.isEmpty()) {
-            return;
-        }
-
-        Map<T, List<Person>> attributeGroups = unassignedPersons.stream()
-                .collect(Collectors.groupingBy(attributeGetter));
-
-        // IT WILL LOOKS LIKE THIS: {MALE=[dodod, nono, popopo], FEMALE=[mimi, lala]}
-        for (Map.Entry<T, List<Person>> entry : attributeGroups.entrySet()) {
-            System.out.println(entry.getKey() + ": " + entry.getValue().size() + " persons");
-        }
-
-        List<Person> personsToRemove = new ArrayList<>();
-
-        for (Map.Entry<T, List<Person>> entry : attributeGroups.entrySet()) {
-            List<Person> personsWithAttribute = new ArrayList<>(entry.getValue());
-            // hmmmmmm we well have something like this 'personsWithAttribute =
-            // [dodod,nono, popopo]'
-            Collections.shuffle(personsWithAttribute);
-            // we will shuffle the persons with the same attribute to ensure randomness
-
-            // find the persons with the same attribute and distribute them
-            for (Person person : personsWithAttribute) {
-                Group bestGroup = findBestGroupForPerson(groups, targetSizes, person, attributeGetter);
-                if (bestGroup != null) {
-                    bestGroup.getPersons().add(person);
-                    personsToRemove.add(person);
-                }
-            }
-        }
-
-        availablePersons.removeAll(personsToRemove);
-    }
-
-    private void distributeByAge(List<Person> availablePersons, List<Group> groups, int[] targetSizes) {
-        List<Person> unassignedPersons = availablePersons.stream()
-                .filter(person -> groups.stream().noneMatch(group -> group.getPersons().contains(person)))
-                .sorted(Comparator.comparing(Person::getAge))
-                .collect(Collectors.toList());
-
-        System.out.println("Distributing " + unassignedPersons.size() + " unassigned persons by age (sorted)");
-
-        List<Person> personsToRemove = new ArrayList<>();
-
-        for (Person person : unassignedPersons) {
-            Group bestGroup = findBestGroupForPerson(groups, targetSizes, person, Person::getAge);
-            if (bestGroup != null) {
-                bestGroup.getPersons().add(person);
-                personsToRemove.add(person);
-            }
-        }
-
-        availablePersons.removeAll(personsToRemove);
-    }
-
-    private <T> Group findBestGroupForPerson(List<Group> groups, int[] targetSizes, Person person,
-            java.util.function.Function<Person, T> attributeGetter) {
-
-        T personAttribute = attributeGetter.apply(person);
+    private Group findBestGroup(List<Group> groups, int[] targetSizes,
+            Person person, GenerateGroupsRequest request) {
 
         List<Group> availableGroups = new ArrayList<>();
         for (int i = 0; i < groups.size(); i++) {
@@ -203,28 +115,103 @@ public class GroupGenerationService {
             return null;
         }
 
-        return availableGroups.stream()
-                .min(Comparator.<Group>comparingInt(group -> (int) group.getPersons().stream()
-                        .filter(p -> attributeGetter.apply(p).equals(personAttribute))
-                        .count())
-                        .thenComparingInt(group -> group.getPersons().size()))
-                .orElse(availableGroups.get(0));
-    }
+        Group bestGroup = null;
+        double bestScore = Double.NEGATIVE_INFINITY;
 
-    private void distributeRemainingPersons(List<Person> availablePersons, List<Group> groups, int[] targetSizes) {
-        System.out.println("Distributing " + availablePersons.size() + " remaining persons");
+        for (Group group : availableGroups) {
+            double balanceScore = calculateBalanceScore(group, person, request);
 
-        Collections.shuffle(availablePersons);
+            int groupIndex = groups.indexOf(group);
+            double sizeScore = (targetSizes[groupIndex] - group.getPersons().size()) * 10.0;
 
-        for (Person person : new ArrayList<>(availablePersons)) {
-            for (int i = 0; i < groups.size(); i++) {
-                if (groups.get(i).getPersons().size() < targetSizes[i]) {
-                    groups.get(i).getPersons().add(person);
-                    availablePersons.remove(person);
-                    break;
-                }
+            double totalScore = balanceScore + sizeScore;
+
+            System.out.println("Group " + group.getName() + " score for " + person.getName() +
+                    ": balance=" + balanceScore + ", size=" + sizeScore + ", total=" + totalScore);
+
+            if (totalScore > bestScore) {
+                bestScore = totalScore;
+                bestGroup = group;
             }
         }
+
+        return bestGroup;
+    }
+
+    private double calculateBalanceScore(Group group, Person person, GenerateGroupsRequest request) {
+        double score = 0.0;
+
+        if (request.getBalanceByGender()) {
+            score += calculateAttributeDiversityScore(group, person, Person::getGender, "Gender");
+        }
+
+        if (request.getBalanceByTechLevel()) {
+            score += calculateAttributeDiversityScore(group, person, Person::getTechLevel, "TechLevel");
+        }
+
+        if (request.getBalanceByFrenchLevel()) {
+            score += calculateAttributeDiversityScore(group, person, Person::getFrenchLevel, "FrenchLevel");
+        }
+
+        if (request.getBalanceByOldDwwm()) {
+            score += calculateAttributeDiversityScore(group, person, Person::getOldDwwm, "OldDwwm");
+        }
+
+        if (request.getBalanceByProfile()) {
+            score += calculateAttributeDiversityScore(group, person, Person::getProfile, "Profile");
+        }
+
+        if (request.getBalanceByAge()) {
+            score += calculateAgeDiversityScore(group, person);
+        }
+
+        return score;
+    }
+
+    private <T> double calculateAttributeDiversityScore(Group group, Person person,
+            java.util.function.Function<Person, T> attributeGetter, String attributeName) {
+
+        T personAttribute = attributeGetter.apply(person);
+
+        long countWithSameAttribute = group.getPersons().stream()
+                .filter(p -> attributeGetter.apply(p).equals(personAttribute))
+                .count();
+
+        double diversityScore = 10.0 - countWithSameAttribute;
+
+        System.out.println("  " + attributeName + " diversity for " + person.getName() +
+                " (" + personAttribute + "): existing=" + countWithSameAttribute +
+                ", score=" + diversityScore);
+
+        return diversityScore;
+    }
+
+    private double calculateAgeDiversityScore(Group group, Person person) {
+        if (group.getPersons().isEmpty()) {
+            return 5.0;
+        }
+
+        List<Integer> groupAges = group.getPersons().stream()
+                .map(Person::getAge)
+                .collect(Collectors.toList());
+
+        double avgAge = groupAges.stream().mapToInt(Integer::intValue).average().orElse(0);
+        double ageDifference = Math.abs(person.getAge() - avgAge);
+
+        double ageScore;
+        if (ageDifference >= 2 && ageDifference <= 5) {
+            ageScore = 5.0;
+        } else if (ageDifference < 2) {
+            ageScore = 1.0;
+        } else {
+            ageScore = 3.0;
+        }
+
+        System.out.println("  Age diversity for " + person.getName() +
+                " (age " + person.getAge() + "): avgGroupAge=" + avgAge +
+                ", difference=" + ageDifference + ", score=" + ageScore);
+
+        return ageScore;
     }
 
     private void verifyDistribution(List<Group> groups, int[] targetSizes) {
@@ -239,7 +226,33 @@ public class GroupGenerationService {
                         " has " + actualSize + " persons but target was " + targetSize);
             }
         }
+
+        // showDiversityStatistics(groups);
     }
+
+    // private void showDiversityStatistics(List<Group> groups) {
+    // System.out.println("\n=== DIVERSITY STATISTICS ===");
+
+    // for (Group group : groups) {
+    // System.out.println("\n" + group.getName() + ":");
+
+    // Map<Person.Gender, Long> genderCount = group.getPersons().stream()
+    // .collect(Collectors.groupingBy(Person::getGender, Collectors.counting()));
+    // System.out.println(" Genders: " + genderCount);
+
+    // Map<Integer, Long> techCount = group.getPersons().stream()
+    // .collect(Collectors.groupingBy(Person::getTechLevel, Collectors.counting()));
+    // System.out.println(" Tech Levels: " + techCount);
+
+    // IntSummaryStatistics ageStats = group.getPersons().stream()
+    // .mapToInt(Person::getAge)
+    // .summaryStatistics();
+    // System.out.println(" Age Range: " + ageStats.getMin() + "-" +
+    // ageStats.getMax() +
+    // " (avg: " + String.format("%.1f", ageStats.getAverage()) + ")");
+    // }
+    // System.out.println("===============================\n");
+    // }
 
     public List<GroupResponse> generateGroupsPreview(ListEntity list, GenerateGroupsRequest request) {
         System.out.println("Starting PREVIEW group generation for list: " + list.getName());
@@ -259,7 +272,8 @@ public class GroupGenerationService {
 
         List<Group> tempGroups = createEmptyGroupsForPreview(request);
 
-        distributePersonsWithBalancing(persons, tempGroups, request);
+        distributePersons(persons, tempGroups, request);
+
         List<GroupResponse> groupResponses = tempGroups.stream()
                 .map(GroupMapper::toDtoPreview)
                 .collect(Collectors.toList());
@@ -305,5 +319,4 @@ public class GroupGenerationService {
         }
         return groups;
     }
-
 }

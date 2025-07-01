@@ -1,6 +1,7 @@
 package com.easygroup.controller;
 
 import com.easygroup.dto.GroupResponse;
+import com.easygroup.entity.Group;
 import com.easygroup.service.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -52,5 +53,39 @@ public class GroupController {
 
         groupService.removePersonFromGroup(groupId, personId);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * POST /api/draws/{drawId}/groups
+     * Create a new group linked to a draw
+     */
+    @PostMapping("/draws/{drawId}/groups")
+    public ResponseEntity<Void> createGroup(
+            @PathVariable UUID drawId,
+            @RequestBody Group group) {
+        groupService.createGroup(group, drawId);
+        return ResponseEntity.status(201).build();
+    }
+
+    /**
+     * PUT /api/groups/{groupId}
+     * Update an existing group
+     */
+    @PutMapping("/groups/{groupId}")
+    public ResponseEntity<Group> updateGroup(
+            @PathVariable UUID groupId,
+            @RequestBody Group group) {
+        Group updated = groupService.updateGroup(groupId, group);
+        return ResponseEntity.ok(updated);
+    }
+
+    /**
+     * DELETE /api/groups/{groupId}
+     * Delete a group
+     */
+    @DeleteMapping("/groups/{groupId}")
+    public ResponseEntity<Void> deleteGroup(@PathVariable UUID groupId) {
+        boolean deleted = groupService.deleteGroup(groupId);
+        return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 }

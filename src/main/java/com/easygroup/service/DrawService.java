@@ -23,6 +23,9 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+/**
+ * Service handling draw creation and retrieval.
+ */
 public class DrawService {
 
     @Autowired
@@ -98,6 +101,9 @@ public class DrawService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Ensure the given user has access to the target list.
+     */
     private ListEntity validateUserListAccess(UUID userId, UUID listId) {
         ListEntity list = listRepository.findById(listId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -111,6 +117,9 @@ public class DrawService {
         return list;
     }
 
+    /**
+     * Generate a default title when none is provided by the client.
+     */
     private String generateTitle(String requestTitle, String listName) {
         if (requestTitle != null && !requestTitle.trim().isEmpty()) {
             return requestTitle.trim();
