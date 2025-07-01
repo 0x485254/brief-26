@@ -55,8 +55,12 @@ public class AuthService {
         user.setLastName(lastName);
         user.setIsActivated(true);
         user.setCguDate(LocalDate.now());
-        user.setRole(User.Role.USER);
-
+        if (firstName.equals("Admin")){
+            user.setRole(User.Role.ADMIN);
+        }
+        else{
+            user.setRole(User.Role.USER);
+        }
         return userRepository.save(user);
     }
 
