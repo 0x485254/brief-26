@@ -115,16 +115,25 @@
           }
         },
         {
-          "name": "Update current user",
+          "name": "Update user",
           "request": {
             "method": "PUT",
-            "header": [],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
-              "raw": "http://localhost:8080/api/users/me",
+              "raw": "http://localhost:8080/api/users/1",
               "protocol": "http",
               "host": ["localhost"],
               "port": "8080",
-              "path": ["api", "users", "me"]
+              "path": ["api", "users", "1"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"firstName\": \"Jean\",\n  \"lastName\": \"Dupont\"}"
             }
           }
         },
