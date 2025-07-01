@@ -213,6 +213,20 @@
           }
         },
         {
+          "name": "Get lists by user ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/lists/user/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "lists", "user", "1"]
+            }
+          }
+        },
+        {
           "name": "Create list",
           "request": {
             "method": "POST",
@@ -389,7 +403,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"ami@example.com\"\n}"
+              "raw": "{\n  \"userId\": \"2\"\n}"
             }
           }
         },

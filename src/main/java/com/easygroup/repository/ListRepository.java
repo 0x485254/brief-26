@@ -40,5 +40,13 @@ public interface ListRepository extends JpaRepository<ListEntity, UUID> {
      */
     boolean existsByNameAndUser(String name, User user);
 
+    /**
+     * Find all lists owned by a user using the user id.
+     *
+     * @param userId the id of the owner
+     * @return list of lists belonging to the user
+     */
+    java.util.List<ListEntity> findByUser_Id(UUID userId);
+
 Optional<ListEntity> findByIdAndUser_Id(UUID listId, UUID userId);
 }
