@@ -315,6 +315,29 @@
           }
         },
         {
+          "name": "Update person",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/lists/1/persons/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "lists", "1", "persons", "1"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jean Dupont\",\n  \"gender\": \"MALE\",\n  \"age\": 37,\n  \"frenchLevel\": 3,\n  \"oldDwwm\": true,\n  \"techLevel\": 2,\n  \"profile\": \"A_LAISE\"\n}"
+            }
+          }
+        },
+        {
           "name": "Get persons in list",
           "request": {
             "method": "GET",
