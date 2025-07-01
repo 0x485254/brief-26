@@ -3,6 +3,7 @@ package com.easygroup.config;
 import com.easygroup.entity.*;
 import com.easygroup.repository.*;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +14,7 @@ import java.util.*;
  * Populate the database with demo data when starting the server.
  */
 @Component
+@Profile("!test")
 public class DataSeeder implements CommandLineRunner {
 
     private final UserRepository userRepository;

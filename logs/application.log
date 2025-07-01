@@ -1,0 +1,156 @@
+2025-07-01 15:31:53 [restartedMain] INFO  com.easygroup.EasyGroupApplication - Starting EasyGroupApplication using Java 21.0.7 with PID 18344 (E:\brief-26\target\classes started by MO in E:\brief-26)
+2025-07-01 15:31:53 [restartedMain] DEBUG com.easygroup.EasyGroupApplication - Running with Spring Boot v3.2.0, Spring v6.1.1
+2025-07-01 15:31:53 [restartedMain] INFO  com.easygroup.EasyGroupApplication - The following 1 profile is active: "local"
+2025-07-01 15:31:53 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-07-01 15:31:53 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 19 ms. Found 7 JPA repository interfaces.
+2025-07-01 15:31:53 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-07-01 15:31:53 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-07-01 15:31:53 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.16]
+2025-07-01 15:31:53 [restartedMain] INFO  o.a.c.c.C.[Tomcat-1].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-07-01 15:31:53 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 630 ms
+2025-07-01 15:31:53 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-07-01 15:31:53 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-07-01 15:31:53 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-07-01 15:31:53 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-15 - Starting...
+2025-07-01 15:31:53 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-15 - Added connection org.postgresql.jdbc.PgConnection@7aae4a3d
+2025-07-01 15:31:53 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-15 - Start completed.
+2025-07-01 15:31:53 [restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-07-01 15:31:54 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-07-01 15:31:54 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-07-01 15:31:54 [restartedMain] DEBUG com.easygroup.config.JwtAuthFilter - Filter 'jwtAuthFilter' configured for use
+2025-07-01 15:31:54 [restartedMain] DEBUG c.e.security.SameSiteCookieFilter - Filter 'sameSiteCookieFilter' configured for use
+2025-07-01 15:31:54 [restartedMain] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@68dac408, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@44e8abf3, org.springframework.security.web.context.SecurityContextHolderFilter@1e7192a8, org.springframework.security.web.header.HeaderWriterFilter@2c361f8a, org.springframework.security.web.authentication.logout.LogoutFilter@32360e71, com.easygroup.config.JwtAuthFilter@51426237, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@122762c0, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@3bb3add0, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@56a9675b, org.springframework.security.web.access.ExceptionTranslationFilter@11baf5e2, org.springframework.security.web.access.intercept.AuthorizationFilter@6541cd59]
+2025-07-01 15:31:55 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2025-07-01 15:31:55 [restartedMain] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 3 endpoint(s) beneath base path '/actuator'
+2025-07-01 15:31:55 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path ''
+2025-07-01 15:31:55 [restartedMain] INFO  com.easygroup.EasyGroupApplication - Started EasyGroupApplication in 2.4 seconds (process running for 5304.454)
+2025-07-01 15:31:55 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2025-07-01 15:32:18 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 65 class path changes (0 additions, 65 deletions, 0 modifications)
+2025-07-01 15:32:18 [Thread-58] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-07-01 15:32:18 [Thread-58] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-15 - Shutdown initiated...
+2025-07-01 15:32:18 [Thread-58] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-15 - Shutdown completed.
+2025-07-01 15:32:18 [restartedMain] INFO  com.easygroup.EasyGroupApplication - Starting EasyGroupApplication using Java 21.0.7 with PID 18344 (E:\brief-26\target\classes started by MO in E:\brief-26)
+2025-07-01 15:32:18 [restartedMain] DEBUG com.easygroup.EasyGroupApplication - Running with Spring Boot v3.2.0, Spring v6.1.1
+2025-07-01 15:32:18 [restartedMain] INFO  com.easygroup.EasyGroupApplication - The following 1 profile is active: "local"
+2025-07-01 15:32:18 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-07-01 15:32:18 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 1 ms. Found 0 JPA repository interfaces.
+2025-07-01 15:32:18 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-07-01 15:32:18 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-07-01 15:32:18 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.16]
+2025-07-01 15:32:18 [restartedMain] INFO  o.a.c.c.C.[Tomcat-1].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-07-01 15:32:18 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 540 ms
+2025-07-01 15:32:18 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-07-01 15:32:18 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-07-01 15:32:18 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-07-01 15:32:18 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-16 - Starting...
+2025-07-01 15:32:18 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-16 - Added connection org.postgresql.jdbc.PgConnection@6c228f77
+2025-07-01 15:32:18 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-16 - Start completed.
+2025-07-01 15:32:18 [restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-07-01 15:32:18 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-07-01 15:32:18 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-07-01 15:32:18 [restartedMain] WARN  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'dataSeeder': Resolution of declared constructors on bean Class [com.easygroup.config.DataSeeder] from ClassLoader [org.springframework.boot.devtools.restart.classloader.RestartClassLoader@1d0d8580] failed
+2025-07-01 15:32:18 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-07-01 15:32:18 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-16 - Shutdown initiated...
+2025-07-01 15:32:18 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-16 - Shutdown completed.
+2025-07-01 15:32:18 [restartedMain] INFO  o.a.catalina.core.StandardService - Stopping service [Tomcat]
+2025-07-01 15:32:18 [restartedMain] INFO  o.s.b.a.l.ConditionEvaluationReportLogger - 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2025-07-01 15:32:18 [restartedMain] ERROR o.s.boot.SpringApplication - Application run failed
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'dataSeeder': Resolution of declared constructors on bean Class [com.easygroup.config.DataSeeder] from ClassLoader [org.springframework.boot.devtools.restart.classloader.RestartClassLoader@1d0d8580] failed
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.determineCandidateConstructors(AutowiredAnnotationBeanPostProcessor.java:368) ~[spring-beans-6.1.1.jar:6.1.1]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.determineConstructorsFromBeanPostProcessors(AbstractAutowireCapableBeanFactory.java:1295) ~[spring-beans-6.1.1.jar:6.1.1]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1190) ~[spring-beans-6.1.1.jar:6.1.1]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:563) ~[spring-beans-6.1.1.jar:6.1.1]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:523) ~[spring-beans-6.1.1.jar:6.1.1]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:325) ~[spring-beans-6.1.1.jar:6.1.1]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234) ~[spring-beans-6.1.1.jar:6.1.1]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:323) ~[spring-beans-6.1.1.jar:6.1.1]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199) ~[spring-beans-6.1.1.jar:6.1.1]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:973) ~[spring-beans-6.1.1.jar:6.1.1]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:946) ~[spring-context-6.1.1.jar:6.1.1]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:616) ~[spring-context-6.1.1.jar:6.1.1]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.2.0.jar:3.2.0]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:753) ~[spring-boot-3.2.0.jar:3.2.0]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:455) ~[spring-boot-3.2.0.jar:3.2.0]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:323) ~[spring-boot-3.2.0.jar:3.2.0]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1342) ~[spring-boot-3.2.0.jar:3.2.0]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1331) ~[spring-boot-3.2.0.jar:3.2.0]
+	at com.easygroup.EasyGroupApplication.main(EasyGroupApplication.java:17) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:50) ~[spring-boot-devtools-3.2.0.jar:3.2.0]
+Caused by: java.lang.NoClassDefFoundError: com/easygroup/repository/UserRepository
+	at java.base/java.lang.Class.getDeclaredConstructors0(Native Method) ~[na:na]
+	at java.base/java.lang.Class.privateGetDeclaredConstructors(Class.java:3549) ~[na:na]
+	at java.base/java.lang.Class.getDeclaredConstructors(Class.java:2727) ~[na:na]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.determineCandidateConstructors(AutowiredAnnotationBeanPostProcessor.java:363) ~[spring-beans-6.1.1.jar:6.1.1]
+	... 21 common frames omitted
+Caused by: java.lang.ClassNotFoundException: com.easygroup.repository.UserRepository
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:641) ~[na:na]
+	at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:188) ~[na:na]
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:526) ~[na:na]
+	at java.base/java.lang.Class.forName0(Native Method) ~[na:na]
+	at java.base/java.lang.Class.forName(Class.java:534) ~[na:na]
+	at java.base/java.lang.Class.forName(Class.java:513) ~[na:na]
+	at org.springframework.boot.devtools.restart.classloader.RestartClassLoader.loadClass(RestartClassLoader.java:121) ~[spring-boot-devtools-3.2.0.jar:3.2.0]
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:526) ~[na:na]
+	... 25 common frames omitted
+2025-07-01 15:32:20 [restartedMain] INFO  com.easygroup.EasyGroupApplication - Starting EasyGroupApplication using Java 21.0.7 with PID 18344 (E:\brief-26\target\classes started by MO in E:\brief-26)
+2025-07-01 15:32:20 [restartedMain] DEBUG com.easygroup.EasyGroupApplication - Running with Spring Boot v3.2.0, Spring v6.1.1
+2025-07-01 15:32:20 [restartedMain] INFO  com.easygroup.EasyGroupApplication - The following 1 profile is active: "local"
+2025-07-01 15:32:21 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-07-01 15:32:21 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 22 ms. Found 7 JPA repository interfaces.
+2025-07-01 15:32:21 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-07-01 15:32:21 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-07-01 15:32:21 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.16]
+2025-07-01 15:32:21 [restartedMain] INFO  o.a.c.c.C.[Tomcat-2].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-07-01 15:32:21 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 564 ms
+2025-07-01 15:32:21 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-07-01 15:32:21 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-07-01 15:32:21 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-07-01 15:32:21 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-17 - Starting...
+2025-07-01 15:32:21 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-17 - Added connection org.postgresql.jdbc.PgConnection@1b1afe95
+2025-07-01 15:32:21 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-17 - Start completed.
+2025-07-01 15:32:21 [restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-07-01 15:32:21 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-07-01 15:32:21 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-07-01 15:32:22 [restartedMain] DEBUG com.easygroup.config.JwtAuthFilter - Filter 'jwtAuthFilter' configured for use
+2025-07-01 15:32:22 [restartedMain] DEBUG c.e.security.SameSiteCookieFilter - Filter 'sameSiteCookieFilter' configured for use
+2025-07-01 15:32:22 [restartedMain] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@72acc734, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@17415ecb, org.springframework.security.web.context.SecurityContextHolderFilter@3d3f5be1, org.springframework.security.web.header.HeaderWriterFilter@3f762395, org.springframework.security.web.authentication.logout.LogoutFilter@c2a5202, com.easygroup.config.JwtAuthFilter@327fb282, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@7b1dd2b4, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@7a0e4327, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@11ebbc46, org.springframework.security.web.access.ExceptionTranslationFilter@4f49552f, org.springframework.security.web.access.intercept.AuthorizationFilter@8e206a6]
+2025-07-01 15:32:23 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2025-07-01 15:32:23 [restartedMain] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 3 endpoint(s) beneath base path '/actuator'
+2025-07-01 15:32:23 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path ''
+2025-07-01 15:32:23 [restartedMain] INFO  com.easygroup.EasyGroupApplication - Started EasyGroupApplication in 2.356 seconds (process running for 5332.245)
+2025-07-01 15:32:23 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2025-07-01 15:36:50 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2025-07-01 15:36:50 [Thread-62] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-07-01 15:36:50 [Thread-62] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-17 - Shutdown initiated...
+2025-07-01 15:36:50 [Thread-62] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-17 - Shutdown completed.
+2025-07-01 15:36:50 [restartedMain] INFO  com.easygroup.EasyGroupApplication - Starting EasyGroupApplication using Java 21.0.7 with PID 18344 (E:\brief-26\target\classes started by MO in E:\brief-26)
+2025-07-01 15:36:50 [restartedMain] DEBUG com.easygroup.EasyGroupApplication - Running with Spring Boot v3.2.0, Spring v6.1.1
+2025-07-01 15:36:50 [restartedMain] INFO  com.easygroup.EasyGroupApplication - The following 1 profile is active: "local"
+2025-07-01 15:36:51 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-07-01 15:36:51 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 20 ms. Found 7 JPA repository interfaces.
+2025-07-01 15:36:51 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-07-01 15:36:51 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-07-01 15:36:51 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.16]
+2025-07-01 15:36:51 [restartedMain] INFO  o.a.c.c.C.[Tomcat-2].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-07-01 15:36:51 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 728 ms
+2025-07-01 15:36:51 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-07-01 15:36:51 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-07-01 15:36:51 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-07-01 15:36:51 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-18 - Starting...
+2025-07-01 15:36:51 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-18 - Added connection org.postgresql.jdbc.PgConnection@45dc74cb
+2025-07-01 15:36:51 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-18 - Start completed.
+2025-07-01 15:36:51 [restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-07-01 15:36:51 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-07-01 15:36:52 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-07-01 15:36:52 [restartedMain] DEBUG com.easygroup.config.JwtAuthFilter - Filter 'jwtAuthFilter' configured for use
+2025-07-01 15:36:52 [restartedMain] DEBUG c.e.security.SameSiteCookieFilter - Filter 'sameSiteCookieFilter' configured for use
+2025-07-01 15:36:53 [restartedMain] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@65e31594, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@5a72a8e1, org.springframework.security.web.context.SecurityContextHolderFilter@6ea9bcd4, org.springframework.security.web.header.HeaderWriterFilter@29786ea, org.springframework.security.web.authentication.logout.LogoutFilter@7ac6b1eb, com.easygroup.config.JwtAuthFilter@5ea53524, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@6d9f12f, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@403e5abc, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@49e95c38, org.springframework.security.web.access.ExceptionTranslationFilter@b0bce0a, org.springframework.security.web.access.intercept.AuthorizationFilter@7b634583]
+2025-07-01 15:36:53 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2025-07-01 15:36:53 [restartedMain] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 3 endpoint(s) beneath base path '/actuator'
+2025-07-01 15:36:53 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path ''
+2025-07-01 15:36:53 [restartedMain] INFO  com.easygroup.EasyGroupApplication - Started EasyGroupApplication in 3.237 seconds (process running for 5603.081)
+2025-07-01 15:36:53 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
