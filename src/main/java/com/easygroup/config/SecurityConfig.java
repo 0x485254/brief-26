@@ -38,6 +38,12 @@ public class SecurityConfig {
     @Value("${cors.urls}")
     private String corsUrl;
 
+    @Value("${cors.enabled:true}")
+    private boolean corsEnabled;
+
+    @Value("${csrf.enabled:false}")
+    private boolean csrfEnabled;
+
     /**
      * Déclare le bean `PasswordEncoder` utilisé pour le chiffrement des mots de
      * passe.
@@ -69,16 +75,25 @@ public class SecurityConfig {
      *
      * ⚠️ Important : autorise les en-têtes, méthodes, et les credentials (ex:
      * cookie/session).
+     * 
+     * Le CORS peut être activé/désactivé via la propriété cors.enabled
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         System.out.println("-------------------------------------");
+        System.out.println("CORS Enabled: " + corsEnabled);
         System.out.println("CORS URL : " + corsUrl);
-        config.setAllowedOrigins(getAllowedOrigins()); // Frontend Angular local
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Méthodes autorisées
-        config.setAllowedHeaders(List.of("*")); // Tous les headers acceptés
-        config.setAllowCredentials(true); // Permet l'envoi des cookies/session
+
+        if (corsEnabled) {
+            config.setAllowedOrigins(getAllowedOrigins()); // Frontend Angular local
+            config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Méthodes autorisées
+            config.setAllowedHeaders(List.of("*")); // Tous les headers acceptés
+            config.setAllowCredentials(true); // Permet l'envoi des cookies/session
+        } else {
+            // Disable CORS by not setting any allowed origins
+            config.setAllowedOrigins(List.of()); 
+        }
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config); // Applique à toutes les routes
@@ -104,11 +119,28 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // Configure CORS based on corsEnabled property
+        if (corsEnabled) {
+            http.cors(Customizer.withDefaults());
+        } else {
+            http.cors(cors -> cors.disable());
+        }
+
+        // Configure CSRF based on csrfEnabled property
+        if (csrfEnabled) {
+            http.csrf(Customizer.withDefaults());
+            System.out.println("-------------------------------------");
+            System.out.println("CSRF Protection: Enabled");
+        } else {
+            http.csrf(csrf -> csrf.disable());
+            System.out.println("-------------------------------------");
+            System.out.println("CSRF Protection: Disabled");
+        }
+
         http
-                .cors(Customizer.withDefaults())
-                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                new AntPathRequestMatcher("/"),
                                 new AntPathRequestMatcher("/api/auth/**"),
                                 new AntPathRequestMatcher("/swagger-ui/**"),
                                 new AntPathRequestMatcher("/v3/api-docs/**"))
