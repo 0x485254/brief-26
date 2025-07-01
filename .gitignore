@@ -1,0 +1,9 @@
+.env
+target
+.idea
+
+application-local.properties
+.run
+easygroup.iws
+easygroup.ipr
+easygroup.iml

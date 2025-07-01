@@ -1,6 +1,13 @@
-# Documentation de l'API
+# Documentation de l'API EasyGroup
 
-Ce document fournit des informations sur les points de terminaison REST API disponibles dans cette application starter Spring Boot.
+Ce document fournit des informations sur les points de terminaison REST API disponibles dans l'application EasyGroup pour la création intelligente de groupes d'apprenants.
+
+## Modèles de Données
+
+Pour comprendre la structure des données manipulées par cette API, consultez la [documentation des modèles de données](./database-models.md) qui détaille :
+- Le Modèle Conceptuel de Données (MCD)
+- Le Modèle Logique de Données (MLD)
+- Le Modèle Physique de Données (MPD)
 
 ## URL de Base
 
@@ -10,37 +17,163 @@ Lors de l'exécution en local, l'URL de base est :
 http://localhost:8080
 ```
 
-## Points de Terminaison
+## Authentification et Sécurité
 
-### Point de Terminaison d'Accueil
+EasyGroup utilise une authentification basée sur des cookies HTTP-only contenant des tokens JWT (JSON Web Tokens) pour sécuriser l'API. Cette approche offre une meilleure protection contre les attaques XSS (Cross-Site Scripting) par rapport aux tokens stockés dans le localStorage ou sessionStorage.
 
-Renvoie un message de bienvenue et l'état actuel de l'application.
+### Architecture de Sécurité
 
-- **URL** : `/`
-- **Méthode** : `GET`
+L'application implémente une architecture de sécurité robuste avec les caractéristiques suivantes :
+
+- **Cookies HTTP-only** : Les tokens JWT sont stockés dans des cookies HTTP-only, inaccessibles via JavaScript
+- **Protection CSRF** : Mise en œuvre via CookieCsrfTokenRepository
+- **Sessions stateless** : Aucune session n'est stockée côté serveur
+- **Hachage de mot de passe Argon2id** : Algorithme de hachage résistant aux attaques par GPU et par canal auxiliaire
+- **Filtres de sécurité** : Validation des tokens JWT à chaque requête
+
+### Points de Terminaison d'Authentification
+
+#### Inscription d'un Utilisateur
+
+Permet de créer un nouveau compte utilisateur et de définir un cookie HTTP-only contenant un token JWT.
+
+- **URL** : `/api/auth/register`
+- **Méthode** : `POST`
 - **Authentification requise** : Non
 - **Permissions requises** : Aucune
-
-#### Réponse en Cas de Succès
-
-- **Code** : 200 OK
-- **Exemple de contenu** :
+- **Corps de la Requête** :
 
 ```json
 {
-  "message": "Welcome to Spring Boot Starter API",
-  "status": "running"
+  "email": "utilisateur@exemple.com",
+  "password": "motdepasse123",
+  "firstName": "Prénom",
+  "lastName": "Nom"
 }
 ```
 
-### Point de Terminaison de Vérification de Santé
+#### Réponse en Cas de Succès
 
-Renvoie l'état de santé actuel de l'application.
+- **Code** : 201 Created
+- **Cookies définis** : `JWT_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` (HTTP-only)
+- **Exemple de contenu** :
 
-- **URL** : `/health`
-- **Méthode** : `GET`
+```json
+{
+  "userId": "550e8400-e29b-41d4-a716-446655440000",
+  "email": "utilisateur@exemple.com",
+  "firstName": "Prénom",
+  "lastName": "Nom",
+  "role": "USER",
+  "isActivated": true
+}
+```
+
+#### Connexion d'un Utilisateur
+
+Permet à un utilisateur de se connecter et de recevoir un cookie HTTP-only contenant un token JWT.
+
+- **URL** : `/api/auth/login`
+- **Méthode** : `POST`
 - **Authentification requise** : Non
 - **Permissions requises** : Aucune
+- **Corps de la Requête** :
+
+```json
+{
+  "email": "utilisateur@exemple.com",
+  "password": "motdepasse123"
+}
+```
+
+#### Réponse en Cas de Succès
+
+- **Code** : 200 OK
+- **Cookies définis** : `JWT_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` (HTTP-only)
+- **Exemple de contenu** :
+
+```json
+{
+  "userId": "550e8400-e29b-41d4-a716-446655440000",
+  "email": "utilisateur@exemple.com",
+  "firstName": "Prénom",
+  "lastName": "Nom",
+  "role": "USER",
+  "isActivated": true
+}
+```
+
+#### Déconnexion d'un Utilisateur
+
+Permet à un utilisateur de se déconnecter en supprimant le cookie d'authentification.
+
+- **URL** : `/api/auth/logout`
+- **Méthode** : `POST`
+- **Authentification requise** : Non
+- **Permissions requises** : Aucune
+
+#### Réponse en Cas de Succès
+
+- **Code** : 200 OK
+- **Cookies supprimés** : `JWT_TOKEN` (valeur vide, Max-Age=0)
+
+### Flux d'Authentification
+
+1. **Inscription** :
+   - L'utilisateur envoie ses informations d'inscription
+   - Le serveur valide les données et crée un nouvel utilisateur
+   - Le mot de passe est haché avec Argon2id avant d'être stocké
+   - Un token JWT est généré et placé dans un cookie HTTP-only
+   - Les détails de l'utilisateur sont renvoyés dans la réponse (sans le token)
+
+2. **Connexion** :
+   - L'utilisateur envoie ses identifiants
+   - Le serveur authentifie l'utilisateur en vérifiant le mot de passe
+   - Un token JWT est généré et placé dans un cookie HTTP-only
+   - Les détails de l'utilisateur sont renvoyés dans la réponse (sans le token)
+
+3. **Requêtes authentifiées** :
+   - Le cookie contenant le token JWT est automatiquement envoyé avec chaque requête
+   - Le filtre CookieAuthenticationFilter extrait et valide le token
+   - Si le token est valide, l'utilisateur est authentifié pour la requête
+   - Si le token est invalide ou absent, la requête est rejetée pour les endpoints protégés
+
+4. **Déconnexion** :
+   - L'utilisateur envoie une requête de déconnexion
+   - Le serveur supprime le cookie d'authentification en définissant sa durée de vie à 0
+
+### Configuration des Cookies
+
+Les cookies d'authentification sont configurés avec les attributs de sécurité suivants :
+
+- **HttpOnly** : Empêche l'accès au cookie via JavaScript
+- **Secure** : Le cookie n'est envoyé que sur des connexions HTTPS (en production)
+- **SameSite=Strict** : Le cookie n'est pas envoyé lors des requêtes cross-site
+- **Path=/** : Le cookie est disponible pour tout le domaine
+- **Expiration** : 24 heures par défaut
+
+### Hachage de Mot de Passe Argon2id
+
+EasyGroup utilise l'algorithme Argon2id pour le hachage des mots de passe, avec les paramètres suivants :
+
+- **Longueur du sel** : 16 octets
+- **Longueur du hachage** : 32 octets
+- **Itérations** : 3
+- **Mémoire** : 64 Mo
+- **Parallélisme** : 4 threads
+
+Cette configuration offre une excellente protection contre les attaques par force brute, y compris celles utilisant des GPU ou des ASIC.
+
+## Points de Terminaison de Gestion des Utilisateurs
+
+### Récupération du Profil de l'Utilisateur Courant
+
+Permet à un utilisateur authentifié de récupérer son propre profil.
+
+- **URL** : `/api/users/me`
+- **Méthode** : `GET`
+- **Authentification requise** : Oui
+- **Permissions requises** : Utilisateur authentifié
 
 #### Réponse en Cas de Succès
 
@@ -49,19 +182,594 @@ Renvoie l'état de santé actuel de l'application.
 
 ```json
 {
-  "status": "UP"
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "email": "utilisateur@exemple.com",
+  "firstName": "Prénom",
+  "lastName": "Nom",
+  "role": "USER",
+  "isActivated": true,
+  "createdAt": "2023-01-15T10:30:00",
+  "updatedAt": "2023-01-15T10:30:00"
 }
+```
+
+### Mise à Jour du Profil de l'Utilisateur Courant
+
+Permet à un utilisateur authentifié de mettre à jour son propre profil.
+
+- **URL** : `/api/users/me`
+- **Méthode** : `PUT`
+- **Authentification requise** : Oui
+- **Permissions requises** : Utilisateur authentifié
+- **Corps de la Requête** :
+
+```json
+{
+  "firstName": "Nouveau Prénom",
+  "lastName": "Nouveau Nom"
+}
+```
+
+#### Réponse en Cas de Succès
+
+- **Code** : 200 OK
+- **Exemple de contenu** :
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "email": "utilisateur@exemple.com",
+  "firstName": "Nouveau Prénom",
+  "lastName": "Nouveau Nom",
+  "role": "USER",
+  "isActivated": true,
+  "createdAt": "2023-01-15T10:30:00",
+  "updatedAt": "2023-01-15T11:45:00"
+}
+```
+
+### Suppression du Compte de l'Utilisateur Courant
+
+Permet à un utilisateur authentifié de supprimer son propre compte.
+
+- **URL** : `/api/users/me`
+- **Méthode** : `DELETE`
+- **Authentification requise** : Oui
+- **Permissions requises** : Utilisateur authentifié
+
+#### Réponse en Cas de Succès
+
+- **Code** : 204 No Content
+
+### Récupération de Tous les Utilisateurs (Admin)
+
+Permet à un administrateur de récupérer la liste de tous les utilisateurs.
+
+- **URL** : `/api/users`
+- **Méthode** : `GET`
+- **Authentification requise** : Oui
+- **Permissions requises** : Administrateur
+
+#### Réponse en Cas de Succès
+
+- **Code** : 200 OK
+- **Exemple de contenu** :
+
+```json
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "email": "utilisateur1@exemple.com",
+    "firstName": "Prénom1",
+    "lastName": "Nom1",
+    "role": "USER",
+    "isActivated": true,
+    "createdAt": "2023-01-15T10:30:00",
+    "updatedAt": "2023-01-15T10:30:00"
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440001",
+    "email": "utilisateur2@exemple.com",
+    "firstName": "Prénom2",
+    "lastName": "Nom2",
+    "role": "ADMIN",
+    "isActivated": true,
+    "createdAt": "2023-01-14T09:15:00",
+    "updatedAt": "2023-01-14T09:15:00"
+  }
+]
+```
+
+### Récupération d'un Utilisateur par ID (Admin)
+
+Permet à un administrateur de récupérer un utilisateur spécifique par son ID.
+
+- **URL** : `/api/users/{id}`
+- **Méthode** : `GET`
+- **Authentification requise** : Oui
+- **Permissions requises** : Administrateur
+
+#### Réponse en Cas de Succès
+
+- **Code** : 200 OK
+- **Exemple de contenu** :
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "email": "utilisateur@exemple.com",
+  "firstName": "Prénom",
+  "lastName": "Nom",
+  "role": "USER",
+  "isActivated": true,
+  "createdAt": "2023-01-15T10:30:00",
+  "updatedAt": "2023-01-15T10:30:00"
+}
+```
+
+### Activation/Désactivation d'un Utilisateur (Admin)
+
+Permet à un administrateur d'activer ou de désactiver un compte utilisateur.
+
+- **URL** : `/api/users/{id}/activate`
+- **Méthode** : `PUT`
+- **Authentification requise** : Oui
+- **Permissions requises** : Administrateur
+- **Paramètres de Requête** : `isActivated=true|false`
+
+#### Réponse en Cas de Succès
+
+- **Code** : 200 OK
+- **Exemple de contenu** :
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "email": "utilisateur@exemple.com",
+  "firstName": "Prénom",
+  "lastName": "Nom",
+  "role": "USER",
+  "isActivated": false,
+  "createdAt": "2023-01-15T10:30:00",
+  "updatedAt": "2023-01-16T14:20:00"
+}
+```
+
+## Points de Terminaison de Gestion des Listes
+
+> **Note**: Les endpoints de gestion des listes décrits ci-dessous sont planifiés pour une implémentation future et ne sont pas encore disponibles dans la version actuelle de l'API.
+
+### Création d'une Liste (Planifié)
+
+Permettra de créer une nouvelle liste de personnes.
+
+- **URL** : `/api/lists`
+- **Méthode** : `POST`
+- **Authentification requise** : Oui
+- **Permissions requises** : Utilisateur authentifié
+- **Corps de la Requête** :
+
+```json
+{
+  "name": "Ma Liste"
+}
+```
+
+#### Réponse en Cas de Succès
+
+- **Code** : 201 Created
+- **Exemple de contenu** :
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "name": "Ma Liste",
+  "isShared": false
+}
+```
+
+### Récupération des Listes d'un Utilisateur (Planifié)
+
+Permettra de récupérer toutes les listes appartenant à l'utilisateur connecté.
+
+- **URL** : `/api/lists`
+- **Méthode** : `GET`
+- **Authentification requise** : Oui
+- **Permissions requises** : Utilisateur authentifié
+
+#### Réponse en Cas de Succès
+
+- **Code** : 200 OK
+- **Exemple de contenu** :
+
+```json
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "Ma Liste",
+    "isShared": false
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440001",
+    "name": "Autre Liste",
+    "isShared": true
+  }
+]
+```
+
+## Points de Terminaison de Gestion des Personnes
+
+### Ajout d'une Personne à une Liste
+
+Permet d'ajouter une nouvelle personne à une liste existante.
+
+- **URL** : `/users/{userId}/lists/{listId}/persons`
+- **Méthode** : `POST`
+- **Authentification requise** : Oui
+- **Permissions requises** : Propriétaire de la liste ou utilisateur avec accès partagé
+- **Corps de la Requête** :
+
+```json
+{
+  "name": "Jean Dupont",
+  "gender": "MALE",
+  "age": 25,
+  "frenchLevel": 3,
+  "oldDwwm": false,
+  "techLevel": 2,
+  "profile": "A_LAISE"
+}
+```
+
+#### Réponse en Cas de Succès
+
+- **Code** : 201 Created
+- **Exemple de contenu** :
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "name": "Jean Dupont",
+  "gender": "MALE",
+  "age": 25,
+  "frenchLevel": 3,
+  "oldDwwm": false,
+  "techLevel": 2,
+  "profile": "A_LAISE"
+}
+```
+
+### Récupération des Personnes d'une Liste
+
+Permet de récupérer toutes les personnes d'une liste spécifique.
+
+- **URL** : `/users/{userId}/lists/{listId}/persons`
+- **Méthode** : `GET`
+- **Authentification requise** : Oui
+- **Permissions requises** : Propriétaire de la liste ou utilisateur avec accès partagé
+
+#### Réponse en Cas de Succès
+
+- **Code** : 200 OK
+- **Exemple de contenu** :
+
+```json
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "Jean Dupont",
+    "gender": "MALE",
+    "age": 25,
+    "frenchLevel": 3,
+    "oldDwwm": false,
+    "techLevel": 2,
+    "profile": "A_LAISE"
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440001",
+    "name": "Marie Martin",
+    "gender": "FEMALE",
+    "age": 30,
+    "frenchLevel": 4,
+    "oldDwwm": true,
+    "techLevel": 3,
+    "profile": "RESERVE"
+  }
+]
+```
+
+### Modification d'une Personne
+
+Permet de modifier les informations d'une personne existante.
+
+- **URL** : `/users/{userId}/lists/{listId}/persons/{personId}`
+- **Méthode** : `PUT`
+- **Authentification requise** : Oui
+- **Permissions requises** : Propriétaire de la liste ou utilisateur avec accès partagé
+- **Corps de la Requête** :
+
+```json
+{
+  "name": "Jean Dupont Modifié",
+  "gender": "MALE",
+  "age": 26,
+  "frenchLevel": 4,
+  "oldDwwm": false,
+  "techLevel": 3,
+  "profile": "A_LAISE"
+}
+```
+
+#### Réponse en Cas de Succès
+
+- **Code** : 200 OK
+- **Exemple de contenu** :
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "name": "Jean Dupont Modifié",
+  "gender": "MALE",
+  "age": 26,
+  "frenchLevel": 4,
+  "oldDwwm": false,
+  "techLevel": 3,
+  "profile": "A_LAISE"
+}
+```
+
+### Suppression d'une Personne
+
+Permet de supprimer une personne d'une liste.
+
+- **URL** : `/users/{userId}/lists/{listId}/persons/{personId}`
+- **Méthode** : `DELETE`
+- **Authentification requise** : Oui
+- **Permissions requises** : Propriétaire de la liste ou utilisateur avec accès partagé
+
+#### Réponse en Cas de Succès
+
+- **Code** : 200 OK
+
+## Points de Terminaison de Gestion des Tirages et Groupes
+
+### Création d'un Tirage
+
+Permet de créer un nouveau tirage à partir d'une liste existante et de générer des groupes.
+
+- **URL** : `/api/users/{userId}/lists/{listId}/draws`
+- **Méthode** : `POST`
+- **Authentification requise** : Oui
+- **Permissions requises** : Propriétaire de la liste ou utilisateur avec accès partagé
+- **Corps de la Requête** :
+
+```json
+{
+  "title": "Tirage du 15 janvier",
+  "numberOfGroups": 3
+}
+```
+
+#### Réponse en Cas de Succès
+
+- **Code** : 201 Created
+- **Exemple de contenu** :
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "title": "Tirage du 15 janvier",
+  "createdAt": "2023-01-15T10:30:00",
+  "groups": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440001",
+      "name": "Group 1"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440002",
+      "name": "Group 2"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440003",
+      "name": "Group 3"
+    }
+  ]
+}
+```
+
+### Récupération des Tirages d'une Liste
+
+Permet de récupérer tous les tirages associés à une liste spécifique.
+
+- **URL** : `/api/users/{userId}/lists/{listId}/draws`
+- **Méthode** : `GET`
+- **Authentification requise** : Oui
+- **Permissions requises** : Propriétaire de la liste ou utilisateur avec accès partagé
+
+#### Réponse en Cas de Succès
+
+- **Code** : 200 OK
+- **Exemple de contenu** :
+
+```json
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "title": "Tirage du 15 janvier",
+    "createdAt": "2023-01-15T10:30:00",
+    "groups": [
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440001",
+        "name": "Group 1"
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440002",
+        "name": "Group 2"
+      }
+    ]
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440003",
+    "title": "Tirage du 20 janvier",
+    "createdAt": "2023-01-20T14:15:00",
+    "groups": [
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440004",
+        "name": "Group 1"
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440005",
+        "name": "Group 2"
+      }
+    ]
+  }
+]
+```
+
+### Récupération des Groupes d'un Tirage
+
+Permet de récupérer tous les groupes générés pour un tirage spécifique.
+
+- **URL** : `/api/draws/{drawId}/groups`
+- **Méthode** : `GET`
+- **Authentification requise** : Oui
+- **Permissions requises** : Propriétaire de la liste ou utilisateur avec accès partagé
+
+#### Réponse en Cas de Succès
+
+- **Code** : 200 OK
+- **Exemple de contenu** :
+
+```json
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440001",
+    "name": "Group 1",
+    "persons": [
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440010",
+        "name": "Jean Dupont"
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440011",
+        "name": "Marie Martin"
+      }
+    ]
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440002",
+    "name": "Group 2",
+    "persons": [
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440012",
+        "name": "Pierre Durand"
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440013",
+        "name": "Sophie Petit"
+      }
+    ]
+  }
+]
+```
+
+### Ajout d'une Personne à un Groupe
+
+Permet d'ajouter manuellement une personne à un groupe existant.
+
+- **URL** : `/api/groups/{groupId}/persons/{personId}`
+- **Méthode** : `POST`
+- **Authentification requise** : Oui
+- **Permissions requises** : Propriétaire de la liste ou utilisateur avec accès partagé
+
+#### Réponse en Cas de Succès
+
+- **Code** : 200 OK
+
+### Suppression d'une Personne d'un Groupe
+
+Permet de retirer manuellement une personne d'un groupe.
+
+- **URL** : `/api/groups/{groupId}/persons/{personId}`
+- **Méthode** : `DELETE`
+- **Authentification requise** : Oui
+- **Permissions requises** : Propriétaire de la liste ou utilisateur avec accès partagé
+
+#### Réponse en Cas de Succès
+
+- **Code** : 200 OK
+- **Exemple de contenu** :
+
+```json
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "Jean Dupont",
+    "gender": "MALE",
+    "age": 25,
+    "frenchLevel": 3,
+    "oldDwwm": false,
+    "techLevel": 2,
+    "profile": "A_LAISE"
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440001",
+    "name": "Marie Martin",
+    "gender": "FEMALE",
+    "age": 30,
+    "frenchLevel": 4,
+    "oldDwwm": true,
+    "techLevel": 3,
+    "profile": "RESERVE"
+  }
+]
 ```
 
 ## Points de Terminaison Actuator
 
-Spring Boot Actuator fournit plusieurs points de terminaison prêts pour la production. Les suivants sont activés :
+Spring Boot Actuator fournit plusieurs points de terminaison pour la surveillance et la gestion de l'application. Les suivants sont activés dans EasyGroup :
 
-- **Health** : `/actuator/health` - Affiche les informations de santé de l'application
-- **Info** : `/actuator/info` - Affiche les informations de l'application
-- **Metrics** : `/actuator/metrics` - Affiche les informations de métriques pour l'application
+- **Health** : `/actuator/health` - Affiche l'état de santé de l'application et de ses dépendances (base de données, etc.)
+- **Info** : `/actuator/info` - Affiche les informations de l'application (version, environnement, etc.)
+- **Metrics** : `/actuator/metrics` - Affiche diverses métriques de l'application (mémoire, CPU, requêtes HTTP, etc.)
 
 ## Réponses d'Erreur
+
+### 400 Requête Incorrecte
+
+```json
+{
+  "timestamp": "2023-11-01T12:00:00.000+00:00",
+  "status": 400,
+  "error": "Bad Request",
+  "message": "Validation failed for object='authRequest'",
+  "path": "/api/auth/register"
+}
+```
+
+### 401 Non Autorisé
+
+```json
+{
+  "timestamp": "2023-11-01T12:00:00.000+00:00",
+  "status": 401,
+  "error": "Unauthorized",
+  "message": "Authentication credentials not valid",
+  "path": "/api/lists"
+}
+```
+
+### 403 Interdit
+
+```json
+{
+  "timestamp": "2023-11-01T12:00:00.000+00:00",
+  "status": 403,
+  "error": "Forbidden",
+  "message": "Access denied to this resource",
+  "path": "/api/lists/550e8400-e29b-41d4-a716-446655440000"
+}
+```
 
 ### 404 Non Trouvé
 
@@ -70,7 +778,8 @@ Spring Boot Actuator fournit plusieurs points de terminaison prêts pour la prod
   "timestamp": "2023-11-01T12:00:00.000+00:00",
   "status": 404,
   "error": "Not Found",
-  "path": "/non-existent-path"
+  "message": "List not found with id: 550e8400-e29b-41d4-a716-446655440000",
+  "path": "/api/lists/550e8400-e29b-41d4-a716-446655440000"
 }
 ```
 
@@ -81,6 +790,7 @@ Spring Boot Actuator fournit plusieurs points de terminaison prêts pour la prod
   "timestamp": "2023-11-01T12:00:00.000+00:00",
   "status": 500,
   "error": "Internal Server Error",
-  "path": "/some-path"
+  "message": "An unexpected error occurred",
+  "path": "/api/lists"
 }
 ```
