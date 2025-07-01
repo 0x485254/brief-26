@@ -89,14 +89,14 @@
         {
           "name": "De/Activate user",
           "request": {
-            "method": "GET",
+            "method": "PUT",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/users/1/activate",
+              "raw": "http://localhost:8080/api/users/1/activate?isActivated=false",
               "protocol": "http",
               "host": ["localhost"],
               "port": "8080",
-              "path": ["api", "users", "1", "activate"]
+              "path": ["api", "users", "1", "activate?isActivated=false"]
             }
           }
         },
