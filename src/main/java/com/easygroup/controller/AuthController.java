@@ -41,7 +41,7 @@ public class AuthController {
             HttpServletResponse response) {
         try {
             // Register the user
-            User userResponse = authService.register(request.getEmail(), request.getPassword(), request.getFirstName(), request.getLastName());
+            authService.register(request.getEmail(), request.getPassword(), request.getFirstName(), request.getLastName());
 
             // Authenticate the user after registration to generate a token and set it as a cookie
             AuthResponse authResponse = authService.authenticate(request.getEmail(), request.getPassword(), response);

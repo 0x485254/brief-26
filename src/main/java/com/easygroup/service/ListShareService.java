@@ -22,16 +22,16 @@ public class ListShareService {
      * Share a list with a user.
      *
      * @param list the list to share
-     * @param user the user to share with
+     * @param userSharedTo the user to share with
      * @return the created ListShare
      */
-    public ListShare shareList(ListEntity list, User user) {
+    public ListShare shareList(ListEntity list, User userSharedTo) {
         list.setIsShared(true);
         listRepository.save(list);
 
         ListShare listShare = new ListShare();
         listShare.setList(list);
-        listShare.setSharedWithUser(user);
+        listShare.setSharedWithUser(userSharedTo);
         return listShareRepository.save(listShare);
     }
 

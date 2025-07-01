@@ -81,11 +81,10 @@ public class UserService {
         return userRepository.existsByEmail(email);
     }
 
-public User getActivatedUserByEmail(String email) {
-    return userRepository.findByEmail(email)
-            .filter(User::getIsActivated)
-            .orElseThrow(() ->
-                    new UsernameNotFoundException("User not found or not activated: " + email));
-}
+    public User getActivatedUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .filter(User::getIsActivated)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found or not activated: " + email));
+    }
 
 }
