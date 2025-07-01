@@ -41,13 +41,13 @@ class GroupGenerationServiceTests {
     private PersonRepository personRepository;
 
     private Draw testDraw;
-    private com.easygroup.entity.List testList;
+    private ListEntity testList;
     private java.util.List<Person> testPersons;
     private GenerateGroupsRequest request;
 
     @BeforeEach
     void setUp() {
-        testList = new com.easygroup.entity.List();
+        testList = new ListEntity();
         testList.setId(UUID.randomUUID());
         testList.setName("Test Class 2025");
 
@@ -331,7 +331,6 @@ class GroupGenerationServiceTests {
 
     @Test
     void generateGroups_EmptyPersonList_ThrowsException() {
-        // Test edge case: no persons in list
         when(personRepository.findByList(testList)).thenReturn(new ArrayList<>());
 
         assertThrows(Exception.class, () -> {
@@ -341,9 +340,7 @@ class GroupGenerationServiceTests {
 
     @Test
     void generateGroups_SingleCriteriaComparison() {
-        // Test to compare single vs multiple criteria effects
 
-        // First: Only gender balancing
         GenerateGroupsRequest genderOnlyRequest = new GenerateGroupsRequest();
         genderOnlyRequest.setTitle("Gender Only");
         genderOnlyRequest.setNumberOfGroups(4);
@@ -358,10 +355,8 @@ class GroupGenerationServiceTests {
 
         groupGenerationService.generateGroups(genderDraw, genderOnlyRequest);
 
-        // Verify gender balancing worked
         assertEquals(4, genderDraw.getGroups().size());
 
-        // Now: Gender + Tech level balancing
         GenerateGroupsRequest multiCriteriaRequest = new GenerateGroupsRequest();
         multiCriteriaRequest.setTitle("Multi Criteria");
         multiCriteriaRequest.setNumberOfGroups(4);
@@ -377,19 +372,15 @@ class GroupGenerationServiceTests {
 
         groupGenerationService.generateGroups(multiDraw, multiCriteriaRequest);
 
-        // Both should succeed
         assertEquals(4, multiDraw.getGroups().size());
 
         System.out.println("Single criteria test completed successfully");
         System.out.println("Multi criteria test completed successfully");
     }
-    // Add these test methods to your existing GroupGenerationServiceTests class
 
     @Test
     void generateGroups_UnevenNumbers_21PersonsIn4Groups() {
-        // Test uneven distribution: 21 persons → 4 groups (should be [6,5,5,5])
 
-        // Add one more person to make it 21
         Person extraPerson = new Person();
         extraPerson.setId(UUID.randomUUID());
         extraPerson.setName("Extra");
@@ -411,7 +402,6 @@ class GroupGenerationServiceTests {
 
         groupGenerationService.generateGroups(testDraw, request);
 
-        // Verify uneven but optimal distribution
         List<Integer> groupSizes = testDraw.getGroups().stream()
                 .map(group -> group.getPersons().size())
                 .sorted()
@@ -419,18 +409,16 @@ class GroupGenerationServiceTests {
 
         assertEquals(Arrays.asList(5, 5, 5, 6), groupSizes, "Should be [5,5,5,6] distribution for 21 persons");
 
-        // Verify total persons
         int totalPersons = testDraw.getGroups().stream()
                 .mapToInt(group -> group.getPersons().size())
                 .sum();
         assertEquals(21, totalPersons);
 
-        System.out.println("✅ Uneven numbers test: 21 persons distributed as " + groupSizes);
+        System.out.println("Uneven numbers test: 21 persons distributed as " + groupSizes);
     }
 
     @Test
     void generateGroups_MinimumGroups_20PersonsIn2Groups() {
-        // Test minimum groups: 20 persons → 2 groups (should be [10,10])
 
         request.setNumberOfGroups(2);
         request.setGroupNames(Arrays.asList("Team Alpha", "Team Beta"));
@@ -441,12 +429,10 @@ class GroupGenerationServiceTests {
 
         assertEquals(2, testDraw.getGroups().size());
 
-        // Verify even distribution
         for (Group group : testDraw.getGroups()) {
             assertEquals(10, group.getPersons().size(),
                     "Each group should have exactly 10 persons");
 
-            // Verify diversity in larger groups
             Set<Person.Gender> genders = group.getPersons().stream()
                     .map(Person::getGender)
                     .collect(Collectors.toSet());
@@ -458,14 +444,11 @@ class GroupGenerationServiceTests {
             assertTrue(techLevels.size() >= 3, "Should have tech level diversity in group: " + group.getName());
         }
 
-        System.out.println("✅ Minimum groups test: 2 groups of 10 persons each");
+        System.out.println("Minimum groups test: 2 groups of 10 persons each");
     }
-
-    // Replace the original single person test with this corrected version:
 
     @Test
     void generateGroups_InsufficientPersons_1PersonFor2Groups() {
-        // Test realistic edge case: 1 person but user wants 2+ groups (should fail)
 
         Person singlePerson = new Person();
         singlePerson.setId(UUID.randomUUID());
@@ -480,24 +463,20 @@ class GroupGenerationServiceTests {
 
         when(personRepository.findByList(testList)).thenReturn(Arrays.asList(singlePerson));
 
-        // User tries to create 2 groups with only 1 person (realistic user error)
-        request.setNumberOfGroups(2); // ✅ Meets DTO validation
+        request.setNumberOfGroups(2); //
         request.setGroupNames(Arrays.asList("Group A", "Group B"));
         request.setBalanceByGender(true);
 
-        // Should throw exception because 1 person < 2 groups
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
             groupGenerationService.generateGroups(testDraw, request);
         });
 
-        // Verify it's the right exception
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
         assertTrue(exception.getReason().contains("Not enough persons"));
 
-        System.out.println("✅ Insufficient persons test: 1 person for 2 groups correctly rejected");
+        System.out.println("Insufficient persons test: 1 person for 2 groups correctly rejected");
     }
 
-    // Optional: Add this helper method if you want to reuse person creation
     private Person createPersonWithName(String name) {
         Person person = new Person();
         person.setId(UUID.randomUUID());
@@ -512,10 +491,8 @@ class GroupGenerationServiceTests {
         return person;
     }
 
-    // Bonus: Add a proper minimum valid scenario test
     @Test
     void generateGroups_MinimumValidScenario_2PersonsIn2Groups() {
-        // Test the absolute minimum valid scenario: 2 persons → 2 groups = [1,1]
 
         Person person1 = createPersonWithName("Alice");
         person1.setGender(Person.Gender.FEMALE);
@@ -529,13 +506,12 @@ class GroupGenerationServiceTests {
 
         request.setNumberOfGroups(2);
         request.setGroupNames(Arrays.asList("Group A", "Group B"));
-        request.setBalanceByGender(true); // Should work even with minimal data
+        request.setBalanceByGender(true);
 
         groupGenerationService.generateGroups(testDraw, request);
 
         assertEquals(2, testDraw.getGroups().size());
 
-        // Verify distribution
         List<Integer> groupSizes = testDraw.getGroups().stream()
                 .map(group -> group.getPersons().size())
                 .sorted()
@@ -543,11 +519,9 @@ class GroupGenerationServiceTests {
 
         assertEquals(Arrays.asList(1, 1), groupSizes);
 
-        // Verify each group has one person
         assertEquals(1, testDraw.getGroups().get(0).getPersons().size());
         assertEquals(1, testDraw.getGroups().get(1).getPersons().size());
 
-        // Verify persons are distributed
         Set<String> distributedNames = testDraw.getGroups().stream()
                 .flatMap(group -> group.getPersons().stream())
                 .map(Person::getName)
@@ -555,13 +529,11 @@ class GroupGenerationServiceTests {
 
         assertEquals(Set.of("Alice", "Bob"), distributedNames);
 
-        System.out.println("✅ Minimum valid scenario: 2 persons in 2 groups works perfectly");
+        System.out.println(" Minimum valid scenario: 2 persons in 2 groups works perfectly");
     }
 
     @Test
     void generateGroups_LargeGroups_100PersonsIn10Groups() {
-        // Test large scale: 100 persons → 10 groups (should be
-        // [10,10,10,10,10,10,10,10,10,10])
 
         List<Person> largePersonList = createLargePersonList(100);
         when(personRepository.findByList(testList)).thenReturn(largePersonList);
@@ -577,12 +549,10 @@ class GroupGenerationServiceTests {
 
         assertEquals(10, testDraw.getGroups().size());
 
-        // Verify each group has exactly 10 persons
         for (Group group : testDraw.getGroups()) {
             assertEquals(10, group.getPersons().size(),
                     "Group " + group.getName() + " should have exactly 10 persons");
 
-            // Verify good diversity in each group
             Set<Person.Gender> genders = group.getPersons().stream()
                     .map(Person::getGender)
                     .collect(Collectors.toSet());
@@ -594,50 +564,45 @@ class GroupGenerationServiceTests {
             assertTrue(techLevels.size() >= 3, "Should have tech level diversity");
         }
 
-        // Verify total
         int totalPersons = testDraw.getGroups().stream()
                 .mapToInt(group -> group.getPersons().size())
                 .sum();
         assertEquals(100, totalPersons);
 
-        System.out.println("✅ Large groups test: 100 persons in 10 groups of 10 each");
+        System.out.println("Large groups test: 100 persons in 10 groups of 10 each");
     }
 
     @Test
     void generateGroups_ExtremeDiversity_AllSameGenderAndTech() {
-        // Test extreme case: all persons have same gender and tech level
 
         List<Person> sameAttributePersons = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
             Person person = new Person();
             person.setId(UUID.randomUUID());
             person.setName("Person" + (i + 1));
-            person.setGender(Person.Gender.MALE); // All same gender
-            person.setAge(20 + (i % 10)); // Some age variety
-            person.setTechLevel(2); // All same tech level
-            person.setFrenchLevel(1 + (i % 4)); // Some French variety
-            person.setOldDwwm(i % 2 == 0); // Some DWWM variety
-            person.setProfile(Person.Profile.values()[i % 3]); // Some profile variety
+            person.setGender(Person.Gender.MALE);
+            person.setAge(20 + (i % 10));
+            person.setTechLevel(2);
+            person.setFrenchLevel(1 + (i % 4));
+            person.setOldDwwm(i % 2 == 0);
+            person.setProfile(Person.Profile.values()[i % 3]);
             person.setList(testList);
             sameAttributePersons.add(person);
         }
 
         when(personRepository.findByList(testList)).thenReturn(sameAttributePersons);
 
-        request.setBalanceByGender(true); // Should handle impossible gender balancing
-        request.setBalanceByTechLevel(true); // Should handle impossible tech balancing
-        request.setBalanceByFrenchLevel(true); // Should work fine
-        request.setBalanceByProfile(true); // Should work fine
-
+        request.setBalanceByGender(true);
+        request.setBalanceByTechLevel(true);
+        request.setBalanceByFrenchLevel(true);
+        request.setBalanceByProfile(true);
         groupGenerationService.generateGroups(testDraw, request);
 
         assertEquals(4, testDraw.getGroups().size());
 
-        // Verify even distribution despite impossible criteria
         for (Group group : testDraw.getGroups()) {
             assertEquals(5, group.getPersons().size());
 
-            // All should have same gender and tech level (since that's all we have)
             Set<Person.Gender> genders = group.getPersons().stream()
                     .map(Person::getGender)
                     .collect(Collectors.toSet());
@@ -648,19 +613,17 @@ class GroupGenerationServiceTests {
             assertEquals(1, genders.size(), "Should have only MALE gender");
             assertEquals(1, techLevels.size(), "Should have only tech level 2");
 
-            // But should have variety in other attributes
             Set<Integer> frenchLevels = group.getPersons().stream()
                     .map(Person::getFrenchLevel)
                     .collect(Collectors.toSet());
             assertTrue(frenchLevels.size() >= 2, "Should have French level variety");
         }
 
-        System.out.println("✅ Extreme diversity test: algorithm handles impossible balancing gracefully");
+        System.out.println("Extreme diversity test: algorithm handles impossible balancing gracefully");
     }
 
     @Test
     void generateGroups_PartialCriteria_Only2CriteriaEnabled() {
-        // Test partial criteria: only gender + age balancing
 
         request.setBalanceByGender(true);
         request.setBalanceByAge(true);
@@ -676,7 +639,6 @@ class GroupGenerationServiceTests {
         for (Group group : testDraw.getGroups()) {
             assertEquals(5, group.getPersons().size());
 
-            // Verify the enabled criteria are balanced
             Set<Person.Gender> genders = group.getPersons().stream()
                     .map(Person::getGender)
                     .collect(Collectors.toSet());
@@ -688,7 +650,6 @@ class GroupGenerationServiceTests {
 
             assertTrue(genders.size() >= 1, "Should have gender diversity");
 
-            // Age should be reasonably distributed (not all same age)
             if (ages.size() > 1) {
                 int ageSpread = ages.get(ages.size() - 1) - ages.get(0);
                 assertTrue(ageSpread >= 0, "Age should be distributed");
@@ -700,7 +661,6 @@ class GroupGenerationServiceTests {
 
     @Test
     void generateGroups_PartialCriteria_Only3CriteriaEnabled() {
-        // Test partial criteria: gender + tech + profile balancing
 
         request.setBalanceByGender(true);
         request.setBalanceByAge(false);
@@ -716,7 +676,6 @@ class GroupGenerationServiceTests {
         for (Group group : testDraw.getGroups()) {
             assertEquals(5, group.getPersons().size());
 
-            // Verify the 3 enabled criteria are balanced
             Set<Person.Gender> genders = group.getPersons().stream()
                     .map(Person::getGender)
                     .collect(Collectors.toSet());
@@ -735,10 +694,9 @@ class GroupGenerationServiceTests {
                     ", Tech: " + techLevels.size() + ", Profiles: " + profiles.size());
         }
 
-        System.out.println("✅ Partial criteria test: 3 criteria enabled works correctly");
+        System.out.println("Partial criteria test: 3 criteria enabled works correctly");
     }
 
-    // Helper method to create large person list for testing
     private List<Person> createLargePersonList(int count) {
         List<Person> persons = new ArrayList<>();
 
@@ -751,10 +709,10 @@ class GroupGenerationServiceTests {
             person.setId(UUID.randomUUID());
             person.setName(nameBase[i % nameBase.length] + (i / nameBase.length + 1));
             person.setGender(genders[i % genders.length]);
-            person.setAge(20 + (i % 15)); // Ages 20-34
-            person.setTechLevel(1 + (i % 4)); // Tech levels 1-4
-            person.setFrenchLevel(1 + (i % 4)); // French levels 1-4
-            person.setOldDwwm(i % 3 == 0); // Mix of old/new DWWM
+            person.setAge(20 + (i % 15));
+            person.setTechLevel(1 + (i % 4));
+            person.setFrenchLevel(1 + (i % 4));
+            person.setOldDwwm(i % 3 == 0);
             person.setProfile(profiles[i % profiles.length]);
             person.setList(testList);
             persons.add(person);

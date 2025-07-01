@@ -1,9 +1,12 @@
 package com.easygroup.service;
 
 import com.easygroup.dto.GenerateGroupsRequest;
+import com.easygroup.dto.GroupResponse;
 import com.easygroup.entity.Draw;
 import com.easygroup.entity.Group;
+import com.easygroup.entity.ListEntity;
 import com.easygroup.entity.Person;
+import com.easygroup.mapper.GroupMapper;
 import com.easygroup.repository.GroupRepository;
 import com.easygroup.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,27 +91,27 @@ public class GroupGenerationService {
 
         if (request.getBalanceByGender()) {
             System.out.println("Applying gender balancing");
-            distributeByAttribute(availablePersons, groups, targetSizes, Person::getGender, "gender");
+            distributeByAttribute(availablePersons, groups, targetSizes, Person::getGender);
         }
 
         if (request.getBalanceByTechLevel()) {
             System.out.println("Applying tech level balancing");
-            distributeByAttribute(availablePersons, groups, targetSizes, Person::getTechLevel, "tech level");
+            distributeByAttribute(availablePersons, groups, targetSizes, Person::getTechLevel);
         }
 
         if (request.getBalanceByFrenchLevel()) {
             System.out.println("Applying French level balancing");
-            distributeByAttribute(availablePersons, groups, targetSizes, Person::getFrenchLevel, "French level");
+            distributeByAttribute(availablePersons, groups, targetSizes, Person::getFrenchLevel);
         }
 
         if (request.getBalanceByOldDwwm()) {
             System.out.println("Applying old DWWM balancing");
-            distributeByAttribute(availablePersons, groups, targetSizes, Person::getOldDwwm, "old DWWM");
+            distributeByAttribute(availablePersons, groups, targetSizes, Person::getOldDwwm);
         }
 
         if (request.getBalanceByProfile()) {
             System.out.println("Applying personality profile balancing");
-            distributeByAttribute(availablePersons, groups, targetSizes, Person::getProfile, "profile");
+            distributeByAttribute(availablePersons, groups, targetSizes, Person::getProfile);
         }
 
         if (request.getBalanceByAge()) {
@@ -122,9 +125,9 @@ public class GroupGenerationService {
     }
 
     private <T> void distributeByAttribute(List<Person> availablePersons, List<Group> groups,
-            int[] targetSizes, java.util.function.Function<Person, T> attributeGetter,
-            String attributeName) {
+            int[] targetSizes, java.util.function.Function<Person, T> attributeGetter) {
 
+        // unassignedPersons = [dodo, bobo, nono, mimi, lala] // All the people
         List<Person> unassignedPersons = availablePersons.stream()
                 .filter(person -> groups.stream().noneMatch(group -> group.getPersons().contains(person)))
                 .collect(Collectors.toList());
@@ -136,7 +139,7 @@ public class GroupGenerationService {
         Map<T, List<Person>> attributeGroups = unassignedPersons.stream()
                 .collect(Collectors.groupingBy(attributeGetter));
 
-        System.out.println("Grouped by " + attributeName + ":");
+        // IT WILL LOOKS LIKE THIS: {MALE=[dodod, nono, popopo], FEMALE=[mimi, lala]}
         for (Map.Entry<T, List<Person>> entry : attributeGroups.entrySet()) {
             System.out.println(entry.getKey() + ": " + entry.getValue().size() + " persons");
         }
@@ -145,8 +148,12 @@ public class GroupGenerationService {
 
         for (Map.Entry<T, List<Person>> entry : attributeGroups.entrySet()) {
             List<Person> personsWithAttribute = new ArrayList<>(entry.getValue());
+            // hmmmmmm we well have something like this 'personsWithAttribute =
+            // [dodod,nono, popopo]'
             Collections.shuffle(personsWithAttribute);
+            // we will shuffle the persons with the same attribute to ensure randomness
 
+            // find the persons with the same attribute and distribute them
             for (Person person : personsWithAttribute) {
                 Group bestGroup = findBestGroupForPerson(groups, targetSizes, person, attributeGetter);
                 if (bestGroup != null) {
@@ -232,6 +239,71 @@ public class GroupGenerationService {
                         " has " + actualSize + " persons but target was " + targetSize);
             }
         }
+    }
+
+    public List<GroupResponse> generateGroupsPreview(ListEntity list, GenerateGroupsRequest request) {
+        System.out.println("Starting PREVIEW group generation for list: " + list.getName());
+
+        List<Person> persons = personRepository.findByList(list);
+
+        if (persons.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Cannot create groups: No persons found in the list");
+        }
+
+        if (persons.size() < request.getNumberOfGroups()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Not enough persons to create " + request.getNumberOfGroups() + " groups. Found: "
+                            + persons.size());
+        }
+
+        List<Group> tempGroups = createEmptyGroupsForPreview(request);
+
+        distributePersonsWithBalancing(persons, tempGroups, request);
+        List<GroupResponse> groupResponses = tempGroups.stream()
+                .map(GroupMapper::toDtoPreview)
+                .collect(Collectors.toList());
+
+        System.out.println("Preview generation completed successfully");
+        return groupResponses;
+    }
+
+    public void savePreviewToDatabase(Draw savedDraw, List<GroupResponse> preview) {
+        System.out.println("Saving preview groups to database for draw: " + savedDraw.getTitle());
+
+        List<Group> groups = new ArrayList<>();
+
+        for (GroupResponse groupResponse : preview) {
+            Group group = new Group();
+            group.setName(groupResponse.getName());
+            group.setDraw(savedDraw);
+
+            List<Person> persons = groupResponse.getPersons().stream()
+                    .map(personResponse -> personRepository.findById(personResponse.getPersonId())
+                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                    "Person not found: " + personResponse.getPersonId())))
+                    .collect(Collectors.toList());
+
+            group.setPersons(persons);
+            groups.add(group);
+        }
+
+        savedDraw.setGroups(groups);
+        groupRepository.saveAll(groups);
+
+        System.out.println("Preview saved successfully to database");
+    }
+
+    private List<Group> createEmptyGroupsForPreview(GenerateGroupsRequest request) {
+        List<Group> groups = new ArrayList<>();
+        for (int i = 0; i < request.getNumberOfGroups(); i++) {
+            Group group = new Group();
+            group.setName(request.getGroupNames().get(i));
+            group.setDraw(null);
+            group.setPersons(new ArrayList<>());
+            groups.add(group);
+        }
+        return groups;
     }
 
 }

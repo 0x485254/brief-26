@@ -59,7 +59,7 @@ public class User {
     private Role role = Role.USER;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private java.util.List<List> lists = new ArrayList<>();
+    private java.util.List<ListEntity> lists = new ArrayList<>();
 
     @OneToMany(mappedBy = "sharedWithUser", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.List<ListShare> sharedLists = new ArrayList<>();

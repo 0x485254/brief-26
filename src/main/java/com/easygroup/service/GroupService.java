@@ -1,10 +1,10 @@
 package com.easygroup.service;
 
 import com.easygroup.dto.GroupResponse;
-import com.easygroup.dto.PersonResponse;
 import com.easygroup.entity.Draw;
 import com.easygroup.entity.Group;
 import com.easygroup.entity.Person;
+import com.easygroup.mapper.GroupMapper;
 import com.easygroup.repository.DrawRepository;
 import com.easygroup.repository.GroupRepository;
 import com.easygroup.repository.PersonRepository;
@@ -52,8 +52,9 @@ public class GroupService {
         }
 
         List<Group> groups = groupRepository.findByDrawOrderByNameAsc(draw.get());
+
         return groups.stream()
-                .map(this::convertEntityToDto)
+                .map(GroupMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -126,30 +127,4 @@ public class GroupService {
         groupRepository.save(groupToUpdate);
     }
 
-    private GroupResponse convertEntityToDto(Group group) {
-        List<PersonResponse> personResponses = group.getPersons().stream()
-                .map(this::convertPersonToDto)
-                .collect(Collectors.toList());
-
-        return GroupResponse.builder()
-                .id(group.getId())
-                .name(group.getName())
-                .drawId(group.getDraw().getId())
-                .persons(personResponses)
-                .personCount(personResponses.size())
-                .build();
-    }
-
-    private PersonResponse convertPersonToDto(Person person) {
-        return new PersonResponse(
-                person.getId(),
-                person.getName(),
-                person.getGender().toString(),
-                person.getAge(),
-                person.getFrenchLevel(),
-                person.getOldDwwm(),
-                person.getTechLevel(),
-                person.getProfile().toString()
-        );
-    }
 }

@@ -2,12 +2,13 @@ package com.easygroup.service;
 
 import com.easygroup.dto.DrawResponse;
 import com.easygroup.dto.GenerateGroupsRequest;
+import com.easygroup.dto.GroupPreviewResponse;
+import com.easygroup.dto.GroupResponse;
 import com.easygroup.entity.Draw;
-import com.easygroup.entity.List;
-import com.easygroup.entity.User;
+import com.easygroup.entity.ListEntity;
+import com.easygroup.mapper.DrawMapper;
 import com.easygroup.repository.DrawRepository;
 import com.easygroup.repository.ListRepository;
-import com.easygroup.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -27,39 +29,83 @@ public class DrawService {
     private DrawRepository drawRepository;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
     private ListRepository listRepository;
 
     @Autowired
     private GroupGenerationService groupGenerationService;
 
-    public DrawResponse generateGroups(GenerateGroupsRequest request, UUID userId, UUID listId) {
+    @Autowired
+    private PreviewCache previewCache;
 
-        List list = validateUserListAccess(userId, listId);
+    public GroupPreviewResponse generatePreview(GenerateGroupsRequest request, UUID userId, UUID listId) {
+        ListEntity list = validateUserListAccess(userId, listId);
+
+        List<GroupResponse> groups = groupGenerationService.generateGroupsPreview(list, request);
+
+        previewCache.store(userId, listId, groups);
+
+        return GroupPreviewResponse.builder()
+                .listId(listId)
+                .listName(list.getName())
+                .title(generateTitle(request.getTitle(), list.getName()))
+                .groups(groups)
+                .groupCount(groups.size())
+                .totalPersons(calculateTotalPersons(groups))
+                .generatedAt(LocalDateTime.now())
+                .build();
+    }
+
+    public DrawResponse savePreviewGroups(GenerateGroupsRequest request, UUID userId, UUID listId) {
+        ListEntity list = validateUserListAccess(userId, listId);
+
+        List<GroupResponse> preview = previewCache.get(userId, listId);
+        if (preview == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "No preview found. Please generate groups first.");
+        }
 
         Draw draw = convertDtoToEntity(request, list);
         Draw savedDraw = drawRepository.save(draw);
-        groupGenerationService.generateGroups(savedDraw, request);
-        return convertEntityToDto(savedDraw);
+
+        groupGenerationService.savePreviewToDatabase(savedDraw, preview);
+
+        Draw reloadedDraw = drawRepository.findById(savedDraw.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Draw not found after save"));
+
+        previewCache.remove(userId, listId);
+        return DrawMapper.toDto(reloadedDraw);
     }
 
-    public java.util.List<DrawResponse> getDrawsForList(UUID userId, UUID listId) {
-        List list = validateUserListAccess(userId, listId);
-        java.util.List<Draw> draws = drawRepository.findByListOrderByCreatedAtDesc(list);
+    // public DrawResponse generateGroups(GenerateGroupsRequest request, UUID
+    // userId, UUID listId) {
+    // ListEntity list = validateUserListAccess(userId, listId);
+    // Draw draw = convertDtoToEntity(request, list);
+    // Draw savedDraw = drawRepository.save(draw);
+    // groupGenerationService.generateGroups(savedDraw, request);
+
+    // Draw reloadedDraw = drawRepository.findById(savedDraw.getId())
+    // .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Draw
+    // not found after save"));
+    // return DrawMapper.toDto(reloadedDraw);
+    // }
+
+    public List<DrawResponse> getDrawsForList(UUID userId, UUID listId) {
+        ListEntity list = validateUserListAccess(userId, listId);
+        List<Draw> draws = drawRepository.findByListOrderByCreatedAtDesc(list);
+
         return draws.stream()
-                .map(this::convertEntityToDto)
+                .map(DrawMapper::toDto)
                 .collect(Collectors.toList());
     }
 
-    private List validateUserListAccess(UUID userId, UUID listId) {
-        List list = listRepository.findById(listId)
-                .orElseThrow(
-                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "List not found with id: " + listId));
+    private ListEntity validateUserListAccess(UUID userId, UUID listId) {
+        ListEntity list = listRepository.findById(listId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "List not found with id: " + listId));
 
         if (!list.getUser().getId().equals(userId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User does not have access to list: " + listId);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "User does not have access to list: " + listId);
         }
 
         return list;
@@ -69,12 +115,11 @@ public class DrawService {
         if (requestTitle != null && !requestTitle.trim().isEmpty()) {
             return requestTitle.trim();
         }
-
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
         return "Groups for " + listName + " - " + timestamp;
     }
 
-    private Draw convertDtoToEntity(GenerateGroupsRequest request, List list) {
+    private Draw convertDtoToEntity(GenerateGroupsRequest request, ListEntity list) {
         Draw draw = new Draw();
         draw.setTitle(generateTitle(request.getTitle(), list.getName()));
         draw.setList(list);
@@ -82,14 +127,9 @@ public class DrawService {
         return draw;
     }
 
-    private DrawResponse convertEntityToDto(Draw draw) {
-        return DrawResponse.builder()
-                .id(draw.getId())
-                .title(draw.getTitle())
-                .createdAt(draw.getCreatedAt())
-                .listId(draw.getList().getId())
-                .listName(draw.getList().getName())
-                .groupCount(draw.getGroups() != null ? draw.getGroups().size() : 0)
-                .build();
+    private int calculateTotalPersons(List<GroupResponse> groups) {
+        return groups.stream()
+                .mapToInt(GroupResponse::getPersonCount)
+                .sum();
     }
 }

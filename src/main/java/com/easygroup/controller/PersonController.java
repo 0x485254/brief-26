@@ -1,110 +1,119 @@
 package com.easygroup.controller;
 
 import com.easygroup.dto.PersonRequest;
-import com.easygroup.entity.Person;
-import com.easygroup.service.PersonService;
 import com.easygroup.dto.PersonResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import com.easygroup.entity.ListEntity;
+import com.easygroup.entity.Person;
+import com.easygroup.entity.User;
+import com.easygroup.mapper.PersonMapper;
+import com.easygroup.service.ListService;
+import com.easygroup.service.PersonService;
 
+import jakarta.validation.Valid;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
+
+/**
+ * REST controller for managing persons associated with a list.
+ */
 @RestController
-@RequestMapping("/users/{userId}/lists/{listId}/persons")
+@RequestMapping("/api/lists/{listId}/persons")
 public class PersonController {
 
     private final PersonService personService;
+    private final ListService listService;
 
-    @Autowired
-    public PersonController(PersonService personService) {
+    public PersonController(PersonService personService, ListService listService) {
         this.personService = personService;
+        this.listService = listService;
     }
+
+    /**
+     * Get all persons belonging to a specific list.
+     *
+     * @param listId the ID of the list
+     * @param user   the authenticated user
+     * @return the list of persons if the list is owned by the user, 403 otherwise
+     */
+@GetMapping
+public ResponseEntity<List<PersonResponse>> getPersons(
+        @PathVariable UUID listId,
+        @AuthenticationPrincipal User user) {
+
+    ListEntity list = listService.findByIdAndUserId(listId, user.getId());
+    if (list == null) {
+        return ResponseEntity.status(403).build();
+    }
+
+    List<Person> persons = personService.findByList(list);
+    List<PersonResponse> response = persons.stream()
+            .map(PersonMapper::toDto)
+            .toList();
+
+    return ResponseEntity.ok(response);
+}
+
+
+    /**
+     * Create a new person in a specific list.
+     *
+     * @param listId the ID of the list
+     * @param person the person object to create
+     * @param user   the authenticated user
+     * @return the created person, or 403 if the list is not owned by the user
+     */
 
     @PostMapping
-    public ResponseEntity<PersonResponse> addPersonToList(@PathVariable UUID userId, @PathVariable UUID listId, @RequestBody PersonRequest request){
-        try{
-            Person person = personService.save(request.getAge(), request.getFrenchLevel(), request.getGender(), request.getName(), request.getOldDwwm(), request.getProfile(), request.getTechLevel(), listId);
+    public ResponseEntity<PersonResponse> createPerson(
+            @PathVariable UUID listId,
+            @RequestBody @Valid PersonRequest personRequest,
+            @AuthenticationPrincipal User user) {
 
-            PersonResponse response = new PersonResponse(
-                    person.getId(),
-                    person.getName(),
-                    person.getGender().toString(),
-                    person.getAge(),
-                    person.getFrenchLevel(),
-                    person.getOldDwwm(),
-                    person.getTechLevel(),
-                    person.getProfile().toString()
-            );
+        ListEntity list = listService.findByIdAndUserId(listId, user.getId());
+        if (list == null) {
+            return ResponseEntity.status(403).build();
+        }
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        }
-        catch(IllegalArgumentException e){
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
+        Person person = new Person();
+        person.setName(personRequest.getName());
+        person.setGender(personRequest.getGender());
+        person.setAge(personRequest.getAge());
+        person.setFrenchLevel(personRequest.getFrenchLevel());
+        person.setOldDwwm(personRequest.getOldDwwm());
+        person.setTechLevel(personRequest.getTechLevel());
+        person.setProfile(personRequest.getProfile());
+        person.setList(list);
+
+        Person created = personService.save(person);
+        return ResponseEntity.ok(PersonMapper.toDto(created));
     }
 
-    @GetMapping
-    public ResponseEntity<List<PersonResponse>> getPersonsByList(@PathVariable UUID userId, @PathVariable UUID listId) {
-        try {
-            List<Person> personList = personService.findByListIdOrderByName(listId);
-
-            List<PersonResponse> responseList = personList.stream()
-                    .map(person -> new PersonResponse(
-                            person.getId(),
-                            person.getName(),
-                            person.getGender().toString(),
-                            person.getAge(),
-                            person.getFrenchLevel(),
-                            person.getOldDwwm(),
-                            person.getTechLevel(),
-                            person.getProfile().toString()
-                    ))
-                    .collect(Collectors.toList());
-
-            return ResponseEntity.ok(responseList);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }
-
-    @PutMapping("/{personId}")
-    public ResponseEntity<PersonResponse> editPerson(@PathVariable UUID userId, @PathVariable UUID listId, @PathVariable UUID personId, @RequestBody PersonRequest request){
-        try{
-            Person person = personService.edit(personId, request.getAge(), request.getFrenchLevel(), request.getGender(), request.getName(), request.getOldDwwm(), request.getProfile(), request.getTechLevel());
-
-            PersonResponse response = new PersonResponse(
-                    person.getId(),
-                    person.getName(),
-                    person.getGender().toString(),
-                    person.getAge(),
-                    person.getFrenchLevel(),
-                    person.getOldDwwm(),
-                    person.getTechLevel(),
-                    person.getProfile().toString()
-            );
-
-            return ResponseEntity.ok(response);
-        }catch (IllegalArgumentException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-
-    }
-
-
+    /**
+     * Delete a person by ID from a specific list.
+     *
+     * @param listId   the ID of the list
+     * @param personId the ID of the person to delete
+     * @param user     the authenticated user
+     * @return 204 No Content on success, 403 if not authorized
+     */
     @DeleteMapping("/{personId}")
-    public ResponseEntity<Void> deletePerson(@PathVariable UUID userId, @PathVariable UUID listId, @PathVariable UUID personId) {
-        try {
-            personService.deleteById(personId);
-            return ResponseEntity.ok().build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<Void> deletePerson(
+            @PathVariable UUID listId,
+            @PathVariable UUID personId,
+            @AuthenticationPrincipal User user) {
+
+        ListEntity list = listService.findByIdAndUserId(listId, user.getId());
+        if (list == null) {
+            return ResponseEntity.status(403).build();
         }
+
+        personService.deleteById(personId);
+        return ResponseEntity.noContent().build();
     }
-
-
 }
