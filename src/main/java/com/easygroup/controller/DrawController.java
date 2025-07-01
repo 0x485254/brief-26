@@ -5,7 +5,6 @@ import com.easygroup.dto.GenerateGroupsRequest;
 import com.easygroup.dto.GroupPreviewResponse;
 import com.easygroup.entity.User;
 import com.easygroup.service.DrawService;
-import com.easygroup.service.PreviewCache;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,22 +28,24 @@ public class DrawController {
      * POST /api/lists/{listId}/draws?save=true (SAVE)
      * Generate groups with optional save
      */
-    @PostMapping("/lists/{listId}/draws")
-    public ResponseEntity<?> createDraw(
+    @PostMapping("/lists/{listId}/draws/preview")
+    public ResponseEntity<GroupPreviewResponse> generatePreview(
             @AuthenticationPrincipal User user,
             @PathVariable UUID listId,
-            @RequestParam(name = "save", defaultValue = "false") boolean save,
             @Valid @RequestBody GenerateGroupsRequest request) {
 
-        if (save) {
-            // Save mode: save cached preview to database
-            DrawResponse response = drawService.savePreviewGroups(request, user.getId(), listId);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } else {
-            // Preview mode: generate groups but don't save
-            GroupPreviewResponse response = drawService.generatePreview(request, user.getId(), listId);
-            return ResponseEntity.ok(response);
-        }
+        GroupPreviewResponse response = drawService.generatePreview(request, user.getId(), listId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/lists/{listId}/draws")
+    public ResponseEntity<DrawResponse> saveGroups(
+            @AuthenticationPrincipal User user,
+            @PathVariable UUID listId,
+            @Valid @RequestBody GroupPreviewResponse request) { // Frontend sends back the modified preview!
+
+        DrawResponse response = drawService.saveModifiedGroups(request, user.getId(), listId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /**

@@ -24,10 +24,16 @@ public class GenerateGroupsRequest {
     @NotEmpty(message = "Group names are required")
     private List<String> groupNames;
 
+    @Builder.Default
     private Boolean balanceByGender = false;
+    @Builder.Default
     private Boolean balanceByAge = false;
+    @Builder.Default
     private Boolean balanceByFrenchLevel = false;
+    @Builder.Default
     private Boolean balanceByTechLevel = false;
+    @Builder.Default
     private Boolean balanceByOldDwwm = false;
+    @Builder.Default
     private Boolean balanceByProfile = false;
 }

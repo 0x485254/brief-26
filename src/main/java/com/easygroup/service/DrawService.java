@@ -5,10 +5,15 @@ import com.easygroup.dto.GenerateGroupsRequest;
 import com.easygroup.dto.GroupPreviewResponse;
 import com.easygroup.dto.GroupResponse;
 import com.easygroup.entity.Draw;
+import com.easygroup.entity.Group;
 import com.easygroup.entity.ListEntity;
+import com.easygroup.entity.Person;
 import com.easygroup.mapper.DrawMapper;
 import com.easygroup.repository.DrawRepository;
+import com.easygroup.repository.GroupRepository;
 import com.easygroup.repository.ListRepository;
+import com.easygroup.repository.PersonRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -17,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -38,14 +44,15 @@ public class DrawService {
     private GroupGenerationService groupGenerationService;
 
     @Autowired
-    private PreviewCache previewCache;
+    private PersonRepository personRepository;
+
+    @Autowired
+    private GroupRepository groupRepository;
 
     public GroupPreviewResponse generatePreview(GenerateGroupsRequest request, UUID userId, UUID listId) {
         ListEntity list = validateUserListAccess(userId, listId);
 
         List<GroupResponse> groups = groupGenerationService.generateGroupsPreview(list, request);
-
-        previewCache.store(userId, listId, groups);
 
         return GroupPreviewResponse.builder()
                 .listId(listId)
@@ -58,25 +65,41 @@ public class DrawService {
                 .build();
     }
 
-    public DrawResponse savePreviewGroups(GenerateGroupsRequest request, UUID userId, UUID listId) {
+    public DrawResponse saveModifiedGroups(GroupPreviewResponse modifiedPreview, UUID userId, UUID listId) {
         ListEntity list = validateUserListAccess(userId, listId);
 
-        List<GroupResponse> preview = previewCache.get(userId, listId);
-        if (preview == null) {
+        if (modifiedPreview.getGroups() == null || modifiedPreview.getGroups().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "No preview found. Please generate groups first.");
+                    "Groups list cannot be null or empty");
         }
 
-        Draw draw = convertDtoToEntity(request, list);
+        Draw draw = new Draw();
+        draw.setTitle(modifiedPreview.getTitle());
+        draw.setList(list);
+        draw.setCreatedAt(LocalDateTime.now());
         Draw savedDraw = drawRepository.save(draw);
 
-        groupGenerationService.savePreviewToDatabase(savedDraw, preview);
+        List<Group> groups = new ArrayList<>();
 
-        Draw reloadedDraw = drawRepository.findById(savedDraw.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Draw not found after save"));
+        for (GroupResponse groupResponse : modifiedPreview.getGroups()) {
+            Group group = new Group();
+            group.setName(groupResponse.getName());
+            group.setDraw(savedDraw);
 
-        previewCache.remove(userId, listId);
-        return DrawMapper.toDto(reloadedDraw);
+            List<Person> persons = groupResponse.getPersons().stream()
+                    .<Person>map(personResponse -> personRepository.findById(personResponse.getPersonId())
+                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                    "Person not found: " + personResponse.getPersonId())))
+                    .collect(Collectors.toList());
+
+            group.setPersons(persons);
+            groups.add(group);
+        }
+
+        groupRepository.saveAll(groups);
+        savedDraw.setGroups(groups);
+
+        return DrawMapper.toDto(savedDraw);
     }
 
     // public DrawResponse generateGroups(GenerateGroupsRequest request, UUID
