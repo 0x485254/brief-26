@@ -6,7 +6,6 @@ import com.easygroup.entity.Draw;
 import com.easygroup.entity.ListEntity;
 import com.easygroup.repository.DrawRepository;
 import com.easygroup.repository.ListRepository;
-import com.easygroup.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -27,9 +26,6 @@ public class DrawService {
 
     @Autowired
     private DrawRepository drawRepository;
-
-    @Autowired
-    private UserRepository userRepository;
 
     @Autowired
     private ListRepository listRepository;
