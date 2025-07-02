@@ -3,7 +3,7 @@ name: Deploy EasyGroup-Interpromo to Production
 on:
   push:
     branches:
-      - main
+      - deploy-rasp
 
 jobs:
   production:
