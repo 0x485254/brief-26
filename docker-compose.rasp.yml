@@ -12,10 +12,10 @@ services:
       - DB_NAME=easygroup
       - DB_USERNAME=postgres
       - DB_PASSWORD=postgres
-      
+
     # Configuration CORS pour le frontend local et distant
-      - cors.enabled=true
-      - cors.urls=http://localhost:5173,https://brief-react-v3-groupshuffle.vercel.app
+      - CORS_ENABLED=true
+      - CORS_URLS=${CORS_URLS:-http://localhost:5173, https://brief-react-v3-groupshuffle.vercel.app}
 
       # - SPRING_CONTEXT_PATH=/easy-api
     restart: unless-stopped
