@@ -12,7 +12,7 @@ services:
       - DB_NAME=easygroup
       - DB_USERNAME=postgres
       - DB_PASSWORD=postgres
-      - SPRING_CONTEXT_PATH=/easy-api
+      # - SPRING_CONTEXT_PATH=/easy-api
     restart: unless-stopped
     depends_on:
       - db
