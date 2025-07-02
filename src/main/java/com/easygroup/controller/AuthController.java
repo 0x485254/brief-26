@@ -3,9 +3,12 @@ package com.easygroup.controller;
 import com.easygroup.dto.AuthResponse;
 import com.easygroup.dto.LoginRequest;
 import com.easygroup.dto.RegisterRequest;
+import com.easygroup.entity.User;
 import com.easygroup.service.AuthService;
 
+import com.easygroup.service.JwtService;
 import com.easygroup.service.MailingService;
+import com.easygroup.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,6 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 /**
  * Controller for cookie-based authentication endpoints.
  */
@@ -25,9 +30,13 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtService jwtService;
+    private final UserService userService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, JwtService jwtService, UserService userService) {
         this.authService = authService;
+        this.jwtService = jwtService;
+        this.userService = userService;
     }
 
     @Value("${smtp.server}")
@@ -38,6 +47,9 @@ public class AuthController {
 
     @Value("${smtp.password}")
     private String smtpPassword;
+
+    @Value("${application.url}")
+    private String applicationUrl;
 
 
 
@@ -55,9 +67,11 @@ public class AuthController {
             HttpServletResponse response) {
         try {
             // Register the user
-            authService.register(request.getEmail(), request.getPassword(), request.getFirstName(), request.getLastName());
+            User userResponse = authService.register(request.getEmail(), request.getPassword(), request.getFirstName(), request.getLastName());
 
-            sendValidationEmail(request.getEmail(), request.getFirstName());
+            String token = jwtService.generateValidationToken(userResponse);
+
+            sendValidationEmail(request.getEmail(), request.getFirstName(), token);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(true);
         } catch (IllegalArgumentException | MessagingException e) {
@@ -65,7 +79,15 @@ public class AuthController {
         }
     }
 
-    private void sendValidationEmail(String userEmail, String userName) throws MessagingException {
+    /**
+     * Sends a validation email to the specified user with an HTML email format.
+     * The email contains a verification link for the user to confirm their email address.
+     *
+     * @param userEmail the email address of the recipient
+     * @param userName the name of the recipient to personalize the email
+     * @throws MessagingException if there is an issue while sending the email
+     */
+    private void sendValidationEmail(String userEmail, String userName, String token) throws MessagingException {
         MailingService mailingService = new MailingService(
                 smtpServer,
                 smtpUsername,
@@ -74,6 +96,8 @@ public class AuthController {
 
         // Send an HTML email
         try {
+            String url = applicationUrl + "/api/auth/verify?token="  + token;
+
             mailingService.sendHtmlEmail(
                     smtpUsername,
                     userEmail ,
@@ -126,11 +150,11 @@ public class AuthController {
                             "        <p>Thank you for registering with our service. To complete your registration and verify your email address, please click the button below:</p>\n" +
                             "        \n" +
                             "        <div style=\"text-align: center;\">\n" +
-                            "            <a href=\"https://yourwebsite.com/verify?token={token}\" class=\"button\">Verify My Email</a>\n" +
+                            "            <a href=" + url + " class=\"button\">Verify My Email</a>\n" +
                             "        </div>\n" +
                             "        \n" +
                             "        <p>If the button above doesn't work, copy and paste the following URL into your browser:</p>\n" +
-                            "        <p style=\"word-break: break-all; font-size: 12px;\">https://yourwebsite.com/verify?token={token}</p>\n" +
+                            "        <p style=\"word-break: break-all; font-size: 12px;\">" + url + "</p>\n" +
                             "    </div>\n" +
                             "</body>\n" +
                             "</html>"
@@ -140,6 +164,19 @@ public class AuthController {
             System.err.println("Failed to send HTML email: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Verifies a user's email by validating the provided token.
+     * If the token is valid, the user's account is activated.
+     *
+     * @param token the token used for email verification
+     * @return a ResponseEntity containing a boolean value indicating whether the operation was successful
+     */
+    @GetMapping("/verify")
+    public ResponseEntity<Boolean> verifyEmail(@RequestParam("token") String token) {
+        authService.verifyAccount(token);
+        return ResponseEntity.ok(true);
     }
 
     /**
@@ -153,6 +190,16 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(
             @RequestBody @Valid LoginRequest request,
             HttpServletResponse response) {
+
+        Optional<User> user = userService.findByEmail(request.getEmail());
+
+        System.out.println("-----------------ACTIVATED-------------------");
+        System.out.println(user.get().getIsActivated());
+
+        if (user.isEmpty() || user.get().getIsActivated() ) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         try {
             AuthResponse authResponse = authService.authenticate(request.getEmail(), request.getPassword(), response);
             return ResponseEntity.ok(authResponse);
