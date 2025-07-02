@@ -39,7 +39,7 @@ public class GroupController {
             @PathVariable UUID personId) {
 
         groupService.addPersonToGroup(groupId, personId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     /**
@@ -52,7 +52,7 @@ public class GroupController {
             @PathVariable UUID personId) {
 
         groupService.removePersonFromGroup(groupId, personId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     /**

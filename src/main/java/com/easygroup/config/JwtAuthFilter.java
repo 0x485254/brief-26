@@ -29,41 +29,40 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         this.userService = userService;
     }
 
-@Override
-protected void doFilterInternal(HttpServletRequest request,
-                                HttpServletResponse response,
-                                FilterChain filterChain)
-        throws ServletException, IOException {
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain)
+            throws ServletException, IOException {
 
-    String path = request.getRequestURI();
+        String path = request.getRequestURI();
 
-    // 🔒 Ignore les routes publiques
-    if (path.startsWith("/api/auth/") || path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")) {
-        filterChain.doFilter(request, response);
-        return;
-    }
+        // 🔒 Ignore les routes publiques
+        if (path.startsWith("/api/auth/") || path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-    String jwt = extractJwtFromCookies(request);
+        String jwt = extractJwtFromCookies(request);
 
-    if (jwt != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-        String email = jwtService.extractUsername(jwt);
-        if (email != null) {
-            User user = userService.getActivatedUserByEmail(email);
-            if (jwtService.validateToken(jwt, email)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        user,
-                        null,
-                        getAuthorities(user));
+        if (jwt != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            String email = jwtService.extractUsername(jwt);
+            if (email != null) {
+                User user = userService.getActivatedUserByEmail(email);
+                if (jwtService.validateToken(jwt, email)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            user,
+                            null,
+                            getAuthorities(user));
 
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
         }
+
+        filterChain.doFilter(request, response);
     }
-
-    filterChain.doFilter(request, response);
-}
-
 
     private String extractJwtFromCookies(HttpServletRequest request) {
         if (request.getCookies() == null)
