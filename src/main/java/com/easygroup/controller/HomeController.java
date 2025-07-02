@@ -55,7 +55,7 @@ public class HomeController {
                       <p>Le backend de l’application EasyGroup est opérationnel et prêt à l’emploi.</p>
                       <p>EasyGroup vous permet de créer, gérer et partager des listes de personnes, puis de générer des groupes aléatoires en fonction de critères personnalisés.</p>
                       <p>👉 Pour explorer et tester les différentes routes disponibles, consultez notre documentation complète sur Postman :</p>
-                      <p><a href="https://www.postman.com/zadig2b/easygroup-workspace/collection/soddqsz/easygroup-api" target="_blank">🌐 Accéder à la documentation API EasyGroup</a></p>
+                      <p><a href="https://www.postman.com/martian-meteor-452765/easygroup-workspace/collection/c3qheu3/easygroup-api" target="_blank">🌐 Accéder à la documentation API EasyGroup</a></p>
                     </div>
                   </body>
                 </html>
