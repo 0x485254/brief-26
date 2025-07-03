@@ -28,14 +28,13 @@ Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement
 
 ```json
 {
-  "firstName": "Jean",
-  "lastName": "Dupont",
-  "email": "jean.dupont@exemple.com",
-  "attributes": {
-    "age": 30,
-    "experience": "intermediate",
-    "skills": ["java", "spring"]
-  }
+  "name": "Jean Dupont",
+  "gender": "MALE",
+  "age": 30,
+  "frenchLevel": 4,
+  "oldDwwm": false,
+  "techLevel": 3,
+  "profile": "A_LAISE"
 }
 ```
 
@@ -45,18 +44,14 @@ Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement
 
 ```json
 {
-  "id": 1,
-  "firstName": "Jean",
-  "lastName": "Dupont",
-  "email": "jean.dupont@exemple.com",
-  "attributes": {
-    "age": 30,
-    "experience": "intermediate",
-    "skills": ["java", "spring"]
-  },
-  "createdAt": "2023-07-03T12:34:56Z",
-  "updatedAt": "2023-07-03T12:34:56Z",
-  "listId": 1
+  "personId": "123e4567-e89b-12d3-a456-426614174000",
+  "name": "Jean Dupont",
+  "gender": "MALE",
+  "age": 30,
+  "frenchLevel": 4,
+  "oldDwwm": false,
+  "techLevel": 3,
+  "profile": "A_LAISE"
 }
 ```
 
@@ -93,30 +88,24 @@ Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement
 {
   "content": [
     {
-      "id": 1,
-      "firstName": "Jean",
-      "lastName": "Dupont",
-      "email": "jean.dupont@exemple.com",
-      "attributes": {
-        "age": 30,
-        "experience": "intermediate",
-        "skills": ["java", "spring"]
-      },
-      "createdAt": "2023-07-03T12:34:56Z",
-      "updatedAt": "2023-07-03T12:34:56Z"
+      "personId": "123e4567-e89b-12d3-a456-426614174000",
+      "name": "Jean Dupont",
+      "gender": "MALE",
+      "age": 30,
+      "frenchLevel": 4,
+      "oldDwwm": false,
+      "techLevel": 3,
+      "profile": "A_LAISE"
     },
     {
-      "id": 2,
-      "firstName": "Marie",
-      "lastName": "Martin",
-      "email": "marie.martin@exemple.com",
-      "attributes": {
-        "age": 25,
-        "experience": "beginner",
-        "skills": ["javascript", "react"]
-      },
-      "createdAt": "2023-07-03T12:34:56Z",
-      "updatedAt": "2023-07-03T12:34:56Z"
+      "personId": "223e4567-e89b-12d3-a456-426614174001",
+      "name": "Marie Martin",
+      "gender": "FEMALE",
+      "age": 25,
+      "frenchLevel": 3,
+      "oldDwwm": true,
+      "techLevel": 2,
+      "profile": "TIMIDE"
     }
   ],
   "pageable": {
@@ -166,18 +155,14 @@ Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement
 
 ```json
 {
-  "id": 1,
-  "firstName": "Jean",
-  "lastName": "Dupont",
-  "email": "jean.dupont@exemple.com",
-  "attributes": {
-    "age": 30,
-    "experience": "intermediate",
-    "skills": ["java", "spring"]
-  },
-  "createdAt": "2023-07-03T12:34:56Z",
-  "updatedAt": "2023-07-03T12:34:56Z",
-  "listId": 1
+  "personId": "123e4567-e89b-12d3-a456-426614174000",
+  "name": "Jean Dupont",
+  "gender": "MALE",
+  "age": 30,
+  "frenchLevel": 4,
+  "oldDwwm": false,
+  "techLevel": 3,
+  "profile": "A_LAISE"
 }
 ```
 
@@ -202,14 +187,13 @@ Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement
 
 ```json
 {
-  "firstName": "Jean-Pierre",
-  "lastName": "Dupont",
-  "email": "jean-pierre.dupont@exemple.com",
-  "attributes": {
-    "age": 31,
-    "experience": "expert",
-    "skills": ["java", "spring", "kubernetes"]
-  }
+  "name": "Jean-Pierre Dupont",
+  "gender": "MALE",
+  "age": 31,
+  "frenchLevel": 5,
+  "oldDwwm": false,
+  "techLevel": 4,
+  "profile": "A_LAISE"
 }
 ```
 
@@ -219,18 +203,14 @@ Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement
 
 ```json
 {
-  "id": 1,
-  "firstName": "Jean-Pierre",
-  "lastName": "Dupont",
-  "email": "jean-pierre.dupont@exemple.com",
-  "attributes": {
-    "age": 31,
-    "experience": "expert",
-    "skills": ["java", "spring", "kubernetes"]
-  },
-  "createdAt": "2023-07-03T12:34:56Z",
-  "updatedAt": "2023-07-03T13:45:67Z",
-  "listId": 1
+  "personId": "123e4567-e89b-12d3-a456-426614174000",
+  "name": "Jean-Pierre Dupont",
+  "gender": "MALE",
+  "age": 31,
+  "frenchLevel": 5,
+  "oldDwwm": false,
+  "techLevel": 4,
+  "profile": "A_LAISE"
 }
 ```
 
@@ -251,15 +231,15 @@ Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement
 
 **Code** : 204 No Content
 
-## Gestion des Attributs
+## Modification des Champs Spécifiques
 
-### Ajout ou Modification d'Attributs
+### Modification Partielle d'une Personne
 
-Permet d'ajouter ou de modifier des attributs d'une personne.
+Permet de modifier certains champs d'une personne sans avoir à fournir tous les champs.
 
 <div class="api-endpoint">
-  <span class="method">PUT</span>
-  <span class="path">/api/persons/{personId}/attributes</span>
+  <span class="method">PATCH</span>
+  <span class="path">/api/persons/{personId}</span>
 </div>
 
 ### En-têtes de la Requête
@@ -275,10 +255,8 @@ Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement
 ```json
 {
   "age": 32,
-  "experience": "expert",
-  "skills": ["java", "spring", "kubernetes", "docker"],
-  "languages": ["french", "english"],
-  "role": "developer"
+  "frenchLevel": 5,
+  "techLevel": 4
 }
 ```
 
@@ -288,30 +266,16 @@ Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement
 
 ```json
 {
+  "personId": "123e4567-e89b-12d3-a456-426614174000",
+  "name": "Jean Dupont",
+  "gender": "MALE",
   "age": 32,
-  "experience": "expert",
-  "skills": ["java", "spring", "kubernetes", "docker"],
-  "languages": ["french", "english"],
-  "role": "developer"
+  "frenchLevel": 5,
+  "oldDwwm": false,
+  "techLevel": 4,
+  "profile": "A_LAISE"
 }
 ```
-
-### Suppression d'un Attribut
-
-Permet de supprimer un attribut spécifique d'une personne.
-
-<div class="api-endpoint">
-  <span class="method">DELETE</span>
-  <span class="path">/api/persons/{personId}/attributes/{attributeName}</span>
-</div>
-
-### En-têtes de la Requête
-
-Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement inclus dans la requête.
-
-### Réponse en Cas de Succès
-
-**Code** : 204 No Content
 
 ## Recherche et Filtrage
 
@@ -341,24 +305,21 @@ Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement
 ```json
 [
   {
-    "id": 1,
-    "firstName": "Jean-Pierre",
-    "lastName": "Dupont",
-    "email": "jean-pierre.dupont@exemple.com",
-    "attributes": {
-      "age": 32,
-      "experience": "expert",
-      "skills": ["java", "spring", "kubernetes", "docker"]
-    },
-    "createdAt": "2023-07-03T12:34:56Z",
-    "updatedAt": "2023-07-03T13:45:67Z"
+    "personId": "123e4567-e89b-12d3-a456-426614174000",
+    "name": "Jean-Pierre Dupont",
+    "gender": "MALE",
+    "age": 32,
+    "frenchLevel": 5,
+    "oldDwwm": false,
+    "techLevel": 4,
+    "profile": "A_LAISE"
   }
 ]
 ```
 
-### Filtrage par Attribut
+### Filtrage par Champ
 
-Permet de filtrer les personnes par attribut.
+Permet de filtrer les personnes par champ.
 
 <div class="api-endpoint">
   <span class="method">GET</span>
@@ -371,15 +332,20 @@ Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement
 
 ### Paramètres de Requête
 
-- `attribute.experience` : Filtre sur l'attribut "experience"
-- `attribute.age.gte` : Filtre sur l'attribut "age" (supérieur ou égal à)
+- `gender` : Filtre sur le genre (MALE, FEMALE, OTHER)
+- `age.gte` : Filtre sur l'âge (supérieur ou égal à)
+- `age.lte` : Filtre sur l'âge (inférieur ou égal à)
+- `frenchLevel` : Filtre sur le niveau de français (1-5)
+- `oldDwwm` : Filtre sur l'appartenance à une ancienne promotion DWWM (true/false)
+- `techLevel` : Filtre sur le niveau technique (1-5)
+- `profile` : Filtre sur le profil (A_LAISE, RESERVE, TIMIDE)
 - `page` : Numéro de la page (défaut: 0)
 - `size` : Nombre d'éléments par page (défaut: 20)
 
 ### Exemple de Requête
 
 ```
-GET /api/lists/1/persons?attribute.experience=expert&attribute.age.gte=30
+GET /api/lists/1/persons?gender=MALE&age.gte=30&techLevel=4
 ```
 
 ### Réponse en Cas de Succès
@@ -390,17 +356,14 @@ GET /api/lists/1/persons?attribute.experience=expert&attribute.age.gte=30
 {
   "content": [
     {
-      "id": 1,
-      "firstName": "Jean-Pierre",
-      "lastName": "Dupont",
-      "email": "jean-pierre.dupont@exemple.com",
-      "attributes": {
-        "age": 32,
-        "experience": "expert",
-        "skills": ["java", "spring", "kubernetes", "docker"]
-      },
-      "createdAt": "2023-07-03T12:34:56Z",
-      "updatedAt": "2023-07-03T13:45:67Z"
+      "personId": "123e4567-e89b-12d3-a456-426614174000",
+      "name": "Jean-Pierre Dupont",
+      "gender": "MALE",
+      "age": 32,
+      "frenchLevel": 5,
+      "oldDwwm": false,
+      "techLevel": 4,
+      "profile": "A_LAISE"
     }
   ],
   "pageable": {
