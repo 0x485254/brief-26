@@ -21,9 +21,10 @@ Pour créer un compte utilisateur, envoyez une requête POST à l'endpoint `/api
 curl -X POST http://localhost:8080/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
-    "username": "votre_nom_utilisateur",
     "email": "votre_email@exemple.com",
-    "password": "votre_mot_de_passe"
+    "password": "votre_mot_de_passe",
+    "firstName": "Votre Prénom",
+    "lastName": "Votre Nom"
   }'
 ```
 
@@ -35,7 +36,7 @@ Pour vous authentifier et obtenir un cookie HTTP-Only, envoyez une requête POST
 curl -X POST http://localhost:8080/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
-    "username": "votre_nom_utilisateur",
+    "email": "votre_email@exemple.com",
     "password": "votre_mot_de_passe"
   }' \
   -c cookies.txt
@@ -117,13 +118,13 @@ L'API renvoie des codes d'erreur HTTP appropriés en cas de problème d'authenti
 
 ```javascript
 // Connexion avec cookies
-async function login(username, password) {
+async function login(email, password) {
   const response = await fetch('http://localhost:8080/api/auth/login', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ username, password }),
+    body: JSON.stringify({ email, password }),
     credentials: 'include' // Important pour inclure les cookies
   });
 
@@ -141,7 +142,7 @@ async function getUserProfile() {
 
 // Exemple d'utilisation
 async function example() {
-  await login('votre_nom_utilisateur', 'votre_mot_de_passe');
+  await login('votre_email@exemple.com', 'votre_mot_de_passe');
   const userProfile = await getUserProfile();
   console.log(userProfile);
 }
@@ -164,7 +165,7 @@ function createAuthenticatedClient() {
 async function example() {
   // Connexion
   await axios.post('http://localhost:8080/api/auth/login', {
-    username: 'votre_nom_utilisateur',
+    email: 'votre_email@exemple.com',
     password: 'votre_mot_de_passe'
   }, { withCredentials: true });
 
