@@ -265,9 +265,10 @@ Permet d'ajouter ou de modifier des attributs d'une personne.
 ### En-têtes de la Requête
 
 ```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 Content-Type: application/json
 ```
+
+Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement inclus dans la requête.
 
 ### Corps de la Requête
 
@@ -306,9 +307,7 @@ Permet de supprimer un attribut spécifique d'une personne.
 
 ### En-têtes de la Requête
 
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
+Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement inclus dans la requête.
 
 ### Réponse en Cas de Succès
 
