@@ -24,7 +24,7 @@ Pour générer des groupes à partir d'une liste, envoyez une requête POST à l
 ```bash
 curl -X POST http://localhost:8080/api/lists/1/draws \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer votre_token_jwt" \
+  -b cookies.txt \
   -d '{
     "name": "Tirage du 15 juillet",
     "groupSize": 4,
@@ -116,24 +116,14 @@ Vous recevrez une réponse contenant les groupes générés :
       "id": 2,
       "name": "Groupe 2",
       "persons": [
-        {
-          "id": 2,
-          "firstName": "Pierre",
-          "lastName": "Martin",
-          "email": "pierre.martin@exemple.com",
-          "attributes": {
-            "age": 28,
-            "experience": "beginner",
-            "skills": ["javascript", "react"]
-          }
-        }
+        // ...
       ]
     }
   ]
 }
 ```
 
-## Récupération des Tirages et des Groupes
+## Récupération des Tirages
 
 ### Récupération de tous les tirages d'une liste
 
@@ -141,57 +131,28 @@ Pour récupérer tous les tirages effectués sur une liste, utilisez l'endpoint 
 
 ```bash
 curl -X GET http://localhost:8080/api/lists/1/draws \
-  -H "Authorization: Bearer votre_token_jwt"
+  -b cookies.txt
 ```
 
 Vous recevrez une réponse contenant la liste des tirages :
 
 ```json
-{
-  "content": [
-    {
-      "id": 1,
-      "name": "Tirage du 15 juillet",
-      "createdAt": "2023-07-03T12:34:56Z",
-      "listId": 1,
-      "groupSize": 4,
-      "groupCount": 3
-    },
-    {
-      "id": 2,
-      "name": "Tirage du 20 juillet",
-      "createdAt": "2023-07-04T10:20:30Z",
-      "listId": 1,
-      "groupSize": 3,
-      "groupCount": 4
-    }
-  ],
-  "pageable": {
-    "pageNumber": 0,
-    "pageSize": 20,
-    "sort": {
-      "sorted": true,
-      "unsorted": false,
-      "empty": false
-    },
-    "offset": 0,
-    "paged": true,
-    "unpaged": false
+[
+  {
+    "id": 1,
+    "name": "Tirage du 15 juillet",
+    "createdAt": "2023-07-03T12:34:56Z",
+    "listId": 1,
+    "groupSize": 4
   },
-  "totalPages": 1,
-  "totalElements": 2,
-  "last": true,
-  "size": 20,
-  "number": 0,
-  "sort": {
-    "sorted": true,
-    "unsorted": false,
-    "empty": false
-  },
-  "numberOfElements": 2,
-  "first": true,
-  "empty": false
-}
+  {
+    "id": 2,
+    "name": "Tirage du 20 juillet",
+    "createdAt": "2023-07-20T10:15:30Z",
+    "listId": 1,
+    "groupSize": 3
+  }
+]
 ```
 
 ### Récupération d'un tirage spécifique
@@ -200,73 +161,51 @@ Pour récupérer les détails d'un tirage spécifique, utilisez l'endpoint `/api
 
 ```bash
 curl -X GET http://localhost:8080/api/draws/1 \
-  -H "Authorization: Bearer votre_token_jwt"
+  -b cookies.txt
 ```
 
-Vous recevrez une réponse contenant les détails du tirage et les groupes générés (voir l'exemple de réponse dans la section [Création d'un Tirage](#création-dun-tirage-génération-de-groupes)).
-
-### Récupération d'un groupe spécifique
-
-Pour récupérer les détails d'un groupe spécifique, utilisez l'endpoint `/api/groups/{groupId}` :
-
-```bash
-curl -X GET http://localhost:8080/api/groups/1 \
-  -H "Authorization: Bearer votre_token_jwt"
-```
-
-Vous recevrez une réponse contenant les détails du groupe :
+Vous recevrez une réponse contenant les détails du tirage et les groupes générés :
 
 ```json
 {
   "id": 1,
-  "name": "Groupe 1",
-  "drawId": 1,
-  "persons": [
-    {
-      "id": 1,
-      "firstName": "Jean-Pierre",
-      "lastName": "Dupont",
-      "email": "jean-pierre.dupont@exemple.com",
-      "attributes": {
-        "age": 32,
-        "experience": "expert",
-        "skills": ["java", "spring", "kubernetes", "docker"]
-      }
-    },
-    {
-      "id": 2,
-      "firstName": "Sophie",
-      "lastName": "Dubois",
-      "email": "sophie.dubois@exemple.com",
-      "attributes": {
-        "age": 35,
-        "experience": "intermediate",
-        "skills": ["python", "django"]
-      }
-    }
+  "name": "Tirage du 15 juillet",
+  "createdAt": "2023-07-03T12:34:56Z",
+  "listId": 1,
+  "groupSize": 4,
+  "balancingAttributes": ["age", "experience", "skills"],
+  "balancingWeights": {
+    "age": 2,
+    "experience": 3,
+    "skills": 1
+  },
+  "groups": [
+    // ...
   ]
 }
 ```
 
-## Modification des Paramètres d'un Tirage
+## Modification d'un Tirage
 
-Pour régénérer les groupes d'un tirage existant avec de nouveaux paramètres, utilisez l'endpoint `/api/draws/{drawId}/regenerate` :
+Pour modifier les paramètres d'un tirage et régénérer les groupes, utilisez l'endpoint `/api/draws/{drawId}` avec la méthode PUT :
 
 ```bash
-curl -X POST http://localhost:8080/api/draws/1/regenerate \
+curl -X PUT http://localhost:8080/api/draws/1 \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer votre_token_jwt" \
+  -b cookies.txt \
   -d '{
+    "name": "Tirage du 15 juillet - Mise à jour",
     "groupSize": 3,
-    "balancingAttributes": ["age", "experience"],
+    "balancingAttributes": ["age", "experience", "skills"],
     "balancingWeights": {
       "age": 1,
-      "experience": 2
+      "experience": 4,
+      "skills": 2
     }
   }'
 ```
 
-Vous recevrez une réponse contenant les nouveaux groupes générés.
+Vous recevrez une réponse contenant les détails mis à jour du tirage et les nouveaux groupes générés.
 
 ## Suppression d'un Tirage
 
@@ -274,174 +213,193 @@ Pour supprimer un tirage, utilisez l'endpoint `/api/draws/{drawId}` avec la mét
 
 ```bash
 curl -X DELETE http://localhost:8080/api/draws/1 \
-  -H "Authorization: Bearer votre_token_jwt"
+  -b cookies.txt
 ```
 
 En cas de succès, vous recevrez une réponse avec le code 204 No Content.
 
-## Exportation des Groupes
+## Modification Manuelle des Groupes
 
-### Exportation au format CSV
-
-Pour exporter les groupes d'un tirage au format CSV, utilisez l'endpoint `/api/draws/{drawId}/export` :
+Pour modifier manuellement la composition des groupes d'un tirage, utilisez l'endpoint `/api/draws/{drawId}/groups` avec la méthode PUT :
 
 ```bash
-curl -X GET http://localhost:8080/api/draws/1/export \
-  -H "Authorization: Bearer votre_token_jwt" \
-  -o groupes.csv
-```
-
-### Exportation au format PDF
-
-Pour exporter les groupes d'un tirage au format PDF, utilisez l'endpoint `/api/draws/{drawId}/export/pdf` :
-
-```bash
-curl -X GET http://localhost:8080/api/draws/1/export/pdf \
-  -H "Authorization: Bearer votre_token_jwt" \
-  -o groupes.pdf
-```
-
-## Algorithmes d'Équilibrage
-
-EasyGroup propose plusieurs algorithmes d'équilibrage pour générer des groupes :
-
-### Équilibrage Standard
-
-L'algorithme d'équilibrage standard tente de répartir les personnes de manière à ce que chaque groupe ait une distribution similaire des attributs spécifiés.
-
-```bash
-curl -X POST http://localhost:8080/api/lists/1/draws \
+curl -X PUT http://localhost:8080/api/draws/1/groups \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer votre_token_jwt" \
+  -b cookies.txt \
   -d '{
-    "name": "Tirage standard",
-    "groupSize": 4,
-    "balancingAttributes": ["age", "experience", "skills"],
-    "algorithm": "standard"
-  }'
-```
-
-### Équilibrage Aléatoire
-
-L'algorithme d'équilibrage aléatoire répartit les personnes de manière aléatoire, sans tenir compte des attributs.
-
-```bash
-curl -X POST http://localhost:8080/api/lists/1/draws \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer votre_token_jwt" \
-  -d '{
-    "name": "Tirage aléatoire",
-    "groupSize": 4,
-    "algorithm": "random"
-  }'
-```
-
-### Équilibrage Optimisé
-
-L'algorithme d'équilibrage optimisé utilise des techniques avancées pour trouver la meilleure répartition possible en fonction des attributs spécifiés.
-
-```bash
-curl -X POST http://localhost:8080/api/lists/1/draws \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer votre_token_jwt" \
-  -d '{
-    "name": "Tirage optimisé",
-    "groupSize": 4,
-    "balancingAttributes": ["age", "experience", "skills"],
-    "algorithm": "optimized",
-    "optimizationIterations": 1000
-  }'
-```
-
-## Contraintes Avancées
-
-### Personnes à Séparer
-
-Pour spécifier des personnes qui ne doivent pas se retrouver dans le même groupe :
-
-```bash
-curl -X POST http://localhost:8080/api/lists/1/draws \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer votre_token_jwt" \
-  -d '{
-    "name": "Tirage avec contraintes",
-    "groupSize": 4,
-    "balancingAttributes": ["age", "experience"],
-    "constraints": {
-      "separate": [
-        [1, 2],  // Les personnes avec les IDs 1 et 2 ne doivent pas être dans le même groupe
-        [3, 4, 5]  // Les personnes avec les IDs 3, 4 et 5 ne doivent pas être dans le même groupe
-      ]
-    }
-  }'
-```
-
-### Personnes à Regrouper
-
-Pour spécifier des personnes qui doivent se retrouver dans le même groupe :
-
-```bash
-curl -X POST http://localhost:8080/api/lists/1/draws \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer votre_token_jwt" \
-  -d '{
-    "name": "Tirage avec contraintes",
-    "groupSize": 4,
-    "balancingAttributes": ["age", "experience"],
-    "constraints": {
-      "together": [
-        [1, 2],  // Les personnes avec les IDs 1 et 2 doivent être dans le même groupe
-        [3, 4]  // Les personnes avec les IDs 3 et 4 doivent être dans le même groupe
-      ]
-    }
-  }'
-```
-
-### Groupes Prédéfinis
-
-Pour spécifier des groupes prédéfinis qui doivent être respectés :
-
-```bash
-curl -X POST http://localhost:8080/api/lists/1/draws \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer votre_token_jwt" \
-  -d '{
-    "name": "Tirage avec groupes prédéfinis",
-    "groupSize": 4,
-    "balancingAttributes": ["age", "experience"],
-    "fixedGroups": [
+    "groups": [
       {
+        "id": 1,
         "name": "Groupe A",
-        "personIds": [1, 2, 3, 4]
+        "personIds": [1, 4, 7, 10]
       },
       {
+        "id": 2,
         "name": "Groupe B",
-        "personIds": [5, 6, 7, 8]
+        "personIds": [2, 5, 8, 11]
+      },
+      {
+        "id": 3,
+        "name": "Groupe C",
+        "personIds": [3, 6, 9, 12]
       }
     ]
   }'
+```
+
+Vous recevrez une réponse contenant les groupes mis à jour.
+
+## Exportation des Groupes
+
+Pour exporter les groupes d'un tirage dans différents formats, utilisez l'endpoint `/api/draws/{drawId}/export` :
+
+```bash
+curl -X GET "http://localhost:8080/api/draws/1/export?format=csv" \
+  -b cookies.txt \
+  -o groupes.csv
+```
+
+Les formats disponibles sont :
+
+- `csv` : Format CSV (par défaut)
+- `xlsx` : Format Excel
+- `pdf` : Format PDF
+- `json` : Format JSON
+
+## Régénération des Groupes
+
+Pour régénérer les groupes d'un tirage sans modifier ses paramètres, utilisez l'endpoint `/api/draws/{drawId}/regenerate` :
+
+```bash
+curl -X POST http://localhost:8080/api/draws/1/regenerate \
+  -b cookies.txt
+```
+
+Vous recevrez une réponse contenant les nouveaux groupes générés.
+
+## Stratégies d'Équilibrage
+
+EasyGroup propose plusieurs stratégies d'équilibrage pour générer des groupes optimaux :
+
+### Équilibrage par Attributs Numériques
+
+Pour les attributs numériques comme l'âge ou les années d'expérience, EasyGroup peut :
+
+- Distribuer équitablement les valeurs entre les groupes
+- Assurer une moyenne similaire dans chaque groupe
+- Minimiser l'écart-type dans chaque groupe
+
+### Équilibrage par Attributs Catégoriels
+
+Pour les attributs catégoriels comme les compétences ou les départements, EasyGroup peut :
+
+- Assurer une diversité maximale dans chaque groupe
+- Garder ensemble les personnes ayant des valeurs similaires
+- Séparer les personnes ayant des valeurs similaires
+
+## Contraintes de Groupe
+
+Vous pouvez ajouter des contraintes spécifiques lors de la génération de groupes :
+
+### Contraintes de Personnes
+
+Pour spécifier que certaines personnes doivent être dans le même groupe ou dans des groupes différents :
+
+```bash
+curl -X POST http://localhost:8080/api/draws/1/constraints \
+  -H "Content-Type: application/json" \
+  -b cookies.txt \
+  -d '{
+    "type": "MUST_BE_TOGETHER",
+    "personIds": [1, 3]
+  }'
+```
+
+Types de contraintes disponibles :
+
+- `MUST_BE_TOGETHER` : Les personnes spécifiées doivent être dans le même groupe
+- `MUST_BE_SEPARATED` : Les personnes spécifiées doivent être dans des groupes différents
+- `MUST_BE_IN_GROUP` : La personne spécifiée doit être dans un groupe spécifique
+
+### Suppression d'une Contrainte
+
+Pour supprimer une contrainte :
+
+```bash
+curl -X DELETE http://localhost:8080/api/draws/1/constraints/1 \
+  -b cookies.txt
+```
+
+## Statistiques d'Équilibrage
+
+Pour obtenir des statistiques sur l'équilibrage des groupes d'un tirage, utilisez l'endpoint `/api/draws/{drawId}/stats` :
+
+```bash
+curl -X GET http://localhost:8080/api/draws/1/stats \
+  -b cookies.txt
+```
+
+Vous recevrez une réponse contenant des statistiques détaillées sur l'équilibrage des groupes :
+
+```json
+{
+  "drawId": 1,
+  "name": "Tirage du 15 juillet",
+  "groupSize": 4,
+  "totalPersons": 12,
+  "personsPerGroup": {
+    "min": 4,
+    "max": 4,
+    "average": 4
+  },
+  "attributeStats": [
+    {
+      "attribute": "age",
+      "averagePerGroup": [30.0, 31.5, 29.8],
+      "standardDeviation": 0.9,
+      "balanceScore": 0.92
+    },
+    {
+      "attribute": "experience",
+      "distribution": {
+        "Groupe 1": {"expert": 1, "intermediate": 2, "beginner": 1},
+        "Groupe 2": {"expert": 1, "intermediate": 1, "beginner": 2},
+        "Groupe 3": {"expert": 1, "intermediate": 2, "beginner": 1}
+      },
+      "balanceScore": 0.88
+    },
+    {
+      "attribute": "skills",
+      "uniqueValuesPerGroup": [8, 7, 9],
+      "diversityScore": 0.85
+    }
+  ],
+  "overallBalanceScore": 0.89
+}
 ```
 
 ## Bonnes Pratiques
 
 ### Choix des Attributs d'Équilibrage
 
-- Choisissez des attributs qui sont pertinents pour votre contexte
-- Attribuez des poids plus élevés aux attributs les plus importants
-- Limitez le nombre d'attributs d'équilibrage pour éviter des contraintes trop strictes
+- Identifiez les attributs les plus importants pour votre contexte
+- Attribuez des poids plus élevés aux attributs prioritaires
+- Utilisez un mélange d'attributs numériques et catégoriels pour un meilleur équilibrage
 
 ### Taille des Groupes
 
-- Choisissez une taille de groupe qui est adaptée à votre contexte
-- Assurez-vous que le nombre total de personnes est divisible par la taille de groupe, ou prévoyez une stratégie pour gérer les personnes restantes
-- Testez différentes tailles de groupe pour trouver la configuration optimale
+- Choisissez une taille de groupe adaptée à votre contexte
+- Assurez-vous que le nombre total de personnes est divisible par la taille de groupe souhaitée
+- Utilisez l'option `allowUnevenGroups` si nécessaire
+
+### Contraintes
+
+- Utilisez les contraintes avec parcimonie pour ne pas trop restreindre l'algorithme
+- Privilégiez les contraintes de type `MUST_BE_TOGETHER` plutôt que `MUST_BE_IN_GROUP`
+- Vérifiez que vos contraintes ne sont pas contradictoires
 
 ### Évaluation des Résultats
 
-- Examinez les groupes générés pour vérifier qu'ils répondent à vos besoins
-- Utilisez les métriques d'équilibrage fournies pour évaluer la qualité des groupes
-- Régénérez les groupes avec des paramètres différents si nécessaire
-
-## Étapes Suivantes
-
-Maintenant que vous avez exploré toutes les sections du guide utilisateur, vous pouvez consulter la [référence de l'API](/api-reference/) pour une documentation complète de tous les endpoints disponibles, ou la [documentation technique](/technical-docs/) pour en savoir plus sur l'architecture et les modèles de données d'EasyGroup.
+- Utilisez les statistiques d'équilibrage pour évaluer la qualité des groupes générés
+- Régénérez les groupes plusieurs fois pour obtenir différentes possibilités
+- Ajustez les poids des attributs en fonction des résultats obtenus
