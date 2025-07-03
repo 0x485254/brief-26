@@ -420,24 +420,22 @@ Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement
 ```json
 [
   {
-    "firstName": "Pierre",
-    "lastName": "Martin",
-    "email": "pierre.martin@exemple.com",
-    "attributes": {
-      "age": 28,
-      "experience": "beginner",
-      "skills": ["javascript", "react"]
-    }
+    "name": "Pierre Martin",
+    "gender": "MALE",
+    "age": 28,
+    "frenchLevel": 3,
+    "oldDwwm": false,
+    "techLevel": 2,
+    "profile": "RESERVE"
   },
   {
-    "firstName": "Sophie",
-    "lastName": "Dubois",
-    "email": "sophie.dubois@exemple.com",
-    "attributes": {
-      "age": 35,
-      "experience": "intermediate",
-      "skills": ["python", "django"]
-    }
+    "name": "Sophie Dubois",
+    "gender": "FEMALE",
+    "age": 35,
+    "frenchLevel": 4,
+    "oldDwwm": true,
+    "techLevel": 3,
+    "profile": "A_LAISE"
   }
 ]
 ```
@@ -449,32 +447,24 @@ Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement
 ```json
 [
   {
-    "id": 3,
-    "firstName": "Pierre",
-    "lastName": "Martin",
-    "email": "pierre.martin@exemple.com",
-    "attributes": {
-      "age": 28,
-      "experience": "beginner",
-      "skills": ["javascript", "react"]
-    },
-    "createdAt": "2023-07-03T14:56:78Z",
-    "updatedAt": "2023-07-03T14:56:78Z",
-    "listId": 1
+    "personId": "123e4567-e89b-12d3-a456-426614174003",
+    "name": "Pierre Martin",
+    "gender": "MALE",
+    "age": 28,
+    "frenchLevel": 3,
+    "oldDwwm": false,
+    "techLevel": 2,
+    "profile": "RESERVE"
   },
   {
-    "id": 4,
-    "firstName": "Sophie",
-    "lastName": "Dubois",
-    "email": "sophie.dubois@exemple.com",
-    "attributes": {
-      "age": 35,
-      "experience": "intermediate",
-      "skills": ["python", "django"]
-    },
-    "createdAt": "2023-07-03T14:56:78Z",
-    "updatedAt": "2023-07-03T14:56:78Z",
-    "listId": 1
+    "personId": "123e4567-e89b-12d3-a456-426614174004",
+    "name": "Sophie Dubois",
+    "gender": "FEMALE",
+    "age": 35,
+    "frenchLevel": 4,
+    "oldDwwm": true,
+    "techLevel": 3,
+    "profile": "A_LAISE"
   }
 ]
 ```
@@ -541,18 +531,14 @@ Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement
 
 ```json
 {
-  "id": 1,
-  "firstName": "Jean-Pierre",
-  "lastName": "Dupont",
-  "email": "jean-pierre.dupont@exemple.com",
-  "attributes": {
-    "age": 32,
-    "experience": "expert",
-    "skills": ["java", "spring", "kubernetes", "docker"]
-  },
-  "createdAt": "2023-07-03T12:34:56Z",
-  "updatedAt": "2023-07-03T15:67:89Z",
-  "listId": 2
+  "personId": "123e4567-e89b-12d3-a456-426614174001",
+  "name": "Jean-Pierre Dupont",
+  "gender": "MALE",
+  "age": 32,
+  "frenchLevel": 5,
+  "oldDwwm": true,
+  "techLevel": 5,
+  "profile": "A_LAISE"
 }
 ```
 
