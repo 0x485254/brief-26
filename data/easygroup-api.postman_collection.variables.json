@@ -20,15 +20,9 @@
             "url": {
               "raw": "http://localhost:8080/api/auth/register",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "auth",
-                "register"
-              ]
+              "path": ["api", "auth", "register"]
             },
             "body": {
               "mode": "raw",
@@ -49,15 +43,9 @@
             "url": {
               "raw": "http://localhost:8080/api/auth/login",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "auth",
-                "login"
-              ]
+              "path": ["api", "auth", "login"]
             },
             "body": {
               "mode": "raw",
@@ -73,15 +61,9 @@
             "url": {
               "raw": "http://localhost:8080/api/auth/logout",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "auth",
-                "logout"
-              ]
+              "path": ["api", "auth", "logout"]
             }
           }
         }
@@ -98,14 +80,9 @@
             "url": {
               "raw": "http://localhost:8080/api/users",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "users"
-              ]
+              "path": ["api", "users"]
             }
           }
         },
@@ -117,16 +94,9 @@
             "url": {
               "raw": "http://localhost:8080/api/users/1/activate",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "users",
-                "1",
-                "activate"
-              ]
+              "path": ["api", "users", "1", "activate"]
             }
           }
         },
@@ -138,15 +108,9 @@
             "url": {
               "raw": "http://localhost:8080/api/users/me",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "users",
-                "me"
-              ]
+              "path": ["api", "users", "me"]
             }
           }
         },
@@ -158,15 +122,9 @@
             "url": {
               "raw": "http://localhost:8080/api/users/me",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "users",
-                "me"
-              ]
+              "path": ["api", "users", "me"]
             }
           }
         },
@@ -178,15 +136,9 @@
             "url": {
               "raw": "http://localhost:8080/api/users/me",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "users",
-                "me"
-              ]
+              "path": ["api", "users", "me"]
             }
           }
         },
@@ -198,15 +150,9 @@
             "url": {
               "raw": "http://localhost:8080/api/users/1",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "users",
-                "1"
-              ]
+              "path": ["api", "users", "1"]
             }
           }
         },
@@ -218,15 +164,9 @@
             "url": {
               "raw": "http://localhost:8080/api/users/1",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "users",
-                "1"
-              ]
+              "path": ["api", "users", "1"]
             }
           }
         },
@@ -243,15 +183,9 @@
             "url": {
               "raw": "http://localhost:8080/api/users/1",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "users",
-                "1"
-              ]
+              "path": ["api", "users", "1"]
             },
             "body": {
               "mode": "raw",
@@ -272,14 +206,9 @@
             "url": {
               "raw": "http://localhost:8080/api/lists",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "lists"
-              ]
+              "path": ["api", "lists"]
             }
           }
         },
@@ -291,16 +220,9 @@
             "url": {
               "raw": "http://localhost:8080/api/lists/user/{{userId}}",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "lists",
-                "user",
-                "{{userId}}"
-              ]
+              "path": ["api", "lists", "user", "{{userId}}"]
             }
           }
         },
@@ -317,14 +239,9 @@
             "url": {
               "raw": "http://localhost:8080/api/lists",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "lists"
-              ]
+              "path": ["api", "lists"]
             },
             "body": {
               "mode": "raw",
@@ -340,15 +257,9 @@
             "url": {
               "raw": "http://localhost:8080/api/lists/{{listId}}",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "lists",
-                "{{listId}}"
-              ]
+              "path": ["api", "lists", "{{listId}}"]
             }
           }
         },
@@ -365,15 +276,9 @@
             "url": {
               "raw": "http://localhost:8080/api/lists/{{listId}}",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "lists",
-                "{{listId}}"
-              ]
+              "path": ["api", "lists", "{{listId}}"]
             },
             "body": {
               "mode": "raw",
@@ -389,15 +294,9 @@
             "url": {
               "raw": "http://localhost:8080/api/lists/{{listId}}",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "lists",
-                "{{listId}}"
-              ]
+              "path": ["api", "lists", "{{listId}}"]
             }
           }
         }
@@ -419,16 +318,9 @@
             "url": {
               "raw": "http://localhost:8080/api/lists/{{listId}}/persons",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "lists",
-                "{{listId}}",
-                "persons"
-              ]
+              "path": ["api", "lists", "{{listId}}", "persons"]
             },
             "body": {
               "mode": "raw",
@@ -444,16 +336,9 @@
             "url": {
               "raw": "http://localhost:8080/api/lists/{{listId}}/persons",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "lists",
-                "{{listId}}",
-                "persons"
-              ]
+              "path": ["api", "lists", "{{listId}}", "persons"]
             }
           }
         },
@@ -470,17 +355,9 @@
             "url": {
               "raw": "http://localhost:8080/api/lists/{{listId}}/persons/{{personId}}",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "lists",
-                "{{listId}}",
-                "persons",
-                "{{personId}}"
-              ]
+              "path": ["api", "lists", "{{listId}}", "persons", "{{personId}}"]
             },
             "body": {
               "mode": "raw",
@@ -496,17 +373,9 @@
             "url": {
               "raw": "http://localhost:8080/api/lists/{{listId}}/persons/{{personId}}",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "lists",
-                "{{listId}}",
-                "persons",
-                "{{personId}}"
-              ]
+              "path": ["api", "lists", "{{listId}}", "persons", "{{personId}}"]
             }
           }
         }
@@ -528,16 +397,9 @@
             "url": {
               "raw": "http://localhost:8080/api/lists/{{listId}}/share",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "lists",
-                "{{listId}}",
-                "share"
-              ]
+              "path": ["api", "lists", "{{listId}}", "share"]
             },
             "body": {
               "mode": "raw",
@@ -553,9 +415,7 @@
             "url": {
               "raw": "http://localhost:8080/api/lists/{{listId}}/share/{{sharedUserId}}",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
               "path": [
                 "api",
@@ -573,7 +433,7 @@
       "name": "Tirages",
       "item": [
         {
-          "name": "Draw groups",
+          "name": "Generate Groups Preview",
           "request": {
             "method": "POST",
             "header": [
@@ -583,65 +443,66 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:8080/api/lists/{{listId}}/draws",
+              "raw": "{{baseUrl}}/api/lists/{{listId}}/draws/preview",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "lists",
-                "{{listId}}",
-                "draws"
-              ]
+              "path": ["api", "lists", "{{listId}}", "draws", "preview"]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Tirage Juin\",\n  \"criteria\": [\n    \"AGE\",\n    \"OLD_DWWM\"\n  ],\n  \"numberOfGroups\": 3\n}"
+              "raw": "{\n  \"title\": \"Tirage de test - Preview\",\n  \"numberOfGroups\": 3,\n  \"groupNames\": [\"Groupe A\", \"Groupe B\", \"Groupe C\"],\n  \"balanceByGender\": true,\n  \"balanceByAge\": false,\n  \"balanceByFrenchLevel\": true,\n  \"balanceByTechLevel\": false,\n  \"balanceByOldDwwm\": true,\n  \"balanceByProfile\": false\n}"
             }
           }
         },
         {
-          "name": "Get draw history",
+          "name": "Save Modified Groups",
           "request": {
-            "method": "GET",
-            "header": [],
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
-              "raw": "http://localhost:8080/api/lists/{{listId}}/draws",
+              "raw": "{{baseUrl}}/api/lists/{{listId}}/draws",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "lists",
-                "{{listId}}",
-                "draws"
-              ]
+              "path": ["api", "lists", "{{listId}}", "draws"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"listId\": \"{{listId}}\",\n    \"listName\": \"List9_U1\",\n    \"title\": \"Tirage de test - Preview\",\n    \"groups\": [\n        {\n            \"id\": null,\n            \"name\": \"Groupe A\",\n            \"drawId\": null,\n            \"persons\": [\n                {\n                    \"personId\": \"0b0f8801-5ef2-4319-922d-02f2b775eebc\",\n                    \"name\": \"P6_L9_U1\",\n                    \"gender\": \"OTHER\",\n                    \"age\": 26,\n                    \"frenchLevel\": 4,\n                    \"oldDwwm\": true,\n                    \"techLevel\": 4,\n                    \"profile\": \"A_LAISE\"\n                },\n                {\n                    \"personId\": \"98a24ae2-faa1-4a2f-a8b5-c7913562143f\",\n                    \"name\": \"P2_L9_U1\",\n                    \"gender\": \"OTHER\",\n                    \"age\": 20,\n                    \"frenchLevel\": 5,\n                    \"oldDwwm\": false,\n                    \"techLevel\": 5,\n                    \"profile\": \"TIMIDE\"\n                }\n            ],\n            \"personCount\": 7\n        },\n        {\n            \"id\": null,\n            \"name\": \"Groupe B\",\n            \"drawId\": null,\n            \"persons\": [\n                {\n                    \"personId\": \"226bdaeb-2191-4ab6-8c30-07cb1920995a\",\n                    \"name\": \"P20_L9_U1\",\n                    \"gender\": \"FEMALE\",\n                    \"age\": 26,\n                    \"frenchLevel\": 4,\n                    \"oldDwwm\": false,\n                    \"techLevel\": 5,\n                    \"profile\": \"RESERVE\"\n                }\n            ],\n            \"personCount\": 7\n        },\n        {\n            \"id\": null,\n            \"name\": \"Groupe C\",\n            \"drawId\": null,\n            \"persons\": [\n                {\n                    \"personId\": \"c9bc85fc-21c8-4e41-a208-f9668c8338f0\",\n                    \"name\": \"P14_L9_U1\",\n                    \"gender\": \"OTHER\",\n                    \"age\": 20,\n                    \"frenchLevel\": 1,\n                    \"oldDwwm\": false,\n                    \"techLevel\": 3,\n                    \"profile\": \"RESERVE\"\n                }\n            ],\n            \"personCount\": 6\n        }\n    ],\n    \"groupCount\": 3,\n    \"totalPersons\": 20,\n    \"generatedAt\": \"2025-07-02T14:13:56.5216872\"\n}"
             }
           }
         },
         {
-          "name": "Get draw by ID",
+          "name": "Get All Draws for List",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/lists/{{listId}}/draws/{{drawId}}",
+              "raw": "{{baseUrl}}/api/lists/{{listId}}/draws",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "lists",
-                "{{listId}}",
-                "draws",
-                "{{drawId}}"
-              ]
+              "path": ["api", "lists", "{{listId}}", "draws"]
+            }
+          }
+        },
+        {
+          "name": "Get Groups from Draw",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/draws/{{drawId}}/groups",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "draws", "{{drawId}}", "groups"]
             }
           }
         }
@@ -658,9 +519,7 @@
             "url": {
               "raw": "http://localhost:8080/api/lists/{{listId}}/draws/{{drawId}}/groups",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
               "path": [
                 "api",
@@ -681,9 +540,7 @@
             "url": {
               "raw": "http://localhost:8080/api/lists/{{listId}}/draws/{{drawId}}/groups/{{groupId}}",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
               "path": [
                 "api",
