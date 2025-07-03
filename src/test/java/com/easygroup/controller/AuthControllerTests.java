@@ -7,7 +7,6 @@ import com.easygroup.entity.User;
 import com.easygroup.service.AuthService;
 import com.easygroup.service.JwtService;
 import com.easygroup.service.UserService;
-import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
