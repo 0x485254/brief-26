@@ -167,15 +167,30 @@ public class AuthController {
 
     /**
      * Verifies a user's email by validating the provided token.
-     * If the token is valid, the user's account is activated.
+     * If the token is valid, the user's account is activated and the user is redirected to the login page.
      *
      * @param token the token used for email verification
-     * @return a ResponseEntity containing a boolean value indicating whether the operation was successful
+     * @return a redirect to the login page after successful verification
      */
     @GetMapping("/verify")
-    public ResponseEntity<Boolean> verifyEmail(@RequestParam("token") String token) {
-        authService.verifyAccount(token);
-        return ResponseEntity.ok(true);
+    public ResponseEntity<?> verifyEmail(@RequestParam("token") String token) {
+        try {
+            authService.verifyAccount(token);
+            
+            // Create a redirect URL to the frontend login page
+            // You might want to configure this URL in your application properties
+            String redirectUrl = "https://brief-react-v3-groupshuffle.vercel.app/login";
+        
+            // Use HTTP status 302 for temporary redirect
+            return ResponseEntity.status(HttpStatus.FOUND)
+                .header("Location", redirectUrl)
+                .build();
+        } catch (Exception e) {
+            // In case of errors, redirect to an error page
+            return ResponseEntity.status(HttpStatus.FOUND)
+                .header("Location", applicationUrl + "/verification-failed")
+                .build();
+        }
     }
 
     /**
