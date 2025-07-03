@@ -12,10 +12,11 @@ services:
       - DB_NAME=easygroup
       - DB_USERNAME=postgres
       - DB_PASSWORD=postgres
-      - SMTP_SERVER=smtp.gmail.com         
-      - SMTP_PORT=587                     
-      - SMTP_USERNAME=ton.email@gmail.com
-      - SMTP_PASSWORD=mot_de_passe_ou_token
+      - SMTP_SERVER=${SMTP_SERVER}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - APP_URL=${APP_URL}
 
 
     # Configuration CORS pour le frontend local et distant
