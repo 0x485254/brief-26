@@ -17,6 +17,7 @@ services:
       - SMTP_USERNAME=${SMTP_USERNAME}
       - SMTP_PASSWORD=${SMTP_PASSWORD}
       - APP_URL=${APP_URL}
+      - MAIL_FROM=${MAIL_FROM}
 
 
     # Configuration CORS pour le frontend local et distant
