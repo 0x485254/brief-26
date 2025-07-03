@@ -24,7 +24,7 @@ Pour créer une nouvelle liste, envoyez une requête POST à l'endpoint `/api/li
 ```bash
 curl -X POST http://localhost:8080/api/lists \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer votre_token_jwt" \
+  -b cookies.txt \
   -d '{
     "name": "Ma liste de participants",
     "description": "Liste des participants à l'atelier du 15 juillet"
@@ -53,7 +53,7 @@ Pour récupérer toutes les listes que vous avez créées ou qui ont été parta
 
 ```bash
 curl -X GET http://localhost:8080/api/lists \
-  -H "Authorization: Bearer votre_token_jwt"
+  -b cookies.txt
 ```
 
 Vous recevrez une réponse contenant la liste de vos listes :
@@ -114,7 +114,7 @@ Pour récupérer les détails d'une liste spécifique, utilisez l'endpoint `/api
 
 ```bash
 curl -X GET http://localhost:8080/api/lists/1 \
-  -H "Authorization: Bearer votre_token_jwt"
+  -b cookies.txt
 ```
 
 Vous recevrez une réponse contenant les détails de la liste :
@@ -127,19 +127,7 @@ Vous recevrez une réponse contenant les détails de la liste :
   "createdAt": "2023-07-03T12:34:56Z",
   "updatedAt": "2023-07-03T12:34:56Z",
   "ownerId": 1,
-  "owner": {
-    "id": 1,
-    "username": "votre_nom_utilisateur",
-    "email": "votre_email@exemple.com"
-  },
-  "personCount": 10,
-  "sharedWith": [
-    {
-      "id": 2,
-      "username": "autre_utilisateur",
-      "email": "autre_utilisateur@exemple.com"
-    }
-  ]
+  "personCount": 10
 }
 ```
 
@@ -150,22 +138,22 @@ Pour modifier une liste existante, utilisez l'endpoint `/api/lists/{listId}` ave
 ```bash
 curl -X PUT http://localhost:8080/api/lists/1 \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer votre_token_jwt" \
+  -b cookies.txt \
   -d '{
-    "name": "Nouveau nom de la liste",
-    "description": "Nouvelle description de la liste"
+    "name": "Atelier du 15 juillet - Participants",
+    "description": "Liste mise à jour des participants à l'atelier"
   }'
 ```
 
-Vous recevrez une réponse contenant les informations mises à jour :
+Vous recevrez une réponse contenant les détails mis à jour de la liste :
 
 ```json
 {
   "id": 1,
-  "name": "Nouveau nom de la liste",
-  "description": "Nouvelle description de la liste",
+  "name": "Atelier du 15 juillet - Participants",
+  "description": "Liste mise à jour des participants à l'atelier",
   "createdAt": "2023-07-03T12:34:56Z",
-  "updatedAt": "2023-07-03T13:45:67Z",
+  "updatedAt": "2023-07-03T14:45:12Z",
   "ownerId": 1,
   "personCount": 10
 }
@@ -180,38 +168,19 @@ Pour partager une liste avec un autre utilisateur, utilisez l'endpoint `/api/lis
 ```bash
 curl -X POST http://localhost:8080/api/lists/1/share \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer votre_token_jwt" \
+  -b cookies.txt \
   -d '{
     "userId": 2
   }'
 ```
 
-En cas de succès, vous recevrez une réponse avec le code 200 OK.
+### Suppression d'un partage
 
-### Partage avec plusieurs utilisateurs
-
-Pour partager une liste avec plusieurs utilisateurs en une seule requête :
+Pour supprimer un partage de liste, utilisez l'endpoint `/api/lists/{listId}/share/{userId}` avec la méthode DELETE :
 
 ```bash
-curl -X POST http://localhost:8080/api/lists/1/share-multiple \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer votre_token_jwt" \
-  -d '{
-    "userIds": [2, 3, 4]
-  }'
-```
-
-### Révocation du partage
-
-Pour révoquer le partage d'une liste avec un utilisateur, utilisez l'endpoint `/api/lists/{listId}/unshare` :
-
-```bash
-curl -X POST http://localhost:8080/api/lists/1/unshare \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer votre_token_jwt" \
-  -d '{
-    "userId": 2
-  }'
+curl -X DELETE http://localhost:8080/api/lists/1/share/2 \
+  -b cookies.txt
 ```
 
 ## Suppression d'une Liste
@@ -220,7 +189,7 @@ Pour supprimer une liste, utilisez l'endpoint `/api/lists/{listId}` avec la mét
 
 ```bash
 curl -X DELETE http://localhost:8080/api/lists/1 \
-  -H "Authorization: Bearer votre_token_jwt"
+  -b cookies.txt
 ```
 
 En cas de succès, vous recevrez une réponse avec le code 204 No Content.
@@ -237,7 +206,7 @@ Pour récupérer toutes les personnes d'une liste, utilisez l'endpoint `/api/lis
 
 ```bash
 curl -X GET http://localhost:8080/api/lists/1/persons \
-  -H "Authorization: Bearer votre_token_jwt"
+  -b cookies.txt
 ```
 
 Vous recevrez une réponse contenant la liste des personnes :
@@ -251,12 +220,10 @@ Vous recevrez une réponse contenant la liste des personnes :
       "lastName": "Dupont",
       "email": "jean.dupont@exemple.com",
       "attributes": {
-        "age": 30,
-        "experience": "intermediate",
-        "skills": ["java", "spring"]
-      },
-      "createdAt": "2023-07-03T12:34:56Z",
-      "updatedAt": "2023-07-03T12:34:56Z"
+        "age": "35",
+        "niveau": "débutant",
+        "spécialité": "marketing"
+      }
     },
     {
       "id": 2,
@@ -264,12 +231,10 @@ Vous recevrez une réponse contenant la liste des personnes :
       "lastName": "Martin",
       "email": "marie.martin@exemple.com",
       "attributes": {
-        "age": 25,
-        "experience": "beginner",
-        "skills": ["javascript", "react"]
-      },
-      "createdAt": "2023-07-03T12:34:56Z",
-      "updatedAt": "2023-07-03T12:34:56Z"
+        "age": "28",
+        "niveau": "intermédiaire",
+        "spécialité": "design"
+      }
     }
   ],
   "pageable": {
@@ -300,34 +265,34 @@ Vous recevrez une réponse contenant la liste des personnes :
 }
 ```
 
-## Importation et Exportation de Listes
+## Importation et Exportation
 
-### Importation depuis un fichier CSV
+### Importation de personnes depuis un fichier CSV
 
 Pour importer des personnes dans une liste à partir d'un fichier CSV, utilisez l'endpoint `/api/lists/{listId}/import` :
 
 ```bash
 curl -X POST http://localhost:8080/api/lists/1/import \
-  -H "Authorization: Bearer votre_token_jwt" \
   -H "Content-Type: multipart/form-data" \
+  -b cookies.txt \
   -F "file=@personnes.csv"
 ```
 
-Le fichier CSV doit avoir le format suivant :
+Le format du fichier CSV doit être le suivant :
 
-```csv
-firstName,lastName,email,age,experience,skills
-Jean,Dupont,jean.dupont@exemple.com,30,intermediate,"java,spring"
-Marie,Martin,marie.martin@exemple.com,25,beginner,"javascript,react"
+```
+firstName,lastName,email,attribut1,attribut2
+Jean,Dupont,jean.dupont@exemple.com,valeur1,valeur2
+Marie,Martin,marie.martin@exemple.com,valeur3,valeur4
 ```
 
-### Exportation vers un fichier CSV
+### Exportation de personnes vers un fichier CSV
 
-Pour exporter une liste au format CSV, utilisez l'endpoint `/api/lists/{listId}/export` :
+Pour exporter les personnes d'une liste vers un fichier CSV, utilisez l'endpoint `/api/lists/{listId}/export` :
 
 ```bash
 curl -X GET http://localhost:8080/api/lists/1/export \
-  -H "Authorization: Bearer votre_token_jwt" \
+  -b cookies.txt \
   -o personnes.csv
 ```
 
@@ -339,7 +304,7 @@ Pour rechercher des listes par nom, utilisez l'endpoint `/api/lists/search` :
 
 ```bash
 curl -X GET "http://localhost:8080/api/lists/search?name=atelier" \
-  -H "Authorization: Bearer votre_token_jwt"
+  -b cookies.txt
 ```
 
 Vous recevrez une réponse contenant les listes correspondantes :
@@ -364,7 +329,7 @@ Pour filtrer les listes par propriétaire, utilisez le paramètre `ownerId` :
 
 ```bash
 curl -X GET "http://localhost:8080/api/lists?ownerId=1" \
-  -H "Authorization: Bearer votre_token_jwt"
+  -b cookies.txt
 ```
 
 ### Filtrage par date de création
@@ -373,7 +338,7 @@ Pour filtrer les listes par date de création, utilisez les paramètres `created
 
 ```bash
 curl -X GET "http://localhost:8080/api/lists?createdAfter=2023-07-01&createdBefore=2023-07-31" \
-  -H "Authorization: Bearer votre_token_jwt"
+  -b cookies.txt
 ```
 
 ## Archivage de Listes
@@ -384,7 +349,7 @@ Pour archiver une liste sans la supprimer, utilisez l'endpoint `/api/lists/{list
 
 ```bash
 curl -X POST http://localhost:8080/api/lists/1/archive \
-  -H "Authorization: Bearer votre_token_jwt"
+  -b cookies.txt
 ```
 
 ### Désarchivage d'une liste
@@ -393,7 +358,7 @@ Pour désarchiver une liste, utilisez l'endpoint `/api/lists/{listId}/unarchive`
 
 ```bash
 curl -X POST http://localhost:8080/api/lists/1/unarchive \
-  -H "Authorization: Bearer votre_token_jwt"
+  -b cookies.txt
 ```
 
 ### Récupération des listes archivées
@@ -402,7 +367,7 @@ Pour récupérer toutes vos listes archivées, utilisez le paramètre `archived`
 
 ```bash
 curl -X GET "http://localhost:8080/api/lists?archived=true" \
-  -H "Authorization: Bearer votre_token_jwt"
+  -b cookies.txt
 ```
 
 ## Bonnes Pratiques
@@ -414,18 +379,8 @@ curl -X GET "http://localhost:8080/api/lists?archived=true" \
 - Archivez les listes que vous n'utilisez plus au lieu de les supprimer
 - Utilisez le partage de listes pour collaborer avec d'autres utilisateurs
 
-### Importation de Données
+### Gestion des Personnes
 
-- Vérifiez le format de votre fichier CSV avant l'importation
-- Assurez-vous que les en-têtes correspondent aux attributs attendus
-- Validez les données importées après l'importation
-
-### Sécurité
-
-- Ne partagez vos listes qu'avec des utilisateurs de confiance
-- Vérifiez régulièrement les utilisateurs avec qui vos listes sont partagées
-- Révoquez les partages lorsqu'ils ne sont plus nécessaires
-
-## Étapes Suivantes
-
-Maintenant que vous savez comment gérer les listes, vous pouvez passer à la [gestion des personnes](/user-guide/person-management) pour apprendre à ajouter et gérer des personnes dans vos listes.
+- Importez des personnes depuis un fichier CSV pour gagner du temps
+- Utilisez des attributs personnalisés pour stocker des informations spécifiques
+- Exportez régulièrement vos listes pour sauvegarder vos données
