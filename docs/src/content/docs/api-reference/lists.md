@@ -526,9 +526,7 @@ Permet de rechercher des listes par nom.
 
 ### En-têtes de la Requête
 
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
+Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement inclus dans la requête.
 
 ### Paramètres de Requête
 
@@ -567,9 +565,7 @@ Permet de récupérer des statistiques sur une liste (nombre de personnes, distr
 
 ### En-têtes de la Requête
 
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
+Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement inclus dans la requête.
 
 ### Réponse en Cas de Succès
 
