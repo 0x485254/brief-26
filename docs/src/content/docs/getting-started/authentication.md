@@ -9,9 +9,20 @@ Ce guide explique la méthode d'authentification disponible dans l'API EasyGroup
 
 ## Vue d'ensemble
 
-L'API EasyGroup utilise l'authentification par Cookie HTTP-Only, qui est recommandée pour les applications web car elle offre une meilleure sécurité contre les attaques XSS (Cross-Site Scripting).
+L'API EasyGroup utilise l'authentification par JWT (JSON Web Token) stocké dans un Cookie HTTP-Only, qui est recommandée pour les applications web car elle offre une meilleure sécurité contre les attaques XSS (Cross-Site Scripting).
 
-## Authentification par Cookie HTTP-Only
+## Processus d'inscription et vérification d'email
+
+Le processus d'authentification dans EasyGroup comprend une étape de vérification d'email pour garantir la validité des comptes utilisateurs.
+
+### Étapes du processus
+
+1. **Inscription** : L'utilisateur s'inscrit avec son email, mot de passe, prénom et nom
+2. **Vérification d'email** : Un email de vérification est envoyé à l'adresse fournie
+3. **Activation du compte** : L'utilisateur clique sur le lien dans l'email pour activer son compte
+4. **Connexion** : Une fois le compte activé, l'utilisateur peut se connecter
+
+## Authentification par JWT dans Cookie HTTP-Only
 
 ### Inscription
 
@@ -28,9 +39,21 @@ curl -X POST http://localhost:8080/api/auth/register \
   }'
 ```
 
+Après l'inscription, un email de vérification sera envoyé à l'adresse fournie. L'utilisateur doit cliquer sur le lien dans l'email pour activer son compte avant de pouvoir se connecter.
+
+### Vérification d'email
+
+Lorsque l'utilisateur clique sur le lien de vérification dans l'email, une requête GET est envoyée à l'endpoint `/api/auth/verify` avec le token de vérification :
+
+```
+GET /api/auth/verify?token=votre_token_de_verification
+```
+
+Si la vérification réussit, l'utilisateur est redirigé vers la page de connexion et son compte est activé.
+
 ### Connexion
 
-Pour vous authentifier et obtenir un cookie HTTP-Only, envoyez une requête POST à l'endpoint `/api/auth/login` :
+Pour vous authentifier et obtenir un cookie HTTP-Only contenant un JWT, envoyez une requête POST à l'endpoint `/api/auth/login` :
 
 ```bash
 curl -X POST http://localhost:8080/api/auth/login \
@@ -42,7 +65,9 @@ curl -X POST http://localhost:8080/api/auth/login \
   -c cookies.txt
 ```
 
-Le serveur définira un cookie HTTP-Only dans votre navigateur, qui sera automatiquement inclus dans les requêtes suivantes.
+**Note importante** : Vous ne pourrez vous connecter que si votre compte a été activé via le lien de vérification envoyé par email après l'inscription.
+
+Le serveur définira un cookie HTTP-Only contenant un JWT dans votre navigateur, qui sera automatiquement inclus dans les requêtes suivantes. Ce JWT contient des informations sur votre identité et vos droits d'accès.
 
 ### Utilisation du Cookie
 
@@ -65,6 +90,17 @@ curl -X POST http://localhost:8080/api/auth/logout \
 ```
 
 ## Sécurité
+
+### JWT (JSON Web Token)
+
+EasyGroup utilise des JWT pour l'authentification, qui sont stockés dans des cookies HTTP-Only. Les JWT contiennent les informations suivantes :
+- ID utilisateur
+- Email (comme sujet du token)
+- Rôle utilisateur
+- Date d'émission
+- Date d'expiration (24 heures par défaut)
+
+Les JWT sont signés avec un algorithme HMAC-SHA256 et une clé secrète, ce qui garantit leur intégrité.
 
 ### Hachage des Mots de Passe
 
@@ -117,6 +153,19 @@ L'API renvoie des codes d'erreur HTTP appropriés en cas de problème d'authenti
 ### Exemple avec JavaScript (Fetch API)
 
 ```javascript
+// Inscription
+async function register(email, password, firstName, lastName) {
+  const response = await fetch('http://localhost:8080/api/auth/register', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ email, password, firstName, lastName })
+  });
+
+  return await response.json();
+}
+
 // Connexion avec cookies
 async function login(email, password) {
   const response = await fetch('http://localhost:8080/api/auth/login', {
@@ -142,6 +191,11 @@ async function getUserProfile() {
 
 // Exemple d'utilisation
 async function example() {
+  // Inscription (l'utilisateur devra vérifier son email avant de pouvoir se connecter)
+  await register('votre_email@exemple.com', 'votre_mot_de_passe', 'Votre Prénom', 'Votre Nom');
+  console.log("Vérifiez votre email pour activer votre compte");
+
+  // Après vérification de l'email, connexion
   await login('votre_email@exemple.com', 'votre_mot_de_passe');
   const userProfile = await getUserProfile();
   console.log(userProfile);
@@ -163,7 +217,17 @@ function createAuthenticatedClient() {
 
 // Exemple d'utilisation
 async function example() {
-  // Connexion
+  // Inscription
+  await axios.post('http://localhost:8080/api/auth/register', {
+    email: 'votre_email@exemple.com',
+    password: 'votre_mot_de_passe',
+    firstName: 'Votre Prénom',
+    lastName: 'Votre Nom'
+  });
+
+  console.log("Vérifiez votre email pour activer votre compte");
+
+  // Après vérification de l'email, connexion
   await axios.post('http://localhost:8080/api/auth/login', {
     email: 'votre_email@exemple.com',
     password: 'votre_mot_de_passe'

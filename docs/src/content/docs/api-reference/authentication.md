@@ -76,11 +76,13 @@ Permet à un utilisateur de se connecter et de recevoir un cookie HTTP-only cont
 
 ```json
 {
-  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "id": 1,
   "email": "utilisateur@exemple.com",
   "firstName": "Jean",
   "lastName": "Dupont",
-  "role": "USER"
+  "token": null,
+  "role": "USER",
+  "isActivated": true
 }
 ```
 
@@ -145,21 +147,19 @@ Les tokens JWT émis par l'API EasyGroup contiennent les informations suivantes 
 
 ```json
 {
-  "sub": "1",
-  "iss": "easygroup-api",
+  "userId": "1",
+  "role": "USER",
+  "sub": "utilisateur@exemple.com",
   "iat": 1688379296,
-  "exp": 1688382896,
-  "roles": ["USER"],
-  "username": "utilisateur"
+  "exp": 1688382896
 }
 ```
 
-- `sub` : ID de l'utilisateur
-- `iss` : Émetteur du token
+- `userId` : ID de l'utilisateur
+- `role` : Rôle de l'utilisateur
+- `sub` : Email de l'utilisateur (sujet du token)
 - `iat` : Timestamp de création du token
 - `exp` : Timestamp d'expiration du token
-- `roles` : Rôles de l'utilisateur
-- `username` : Nom d'utilisateur
 
 ## Configuration des Cookies
 
