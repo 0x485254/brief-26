@@ -45,11 +45,11 @@ public class CookieService {
         cookie.setHttpOnly(httpOnly);
         cookie.setSecure(secure);
         cookie.setPath(path);
-        
+
         if (!domain.isEmpty()) {
             cookie.setDomain(domain);
         }
-        
+
         return cookie;
     }
 
@@ -57,13 +57,20 @@ public class CookieService {
      * Add a JWT token cookie to the response.
      *
      * @param response the HTTP response
-     * @param token the JWT token
+     * @param token    the JWT token
      */
     public void addTokenCookie(HttpServletResponse response, String token) {
+        // First add the standard cookie
         Cookie cookie = createCookie(token);
-        
         response.addCookie(cookie);
-        
+
+        // Then set the SameSite attribute using the header approach
+        String cookieHeader = String.format("%s=%s; Max-Age=%d; Path=%s; HttpOnly=%b; Secure=%b; SameSite=%s",
+                cookieName, token, cookieMaxAge, path, httpOnly, secure, sameSite);
+        if (!domain.isEmpty()) {
+            cookieHeader += "; Domain=" + domain;
+        }
+        response.setHeader("Set-Cookie", cookieHeader);
     }
 
     /**
@@ -77,15 +84,15 @@ public class CookieService {
         cookie.setHttpOnly(httpOnly);
         cookie.setSecure(secure);
         cookie.setPath(path);
-        
+
         if (!domain.isEmpty()) {
             cookie.setDomain(domain);
         }
-        
+
         response.addCookie(cookie);
-        
+
         // Set SameSite attribute
-        String cookieHeader = String.format("%s=; Max-Age=0; Path=%s; HttpOnly=%b; Secure=%b; SameSite=%s", 
+        String cookieHeader = String.format("%s=; Max-Age=0; Path=%s; HttpOnly=%b; Secure=%b; SameSite=%s",
                 cookieName, path, httpOnly, secure, sameSite);
         if (!domain.isEmpty()) {
             cookieHeader += "; Domain=" + domain;
