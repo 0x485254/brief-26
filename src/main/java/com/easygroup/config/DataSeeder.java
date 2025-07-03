@@ -58,6 +58,11 @@ public class DataSeeder implements CommandLineRunner {
             return;
         }
 
+        if (userRepository.count() > 0) {
+            System.out.println("[DataSeeder] Users already exist. Skipping fixture.");
+            return;
+        }
+
         System.out.println("[DataSeeder] Loading fixture...");
         populateFixture();
     }
@@ -91,21 +96,15 @@ public class DataSeeder implements CommandLineRunner {
     private void populateFixture() {
         Map<Integer, User> users = new HashMap<>();
         for (int i = 1; i <= 20; i++) {
-            String email = "user" + i + "@example.com";
-            Optional<User> existing = userRepository.findByEmail(email);
-            if (existing.isPresent()) {
-                users.put(i, existing.get());
-            } else {
-                User user = new User();
-                user.setId(fixedUuid(i));
-                user.setEmail(email);
-                user.setPassword(passwordEncoder.encode("password"));
-                user.setFirstName("User" + i);
-                user.setLastName("Test" + i);
-                user.setIsActivated(true);
-                user.setCguDate(LocalDate.now());
-                users.put(i, userRepository.save(user));
-            }
+            User user = new User();
+            user.setId(fixedUuid(i));
+            user.setEmail("user" + i + "@example.com");
+            user.setPassword(passwordEncoder.encode("password"));
+            user.setFirstName("User" + i);
+            user.setLastName("Test" + i);
+            user.setIsActivated(true);
+            user.setCguDate(LocalDate.now());
+            users.put(i, userRepository.save(user));
         }
 
         Random rnd = new Random();
@@ -171,28 +170,7 @@ public class DataSeeder implements CommandLineRunner {
             }
         }
 
-        createAdmin("admin1@easygroup.com", "Admin", "One");
-        createAdmin("admin2@easygroup.com", "Admin", "Two");
-
         System.out.println("[DataSeeder] Fixture loaded successfully.");
-    }
-
-    private void createAdmin(String email, String firstName, String lastName) {
-        Optional<User> existing = userRepository.findByEmail(email);
-        if (existing.isEmpty()) {
-            User admin = new User();
-            admin.setEmail(email);
-            admin.setPassword(passwordEncoder.encode("admin123"));
-            admin.setFirstName(firstName);
-            admin.setLastName(lastName);
-            admin.setCguDate(LocalDate.now());
-            admin.setIsActivated(true);
-            admin.setRole(User.Role.ADMIN);
-            userRepository.save(admin);
-            System.out.println("[DataSeeder] Admin account created: " + email);
-        } else {
-            System.out.println("[DataSeeder] Admin already exists: " + email);
-        }
     }
 
     private UUID fixedUuid(int suffix) {
