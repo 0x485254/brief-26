@@ -9,7 +9,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,31 +34,35 @@ public class SameSiteCookieFilter extends OncePerRequestFilter {
         }
 
         Collection<String> headers = response.getHeaders(HttpHeaders.SET_COOKIE);
-        boolean first = true;
+        if (headers.isEmpty()) return;
+
+        // Supprime tous les headers existants pour réécriture propre
+        response.setHeader(HttpHeaders.SET_COOKIE, null);
+
+        List<String> updatedHeaders = new ArrayList<>();
 
         for (String header : headers) {
             String updatedHeader = header;
 
-            // Ajouter SameSite=None si absent
             if (!updatedHeader.toLowerCase().contains("samesite")) {
                 updatedHeader += "; SameSite=None";
             }
 
-            // Ajouter Secure si absent
             if (!updatedHeader.toLowerCase().contains("secure")) {
                 updatedHeader += "; Secure";
             }
 
-            if (first) {
-                response.setHeader(HttpHeaders.SET_COOKIE, updatedHeader);
-                first = false;
-            } else {
-                response.addHeader(HttpHeaders.SET_COOKIE, updatedHeader);
+            if (!updatedHeader.toLowerCase().contains("httponly")) {
+                updatedHeader += "; HttpOnly";
             }
+
+            updatedHeaders.add(updatedHeader);
         }
 
-        if (!headers.isEmpty()) {
-            logger.debug("Applied SameSite=None and Secure to {} cookies", headers.size());
+        for (String updated : updatedHeaders) {
+            response.addHeader(HttpHeaders.SET_COOKIE, updated);
         }
+
+        logger.debug("Applied SameSite=None; Secure; HttpOnly to {} cookies", updatedHeaders.size());
     }
 }
