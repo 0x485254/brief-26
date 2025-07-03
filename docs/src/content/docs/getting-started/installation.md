@@ -35,6 +35,12 @@ DB_PASSWORD=votre_mot_de_passe
 # Configuration de l'application
 APP_PORT=8080
 APP_ENV=dev
+APPLICATION_URL=http://localhost:8080
+
+# Configuration SMTP pour les emails de vérification
+SMTP_SERVER=smtp.example.com
+SMTP_USERNAME=votre_email@exemple.com
+SMTP_PASSWORD=votre_mot_de_passe_smtp
 ```
 
 ## Méthodes d'Installation
@@ -112,6 +118,10 @@ L'application peut être configurée via les fichiers suivants :
 | `DB_PASSWORD` | Mot de passe de la base de données | - |
 | `APP_PORT` | Port sur lequel l'application s'exécute | 8080 |
 | `APP_ENV` | Environnement d'exécution (dev, preprod, prod) | dev |
+| `APPLICATION_URL` | URL de base de l'application (pour les liens dans les emails) | http://localhost:8080 |
+| `SMTP_SERVER` | Serveur SMTP pour l'envoi d'emails | - |
+| `SMTP_USERNAME` | Nom d'utilisateur SMTP | - |
+| `SMTP_PASSWORD` | Mot de passe SMTP | - |
 
 ## Vérification de l'Installation
 
