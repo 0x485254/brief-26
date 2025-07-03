@@ -44,12 +44,9 @@ Voici un aperçu des principaux points de terminaison de l'API :
 
 ### Authentification
 - `POST /api/auth/register` - Enregistrement d'un nouvel utilisateur
+- `GET /api/auth/verify` - Vérification de l'email d'un utilisateur
 - `POST /api/auth/login` - Authentification d'un utilisateur
-
-### Authentification par Cookie (HTTP-Only)
-- `POST /api/auth/cookie/register` - Enregistrement d'un nouvel utilisateur avec cookie
-- `POST /api/auth/cookie/login` - Authentification d'un utilisateur avec cookie
-- `POST /api/auth/cookie/logout` - Déconnexion d'un utilisateur (suppression du cookie)
+- `POST /api/auth/logout` - Déconnexion d'un utilisateur (suppression du cookie JWT)
 
 Pour plus de détails sur les points de terminaison disponibles, consultez la [Référence de l'API](/api-reference/).
 
