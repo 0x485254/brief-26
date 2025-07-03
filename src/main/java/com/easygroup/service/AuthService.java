@@ -53,7 +53,7 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(password));
         user.setFirstName(firstName);
         user.setLastName(lastName);
-        user.setIsActivated(true);
+        user.setIsActivated(false);
         user.setCguDate(LocalDate.now());
         user.setRole(User.Role.USER);
 
@@ -90,5 +90,13 @@ public class AuthService {
         user.setIsActivated(isActivated);
         user.setUpdatedAt(LocalDateTime.now());
         return userRepository.save(user);
+    }
+
+    public void verifyAccount(String token){
+        String email = jwtService.extractUsername(token);
+        User user = userService.findByEmail(email).orElseThrow();
+        user.setIsActivated(true);
+
+        userRepository.save(user);
     }
 }

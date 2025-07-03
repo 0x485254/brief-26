@@ -124,6 +124,19 @@ public class JwtService {
     }
 
     /**
+     * Generate a token from a User entity.
+     *
+     * @param user the user entity
+     * @return the generated JWT token
+     */
+    public String generateValidationToken(User user) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", user.getId().toString());
+
+        return createToken(claims, user.getEmail());
+    }
+
+    /**
      * Create a token with custom claims and subject (email).
      *
      * @param claims  the claims map
