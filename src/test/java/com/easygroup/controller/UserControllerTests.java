@@ -22,12 +22,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-/**
- * SIMPLE unit tests for UserController
- * No Spring context, no security, just pure controller logic testing
- */
 @ExtendWith(MockitoExtension.class)
-class UserControllerTest {
+class UserControllerTests {
 
         @Mock
         private UserService userService;
@@ -48,8 +44,8 @@ class UserControllerTest {
                 testUser = new User();
                 testUser.setId(userId);
                 testUser.setEmail("user@test.com");
-                testUser.setFirstName("John");
-                testUser.setLastName("Doe");
+                testUser.setFirstName("Dodo");
+                testUser.setLastName("Dada");
                 testUser.setRole(User.Role.USER);
                 testUser.setIsActivated(true);
 
@@ -91,14 +87,14 @@ class UserControllerTest {
         @Test
         void updateCurrentUser_Success() {
                 UserUpdateRequest request = new UserUpdateRequest();
-                request.setFirstName("Jane");
-                request.setLastName("Smith");
+                request.setFirstName("Lala");
+                request.setLastName("Dada");
 
                 User updatedUser = new User();
                 updatedUser.setId(userId);
                 updatedUser.setEmail("user@test.com");
-                updatedUser.setFirstName("Jane");
-                updatedUser.setLastName("Smith");
+                updatedUser.setFirstName("Lala");
+                updatedUser.setLastName("Dada");
 
                 when(userService.findByEmail("user@test.com")).thenReturn(Optional.of(testUser));
                 when(userService.save(any(User.class))).thenReturn(updatedUser);
@@ -107,16 +103,16 @@ class UserControllerTest {
 
                 assertEquals(HttpStatus.OK, result.getStatusCode());
                 assertNotNull(result.getBody());
-                assertEquals("Jane", result.getBody().getFirstName());
-                assertEquals("Smith", result.getBody().getLastName());
+                assertEquals("Lala", result.getBody().getFirstName());
+                assertEquals("Dada", result.getBody().getLastName());
                 verify(userService).save(testUser);
         }
 
         @Test
         void updateCurrentUser_UserNotFound_ReturnsNotFound() {
                 UserUpdateRequest request = new UserUpdateRequest();
-                request.setFirstName("Jane");
-                request.setLastName("Smith");
+                request.setFirstName("Lala");
+                request.setLastName("Dada");
 
                 when(userService.findByEmail("user@test.com")).thenReturn(Optional.empty());
 
@@ -144,7 +140,6 @@ class UserControllerTest {
 
                 ResponseEntity<Void> result = userController.deleteCurrentUser(testUser);
 
-                // Assert
                 assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
                 verify(userService, never()).deleteById(any());
         }
