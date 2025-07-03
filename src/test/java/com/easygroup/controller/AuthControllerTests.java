@@ -135,7 +135,7 @@ class AuthControllerTests {
 
                 assertEquals(HttpStatus.FOUND, result.getStatusCode());
                 assertTrue(result.getHeaders().containsKey("Location"));
-                assertEquals("https://brief-react-v3-groupshuffle.vercel.app/login",
+                assertEquals("https://brief-react-v3-groupshuffle-11e877.gitlab.io/#/login",
                                 result.getHeaders().get("Location").get(0));
                 verify(authService).verifyAccount(validationToken);
         }
