@@ -326,9 +326,7 @@ Permet de rechercher des personnes par nom dans une liste.
 
 ### En-têtes de la Requête
 
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
+Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement inclus dans la requête.
 
 ### Paramètres de Requête
 
@@ -369,9 +367,7 @@ Permet de filtrer les personnes par attribut.
 
 ### En-têtes de la Requête
 
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
+Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement inclus dans la requête.
 
 ### Paramètres de Requête
 
@@ -449,9 +445,10 @@ Permet d'ajouter plusieurs personnes à une liste en une seule requête.
 ### En-têtes de la Requête
 
 ```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 Content-Type: application/json
 ```
+
+Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement inclus dans la requête.
 
 ### Corps de la Requête
 
@@ -529,9 +526,10 @@ Permet de supprimer plusieurs personnes en une seule requête.
 ### En-têtes de la Requête
 
 ```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 Content-Type: application/json
 ```
+
+Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement inclus dans la requête.
 
 ### Corps de la Requête
 
@@ -559,9 +557,10 @@ Permet de déplacer une personne d'une liste à une autre.
 ### En-têtes de la Requête
 
 ```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 Content-Type: application/json
 ```
+
+Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement inclus dans la requête.
 
 ### Corps de la Requête
 
@@ -604,9 +603,10 @@ Permet de déplacer plusieurs personnes d'une liste à une autre en une seule re
 ### En-têtes de la Requête
 
 ```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 Content-Type: application/json
 ```
+
+Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement inclus dans la requête.
 
 ### Corps de la Requête
 
