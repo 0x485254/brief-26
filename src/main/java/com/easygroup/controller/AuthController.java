@@ -196,7 +196,7 @@ public class AuthController {
         System.out.println("-----------------ACTIVATED-------------------");
         System.out.println(user.get().getIsActivated());
 
-        if (user.isEmpty() || user.get().getIsActivated() ) {
+        if (user.isEmpty() || !user.get().getIsActivated() ) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
