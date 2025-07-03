@@ -27,13 +27,26 @@ public class SameSiteCookieFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         filterChain.doFilter(request, response);
 
-
+        if (!sameSiteCookieEnabled) {
+            return;
+        }
 
         Collection<String> headers = response.getHeaders(HttpHeaders.SET_COOKIE);
         boolean first = true;
 
         for (String header : headers) {
-            String updatedHeader = header + "; SameSite=None";
+            String updatedHeader = header;
+
+            // Ajouter SameSite=None si absent
+            if (!updatedHeader.toLowerCase().contains("samesite")) {
+                updatedHeader += "; SameSite=None";
+            }
+
+            // Ajouter Secure si absent
+            if (!updatedHeader.toLowerCase().contains("secure")) {
+                updatedHeader += "; Secure";
+            }
+
             if (first) {
                 response.setHeader(HttpHeaders.SET_COOKIE, updatedHeader);
                 first = false;
@@ -43,7 +56,7 @@ public class SameSiteCookieFilter extends OncePerRequestFilter {
         }
 
         if (!headers.isEmpty()) {
-            logger.debug("Applied SameSite=Lax attribute to {} cookies", headers.size());
+            logger.debug("Applied SameSite=None and Secure to {} cookies", headers.size());
         }
     }
 }
