@@ -33,7 +33,7 @@ public class SameSiteCookieFilter extends OncePerRequestFilter {
         boolean first = true;
 
         for (String header : headers) {
-            String updatedHeader = header + "; SameSite=Lax";
+            String updatedHeader = header + "; SameSite=None";
             if (first) {
                 response.setHeader(HttpHeaders.SET_COOKIE, updatedHeader);
                 first = false;
