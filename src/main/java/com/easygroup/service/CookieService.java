@@ -30,7 +30,7 @@ public class CookieService {
     @Value("${cookie.jwt.domain:}")
     private String domain;
 
-    @Value("${cookie.jwt.same-site:Strict}")
+    @Value("${cookie.jwt.same-site:None}")
     private String sameSite;
 
     /**
