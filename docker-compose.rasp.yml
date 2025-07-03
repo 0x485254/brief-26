@@ -21,7 +21,7 @@ services:
 
     # Configuration CORS pour le frontend local et distant
       - CORS_ENABLED=true
-      - CORS_URLS=${CORS_URLS:-http://localhost:5173, https://brief-react-v3-groupshuffle.vercel.app}
+      - CORS_URLS=${CORS_URLS:-http://localhost:5173, https://brief-react-v3-groupshuffle.vercel.app, https://brief-react-v3-groupshuffle-11e877.gitlab.io}
 
       # - SPRING_CONTEXT_PATH=/easy-api
     restart: unless-stopped
