@@ -24,7 +24,7 @@ Pour ajouter une personne à une liste, envoyez une requête POST à l'endpoint 
 ```bash
 curl -X POST http://localhost:8080/api/lists/1/persons \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer votre_token_jwt" \
+  -b cookies.txt \
   -d '{
     "firstName": "Jean",
     "lastName": "Dupont",
@@ -63,7 +63,7 @@ Pour récupérer toutes les personnes d'une liste, utilisez l'endpoint `/api/lis
 
 ```bash
 curl -X GET http://localhost:8080/api/lists/1/persons \
-  -H "Authorization: Bearer votre_token_jwt"
+  -b cookies.txt
 ```
 
 Vous recevrez une réponse paginée contenant les personnes de la liste (voir l'exemple dans le [guide de gestion des listes](/user-guide/list-management#récupération-des-personnes-dune-liste)).
@@ -74,7 +74,7 @@ Pour récupérer les détails d'une personne spécifique, utilisez l'endpoint `/
 
 ```bash
 curl -X GET http://localhost:8080/api/persons/1 \
-  -H "Authorization: Bearer votre_token_jwt"
+  -b cookies.txt
 ```
 
 Vous recevrez une réponse contenant les détails de la personne :
@@ -103,20 +103,20 @@ Pour modifier une personne existante, utilisez l'endpoint `/api/persons/{personI
 ```bash
 curl -X PUT http://localhost:8080/api/persons/1 \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer votre_token_jwt" \
+  -b cookies.txt \
   -d '{
     "firstName": "Jean-Pierre",
     "lastName": "Dupont",
     "email": "jean-pierre.dupont@exemple.com",
     "attributes": {
-      "age": 31,
-      "experience": "expert",
+      "age": 32,
+      "experience": "senior",
       "skills": ["java", "spring", "kubernetes"]
     }
   }'
 ```
 
-Vous recevrez une réponse contenant les informations mises à jour :
+Vous recevrez une réponse contenant les détails mis à jour de la personne :
 
 ```json
 {
@@ -125,12 +125,12 @@ Vous recevrez une réponse contenant les informations mises à jour :
   "lastName": "Dupont",
   "email": "jean-pierre.dupont@exemple.com",
   "attributes": {
-    "age": 31,
-    "experience": "expert",
+    "age": 32,
+    "experience": "senior",
     "skills": ["java", "spring", "kubernetes"]
   },
   "createdAt": "2023-07-03T12:34:56Z",
-  "updatedAt": "2023-07-03T13:45:67Z",
+  "updatedAt": "2023-07-03T14:45:12Z",
   "listId": 1
 }
 ```
@@ -141,78 +141,61 @@ Pour supprimer une personne, utilisez l'endpoint `/api/persons/{personId}` avec 
 
 ```bash
 curl -X DELETE http://localhost:8080/api/persons/1 \
-  -H "Authorization: Bearer votre_token_jwt"
+  -b cookies.txt
 ```
 
 En cas de succès, vous recevrez une réponse avec le code 204 No Content.
 
 ## Gestion des Attributs d'une Personne
 
-Les attributs sont des caractéristiques associées à une personne. Ils peuvent être de différents types :
+Les attributs sont des informations supplémentaires associées à une personne, qui peuvent être utilisées pour équilibrer les groupes. Ils sont stockés sous forme de paires clé-valeur.
 
-- **Numériques** : Âge, années d'expérience, etc.
-- **Catégoriels** : Niveau d'expérience (débutant, intermédiaire, expert), rôle, etc.
-- **Listes** : Compétences, langues parlées, etc.
+### Ajout ou Modification d'un Attribut
 
-### Ajout ou Modification d'Attributs
-
-Pour ajouter ou modifier des attributs d'une personne, utilisez l'endpoint `/api/persons/{personId}/attributes` avec la méthode PUT :
+Pour ajouter ou modifier un attribut d'une personne, utilisez l'endpoint `/api/persons/{personId}/attributes` avec la méthode PUT :
 
 ```bash
 curl -X PUT http://localhost:8080/api/persons/1/attributes \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer votre_token_jwt" \
+  -b cookies.txt \
   -d '{
-    "age": 32,
-    "experience": "expert",
-    "skills": ["java", "spring", "kubernetes", "docker"],
-    "languages": ["french", "english"],
-    "role": "developer"
+    "department": "IT",
+    "yearsOfExperience": 5
   }'
 ```
 
-Vous recevrez une réponse contenant les attributs mis à jour :
+Vous recevrez une réponse contenant les attributs mis à jour de la personne :
 
 ```json
 {
   "age": 32,
-  "experience": "expert",
-  "skills": ["java", "spring", "kubernetes", "docker"],
-  "languages": ["french", "english"],
-  "role": "developer"
+  "experience": "senior",
+  "skills": ["java", "spring", "kubernetes"],
+  "department": "IT",
+  "yearsOfExperience": 5
 }
 ```
 
 ### Suppression d'un Attribut
 
-Pour supprimer un attribut spécifique d'une personne, utilisez l'endpoint `/api/persons/{personId}/attributes/{attributeName}` avec la méthode DELETE :
+Pour supprimer un attribut d'une personne, utilisez l'endpoint `/api/persons/{personId}/attributes/{attributeName}` avec la méthode DELETE :
 
 ```bash
-curl -X DELETE http://localhost:8080/api/persons/1/attributes/role \
-  -H "Authorization: Bearer votre_token_jwt"
+curl -X DELETE http://localhost:8080/api/persons/1/attributes/yearsOfExperience \
+  -b cookies.txt
 ```
 
 En cas de succès, vous recevrez une réponse avec le code 204 No Content.
 
-## Importation et Exportation de Personnes
-
-### Importation depuis un fichier CSV
-
-Pour importer des personnes dans une liste à partir d'un fichier CSV, consultez la section [Importation depuis un fichier CSV](/user-guide/list-management#importation-depuis-un-fichier-csv) du guide de gestion des listes.
-
-### Exportation vers un fichier CSV
-
-Pour exporter les personnes d'une liste au format CSV, consultez la section [Exportation vers un fichier CSV](/user-guide/list-management#exportation-vers-un-fichier-csv) du guide de gestion des listes.
-
 ## Recherche et Filtrage de Personnes
 
-### Recherche par nom
+### Recherche par Nom
 
 Pour rechercher des personnes par nom dans une liste, utilisez l'endpoint `/api/lists/{listId}/persons/search` :
 
 ```bash
-curl -X GET "http://localhost:8080/api/lists/1/persons/search?name=jean" \
-  -H "Authorization: Bearer votre_token_jwt"
+curl -X GET "http://localhost:8080/api/lists/1/persons/search?name=dupont" \
+  -b cookies.txt
 ```
 
 Vous recevrez une réponse contenant les personnes correspondantes :
@@ -226,94 +209,129 @@ Vous recevrez une réponse contenant les personnes correspondantes :
     "email": "jean-pierre.dupont@exemple.com",
     "attributes": {
       "age": 32,
-      "experience": "expert",
-      "skills": ["java", "spring", "kubernetes", "docker"],
-      "languages": ["french", "english"]
-    },
-    "createdAt": "2023-07-03T12:34:56Z",
-    "updatedAt": "2023-07-03T13:45:67Z"
+      "experience": "senior",
+      "skills": ["java", "spring", "kubernetes"],
+      "department": "IT"
+    }
   }
 ]
 ```
 
-### Filtrage par attribut
+### Filtrage par Attribut
 
-Pour filtrer les personnes par attribut, utilisez les paramètres de requête correspondants :
+Pour filtrer les personnes par attribut dans une liste, utilisez les paramètres de requête sur l'endpoint `/api/lists/{listId}/persons` :
 
 ```bash
-curl -X GET "http://localhost:8080/api/lists/1/persons?attribute.experience=expert&attribute.age.gte=30" \
-  -H "Authorization: Bearer votre_token_jwt"
+curl -X GET "http://localhost:8080/api/lists/1/persons?attribute.experience=senior&attribute.department=IT" \
+  -b cookies.txt
 ```
 
-Cette requête retourne toutes les personnes de la liste 1 qui ont un niveau d'expérience "expert" et un âge supérieur ou égal à 30 ans.
+Vous recevrez une réponse paginée contenant les personnes correspondantes.
 
-## Gestion en Masse des Personnes
+## Importation et Exportation de Personnes
 
-### Ajout de plusieurs personnes
+### Importation depuis un Fichier CSV
 
-Pour ajouter plusieurs personnes à une liste en une seule requête, utilisez l'endpoint `/api/lists/{listId}/persons/batch` :
+Pour importer des personnes dans une liste à partir d'un fichier CSV, utilisez l'endpoint `/api/lists/{listId}/import` (voir le [guide de gestion des listes](/user-guide/list-management#importation-de-personnes-depuis-un-fichier-csv)).
 
-```bash
-curl -X POST http://localhost:8080/api/lists/1/persons/batch \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer votre_token_jwt" \
-  -d '[
-    {
-      "firstName": "Pierre",
-      "lastName": "Martin",
-      "email": "pierre.martin@exemple.com",
-      "attributes": {
-        "age": 28,
-        "experience": "beginner",
-        "skills": ["javascript", "react"]
-      }
-    },
-    {
-      "firstName": "Sophie",
-      "lastName": "Dubois",
-      "email": "sophie.dubois@exemple.com",
-      "attributes": {
-        "age": 35,
-        "experience": "intermediate",
-        "skills": ["python", "django"]
-      }
-    }
-  ]'
-```
+### Exportation vers un Fichier CSV
 
-### Suppression de plusieurs personnes
+Pour exporter les personnes d'une liste vers un fichier CSV, utilisez l'endpoint `/api/lists/{listId}/export` (voir le [guide de gestion des listes](/user-guide/list-management#exportation-de-personnes-vers-un-fichier-csv)).
 
-Pour supprimer plusieurs personnes en une seule requête, utilisez l'endpoint `/api/persons/batch` avec la méthode DELETE :
+## Gestion des Attributs Personnalisés
+
+### Définition des Attributs d'une Liste
+
+Pour définir les attributs disponibles pour les personnes d'une liste, utilisez l'endpoint `/api/lists/{listId}/attributes` avec la méthode PUT :
 
 ```bash
-curl -X DELETE http://localhost:8080/api/persons/batch \
+curl -X PUT http://localhost:8080/api/lists/1/attributes \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer votre_token_jwt" \
+  -b cookies.txt \
   -d '{
-    "personIds": [2, 3]
+    "attributes": [
+      {
+        "name": "age",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "experience",
+        "type": "string",
+        "enum": ["beginner", "intermediate", "senior"],
+        "required": true
+      },
+      {
+        "name": "skills",
+        "type": "array",
+        "required": false
+      },
+      {
+        "name": "department",
+        "type": "string",
+        "required": false
+      }
+    ]
   }'
 ```
 
+Vous recevrez une réponse contenant les attributs définis pour la liste :
+
+```json
+{
+  "attributes": [
+    {
+      "name": "age",
+      "type": "number",
+      "required": true
+    },
+    {
+      "name": "experience",
+      "type": "string",
+      "enum": ["beginner", "intermediate", "senior"],
+      "required": true
+    },
+    {
+      "name": "skills",
+      "type": "array",
+      "required": false
+    },
+    {
+      "name": "department",
+      "type": "string",
+      "required": false
+    }
+  ]
+}
+```
+
+### Récupération des Attributs d'une Liste
+
+Pour récupérer les attributs définis pour une liste, utilisez l'endpoint `/api/lists/{listId}/attributes` :
+
+```bash
+curl -X GET http://localhost:8080/api/lists/1/attributes \
+  -b cookies.txt
+```
+
+Vous recevrez une réponse contenant les attributs définis pour la liste.
+
 ## Bonnes Pratiques
 
-### Structure des Attributs
+### Organisation des Personnes
 
-- Utilisez des noms d'attributs cohérents pour toutes les personnes d'une même liste
-- Utilisez des types de données appropriés pour chaque attribut (nombres pour les valeurs numériques, chaînes pour les valeurs catégorielles, tableaux pour les listes)
-- Évitez les attributs trop spécifiques qui ne s'appliquent qu'à quelques personnes
+- Utilisez des noms complets pour faciliter l'identification
+- Ajoutez des adresses email pour permettre la communication
+- Utilisez des attributs cohérents pour toutes les personnes d'une liste
 
-### Gestion des Données Personnelles
+### Gestion des Attributs
 
-- Respectez les réglementations sur la protection des données (RGPD, etc.)
-- N'incluez pas d'informations sensibles dans les attributs
-- Informez les personnes de la collecte et de l'utilisation de leurs données
+- Définissez clairement les attributs importants pour votre contexte
+- Utilisez des types d'attributs appropriés (nombre, texte, liste, etc.)
+- Assurez-vous que les attributs utilisés pour l'équilibrage sont renseignés pour toutes les personnes
 
-### Optimisation des Performances
+### Importation et Exportation
 
-- Limitez le nombre d'attributs par personne pour éviter de surcharger le système
-- Utilisez l'importation en masse pour ajouter de nombreuses personnes
-- Utilisez les filtres pour récupérer uniquement les personnes nécessaires
-
-## Étapes Suivantes
-
-Maintenant que vous savez comment gérer les personnes dans vos listes, vous pouvez passer à la [création de groupes](/user-guide/group-creation) pour apprendre à générer des groupes équilibrés à partir de vos listes.
+- Préparez soigneusement vos fichiers CSV pour l'importation
+- Vérifiez que les en-têtes de colonnes correspondent aux noms d'attributs
+- Exportez régulièrement vos listes pour sauvegarder vos données
