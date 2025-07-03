@@ -2,6 +2,8 @@ package com.easygroup.config;
 
 import com.easygroup.entity.*;
 import com.easygroup.repository.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,13 +27,19 @@ public class DataSeeder implements CommandLineRunner {
     private final GroupRepository groupRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    private static final int MAX_ATTEMPTS = 10;
+    private static final int RETRY_DELAY_MS = 2000;
+
     public DataSeeder(UserRepository userRepository,
-            ListRepository listRepository,
-            PersonRepository personRepository,
-            ListShareRepository listShareRepository,
-            DrawRepository drawRepository,
-            GroupRepository groupRepository,
-            PasswordEncoder passwordEncoder) {
+                      ListRepository listRepository,
+                      PersonRepository personRepository,
+                      ListShareRepository listShareRepository,
+                      DrawRepository drawRepository,
+                      GroupRepository groupRepository,
+                      PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.listRepository = listRepository;
         this.personRepository = personRepository;
@@ -43,19 +51,49 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // Supprime toutes les données dans le bon ordre (relations dépendantes en
-        // dernier)
-        // groupRepository.deleteAll();
-        // drawRepository.deleteAll();
-        // listShareRepository.deleteAll();
-        // personRepository.deleteAll();
-        // listRepository.deleteAll();
-        // userRepository.deleteAll();
+        System.out.println("[DataSeeder] Waiting for JPA metamodel to be ready...");
 
-        if (userRepository.count() > 0) {
+        if (!waitForEntity(User.class)) {
+            System.err.println("[DataSeeder] Entity 'User' not available after retries. Skipping fixture.");
             return;
         }
 
+        if (userRepository.count() > 0) {
+            System.out.println("[DataSeeder] Users already exist. Skipping fixture.");
+            return;
+        }
+
+        System.out.println("[DataSeeder] Loading fixture...");
+        populateFixture();
+    }
+
+    private boolean waitForEntity(Class<?> entityClass) {
+        for (int i = 1; i <= MAX_ATTEMPTS; i++) {
+            if (entityExists(entityClass)) {
+                System.out.println("[DataSeeder] Entity '" + entityClass.getSimpleName() + "' is ready.");
+                return true;
+            }
+            System.out.println("[DataSeeder] Attempt " + i + "/" + MAX_ATTEMPTS + ": entity '" + entityClass.getSimpleName() + "' not ready yet...");
+            try {
+                Thread.sleep(RETRY_DELAY_MS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+        }
+        return false;
+    }
+
+    private boolean entityExists(Class<?> entityClass) {
+        try {
+            entityManager.getMetamodel().entity(entityClass);
+            return true;
+        } catch (IllegalArgumentException ex) {
+            return false;
+        }
+    }
+
+    private void populateFixture() {
         Map<Integer, User> users = new HashMap<>();
         for (int i = 1; i <= 20; i++) {
             User user = new User();
@@ -98,7 +136,6 @@ public class DataSeeder implements CommandLineRunner {
                     persons.add(p);
                 }
 
-                // Share list with next user (looping around)
                 User shareWith = users.get(i == 20 ? 1 : i + 1);
                 ListShare share = new ListShare();
                 share.setId(fixedUuid(5000 + (i - 1) * 10 + j));
@@ -106,7 +143,6 @@ public class DataSeeder implements CommandLineRunner {
                 share.setSharedWithUser(shareWith);
                 listShareRepository.save(share);
 
-                // Create a draw with 4 groups
                 Draw draw = new Draw();
                 draw.setId(fixedUuid(3000 + (i - 1) * 10 + j));
                 draw.setList(list);
@@ -133,6 +169,8 @@ public class DataSeeder implements CommandLineRunner {
                 groupRepository.saveAll(groups);
             }
         }
+
+        System.out.println("[DataSeeder] Fixture loaded successfully.");
     }
 
     private UUID fixedUuid(int suffix) {

@@ -109,8 +109,8 @@ public class ListService {
         listRepository.deleteById(id);
     }
 
-public ListEntity findByIdAndUserId(UUID listId, UUID userId) {
-    return listRepository.findByIdAndUser_Id(listId, userId).orElse(null);
-}
+    public ListEntity findByIdAndUserId(UUID listId, UUID userId) {
+        return listRepository.findByIdAndUser_Id(listId, userId).orElse(null);
+    }
 
 }

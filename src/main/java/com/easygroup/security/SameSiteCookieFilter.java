@@ -27,10 +27,7 @@ public class SameSiteCookieFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         filterChain.doFilter(request, response);
 
-        if (!sameSiteCookieEnabled) {
-            logger.debug("SameSite cookie filter is disabled");
-            return;
-        }
+
 
         Collection<String> headers = response.getHeaders(HttpHeaders.SET_COOKIE);
         boolean first = true;
