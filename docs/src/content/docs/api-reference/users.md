@@ -262,9 +262,7 @@ Permet à un utilisateur authentifié de révoquer une session spécifique.
 
 ### En-têtes de la Requête
 
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
+Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement inclus dans la requête.
 
 ### Réponse en Cas de Succès
 
@@ -281,9 +279,7 @@ Permet à un utilisateur authentifié de révoquer toutes ses sessions sauf la s
 
 ### En-têtes de la Requête
 
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
+Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement inclus dans la requête.
 
 ### Réponse en Cas de Succès
 
@@ -304,9 +300,7 @@ Permet à un administrateur de récupérer la liste de tous les utilisateurs.
 
 ### En-têtes de la Requête
 
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
+Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement inclus dans la requête.
 
 ### Paramètres de Requête
 
@@ -384,9 +378,7 @@ Permet à un administrateur de récupérer un utilisateur spécifique par son ID
 
 ### En-têtes de la Requête
 
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
+Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement inclus dans la requête.
 
 ### Réponse en Cas de Succès
 
@@ -418,9 +410,10 @@ Permet à un administrateur d'activer ou de désactiver un compte utilisateur.
 ### En-têtes de la Requête
 
 ```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 Content-Type: application/json
 ```
+
+Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement inclus dans la requête.
 
 ### Corps de la Requête
 
@@ -460,9 +453,10 @@ Permet à un administrateur de modifier le rôle d'un utilisateur.
 ### En-têtes de la Requête
 
 ```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 Content-Type: application/json
 ```
+
+Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement inclus dans la requête.
 
 ### Corps de la Requête
 
@@ -501,9 +495,7 @@ Permet à un administrateur de supprimer un compte utilisateur.
 
 ### En-têtes de la Requête
 
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
+Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement inclus dans la requête.
 
 ### Réponse en Cas de Succès
 
