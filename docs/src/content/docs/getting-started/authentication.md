@@ -5,16 +5,13 @@ description: Guide d'authentification pour l'API EasyGroup
 
 # Authentification avec l'API EasyGroup
 
-Ce guide explique les différentes méthodes d'authentification disponibles dans l'API EasyGroup et comment les utiliser.
+Ce guide explique la méthode d'authentification disponible dans l'API EasyGroup et comment l'utiliser.
 
 ## Vue d'ensemble
 
-L'API EasyGroup propose deux méthodes d'authentification principales :
+L'API EasyGroup utilise l'authentification par Cookie HTTP-Only, qui est recommandée pour les applications web car elle offre une meilleure sécurité contre les attaques XSS (Cross-Site Scripting).
 
-1. **Authentification par JWT (JSON Web Token)** - Recommandée pour les applications frontend et les clients API
-2. **Authentification par Cookie HTTP-Only** - Recommandée pour les applications web avec serveur
-
-## Authentification par JWT
+## Authentification par Cookie HTTP-Only
 
 ### Inscription
 
@@ -32,68 +29,10 @@ curl -X POST http://localhost:8080/api/auth/register \
 
 ### Connexion
 
-Pour vous authentifier et obtenir un token JWT, envoyez une requête POST à l'endpoint `/api/auth/login` :
+Pour vous authentifier et obtenir un cookie HTTP-Only, envoyez une requête POST à l'endpoint `/api/auth/login` :
 
 ```bash
 curl -X POST http://localhost:8080/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "votre_nom_utilisateur",
-    "password": "votre_mot_de_passe"
-  }'
-```
-
-Vous recevrez une réponse contenant votre token JWT :
-
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "type": "Bearer",
-  "expiresIn": 3600
-}
-```
-
-### Utilisation du Token
-
-Pour accéder aux endpoints protégés, incluez le token JWT dans l'en-tête `Authorization` de vos requêtes :
-
-```bash
-curl -X GET http://localhost:8080/api/users/me \
-  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-```
-
-### Rafraîchissement du Token
-
-Les tokens JWT expirent après une période définie (par défaut : 1 heure). Pour obtenir un nouveau token sans avoir à se reconnecter, utilisez l'endpoint `/api/auth/refresh` :
-
-```bash
-curl -X POST http://localhost:8080/api/auth/refresh \
-  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-```
-
-## Authentification par Cookie HTTP-Only
-
-### Inscription
-
-Pour créer un compte utilisateur avec l'authentification par cookie, envoyez une requête POST à l'endpoint `/api/auth/cookie/register` :
-
-```bash
-curl -X POST http://localhost:8080/api/auth/cookie/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "votre_nom_utilisateur",
-    "email": "votre_email@exemple.com",
-    "password": "votre_mot_de_passe"
-  }' \
-  -c cookies.txt
-```
-
-### Connexion
-
-Pour vous authentifier et obtenir un cookie HTTP-Only, envoyez une requête POST à l'endpoint `/api/auth/cookie/login` :
-
-```bash
-curl -X POST http://localhost:8080/api/auth/cookie/login \
   -H "Content-Type: application/json" \
   -d '{
     "username": "votre_nom_utilisateur",
@@ -117,10 +56,10 @@ Dans un navigateur web, le cookie est automatiquement inclus dans toutes les req
 
 ### Déconnexion
 
-Pour vous déconnecter et supprimer le cookie, envoyez une requête POST à l'endpoint `/api/auth/cookie/logout` :
+Pour vous déconnecter et supprimer le cookie, envoyez une requête POST à l'endpoint `/api/auth/logout` :
 
 ```bash
-curl -X POST http://localhost:8080/api/auth/cookie/logout \
+curl -X POST http://localhost:8080/api/auth/logout \
   -b cookies.txt
 ```
 
@@ -156,12 +95,13 @@ Dans une application web, le token CSRF peut être récupéré via JavaScript et
 
 ## Bonnes Pratiques
 
-### Stockage Sécurisé des Tokens JWT
+### Sécurité des Cookies
 
-Si vous utilisez l'authentification par JWT dans une application frontend :
+L'authentification par Cookie HTTP-Only offre plusieurs avantages de sécurité :
 
-- **Ne stockez pas** le token JWT dans le localStorage ou le sessionStorage, car ils sont vulnérables aux attaques XSS
-- Utilisez plutôt un cookie HttpOnly avec l'authentification par cookie, ou stockez le token dans la mémoire de l'application
+- Les cookies HTTP-Only ne sont pas accessibles via JavaScript, ce qui les protège contre les attaques XSS
+- Les cookies sont automatiquement envoyés avec chaque requête au même domaine
+- La protection CSRF implémentée par EasyGroup empêche les attaques par falsification de requête
 
 ### Gestion des Erreurs d'Authentification
 
@@ -176,35 +116,33 @@ L'API renvoie des codes d'erreur HTTP appropriés en cas de problème d'authenti
 ### Exemple avec JavaScript (Fetch API)
 
 ```javascript
-// Connexion et obtention du token JWT
+// Connexion avec cookies
 async function login(username, password) {
   const response = await fetch('http://localhost:8080/api/auth/login', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ username, password })
+    body: JSON.stringify({ username, password }),
+    credentials: 'include' // Important pour inclure les cookies
   });
-  
-  const data = await response.json();
-  return data.token;
+
+  return await response.json();
 }
 
-// Utilisation du token pour accéder à un endpoint protégé
-async function getUserProfile(token) {
+// Accès à un endpoint protégé avec cookies
+async function getUserProfile() {
   const response = await fetch('http://localhost:8080/api/users/me', {
-    headers: {
-      'Authorization': `Bearer ${token}`
-    }
+    credentials: 'include' // Important pour inclure les cookies
   });
-  
+
   return await response.json();
 }
 
 // Exemple d'utilisation
 async function example() {
-  const token = await login('votre_nom_utilisateur', 'votre_mot_de_passe');
-  const userProfile = await getUserProfile(token);
+  await login('votre_nom_utilisateur', 'votre_mot_de_passe');
+  const userProfile = await getUserProfile();
   console.log(userProfile);
 }
 ```
@@ -214,29 +152,25 @@ async function example() {
 ```javascript
 const axios = require('axios');
 
-// Création d'une instance Axios avec le token JWT
-function createAuthenticatedClient(token) {
+// Création d'une instance Axios avec support des cookies
+function createAuthenticatedClient() {
   return axios.create({
     baseURL: 'http://localhost:8080/api',
-    headers: {
-      'Authorization': `Bearer ${token}`
-    }
+    withCredentials: true // Important pour inclure les cookies
   });
 }
 
 // Exemple d'utilisation
 async function example() {
   // Connexion
-  const loginResponse = await axios.post('http://localhost:8080/api/auth/login', {
+  await axios.post('http://localhost:8080/api/auth/login', {
     username: 'votre_nom_utilisateur',
     password: 'votre_mot_de_passe'
-  });
-  
-  const token = loginResponse.data.token;
-  
+  }, { withCredentials: true });
+
   // Création d'un client authentifié
-  const client = createAuthenticatedClient(token);
-  
+  const client = createAuthenticatedClient();
+
   // Utilisation du client pour accéder à un endpoint protégé
   const userProfileResponse = await client.get('/users/me');
   console.log(userProfileResponse.data);
