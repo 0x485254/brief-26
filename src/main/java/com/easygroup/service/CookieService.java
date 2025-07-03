@@ -60,17 +60,20 @@ public class CookieService {
      * @param token    the JWT token
      */
     public void addTokenCookie(HttpServletResponse response, String token) {
-        // First add the standard cookie
-        Cookie cookie = createCookie(token);
-        response.addCookie(cookie);
+        String cookieName = "JWT_TOKEN";
+        String cookieValue = token;
 
-        // Then set the SameSite attribute using the header approach
-        String cookieHeader = String.format("%s=%s; Max-Age=%d; Path=%s; HttpOnly=%b; Secure=%b; SameSite=%s",
-                cookieName, token, cookieMaxAge, path, httpOnly, secure, sameSite);
-        if (!domain.isEmpty()) {
-            cookieHeader += "; Domain=" + domain;
-        }
-        response.setHeader("Set-Cookie", cookieHeader);
+        // Crée manuellement l'en-tête Set-Cookie complet
+        StringBuilder cookieBuilder = new StringBuilder();
+        cookieBuilder.append(cookieName).append("=").append(cookieValue).append(";");
+        cookieBuilder.append("Path=/;");
+        cookieBuilder.append("HttpOnly;");
+        cookieBuilder.append("Secure;");
+        cookieBuilder.append("SameSite=None;");
+        cookieBuilder.append("Max-Age=").append(60 * 60 * 24).append(";"); // 1 jour
+
+        // Écrit directement l'en-tête
+        response.addHeader("Set-Cookie", cookieBuilder.toString());
     }
 
     /**
