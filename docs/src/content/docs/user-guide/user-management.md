@@ -39,7 +39,7 @@ Pour récupérer les informations de votre propre compte utilisateur, utilisez l
 
 ```bash
 curl -X GET http://localhost:8080/api/users/me \
-  -H "Authorization: Bearer votre_token_jwt"
+  -b cookies.txt
 ```
 
 Vous recevrez une réponse similaire à :
@@ -60,7 +60,7 @@ Pour récupérer les informations d'un autre utilisateur (si vous avez les permi
 
 ```bash
 curl -X GET http://localhost:8080/api/users/2 \
-  -H "Authorization: Bearer votre_token_jwt"
+  -b cookies.txt
 ```
 
 ## Modification des Informations d'un Utilisateur
@@ -70,7 +70,7 @@ Pour modifier les informations de votre compte utilisateur, utilisez l'endpoint 
 ```bash
 curl -X PUT http://localhost:8080/api/users/me \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer votre_token_jwt" \
+  -b cookies.txt \
   -d '{
     "username": "nouveau_nom_utilisateur",
     "email": "nouvel_email@exemple.com"
@@ -96,7 +96,7 @@ Pour modifier votre mot de passe, utilisez l'endpoint `/api/users/me/password` a
 ```bash
 curl -X PUT http://localhost:8080/api/users/me/password \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer votre_token_jwt" \
+  -b cookies.txt \
   -d '{
     "currentPassword": "votre_mot_de_passe_actuel",
     "newPassword": "votre_nouveau_mot_de_passe"
@@ -111,64 +111,10 @@ Pour supprimer votre compte utilisateur, utilisez l'endpoint `/api/users/me` ave
 
 ```bash
 curl -X DELETE http://localhost:8080/api/users/me \
-  -H "Authorization: Bearer votre_token_jwt"
+  -b cookies.txt
 ```
 
 En cas de succès, vous recevrez une réponse avec le code 204 No Content.
-
-## Gestion des Rôles et Permissions
-
-### Rôles disponibles
-
-L'API EasyGroup définit plusieurs rôles pour les utilisateurs :
-
-- **USER** : Rôle de base pour tous les utilisateurs
-- **ADMIN** : Rôle administrateur avec des permissions étendues
-
-### Attribution de rôles (Administrateurs uniquement)
-
-Les administrateurs peuvent attribuer des rôles aux utilisateurs via l'endpoint `/api/users/{userId}/roles` :
-
-```bash
-curl -X PUT http://localhost:8080/api/users/2/roles \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer votre_token_jwt" \
-  -d '{
-    "roles": ["USER", "ADMIN"]
-  }'
-```
-
-## Recherche d'Utilisateurs
-
-### Recherche par nom d'utilisateur
-
-Pour rechercher des utilisateurs par nom d'utilisateur, utilisez l'endpoint `/api/users/search` :
-
-```bash
-curl -X GET "http://localhost:8080/api/users/search?username=jean" \
-  -H "Authorization: Bearer votre_token_jwt"
-```
-
-Vous recevrez une réponse contenant les utilisateurs correspondants :
-
-```json
-[
-  {
-    "id": 2,
-    "username": "jean_dupont",
-    "email": "jean.dupont@exemple.com",
-    "createdAt": "2023-07-03T12:34:56Z",
-    "updatedAt": "2023-07-03T12:34:56Z"
-  },
-  {
-    "id": 3,
-    "username": "jeanne_martin",
-    "email": "jeanne.martin@exemple.com",
-    "createdAt": "2023-07-03T12:34:56Z",
-    "updatedAt": "2023-07-03T12:34:56Z"
-  }
-]
-```
 
 ## Gestion des Préférences Utilisateur
 
@@ -178,7 +124,21 @@ Pour récupérer vos préférences utilisateur, utilisez l'endpoint `/api/users/
 
 ```bash
 curl -X GET http://localhost:8080/api/users/me/preferences \
-  -H "Authorization: Bearer votre_token_jwt"
+  -b cookies.txt
+```
+
+Vous recevrez une réponse similaire à :
+
+```json
+{
+  "theme": "dark",
+  "language": "fr",
+  "notifications": {
+    "email": true,
+    "push": false
+  },
+  "defaultListView": "grid"
+}
 ```
 
 ### Modification des préférences
@@ -188,44 +148,105 @@ Pour modifier vos préférences utilisateur, utilisez l'endpoint `/api/users/me/
 ```bash
 curl -X PUT http://localhost:8080/api/users/me/preferences \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer votre_token_jwt" \
+  -b cookies.txt \
   -d '{
-    "theme": "dark",
-    "language": "fr",
+    "theme": "light",
+    "language": "en",
     "notifications": {
       "email": true,
-      "push": false
-    }
+      "push": true
+    },
+    "defaultListView": "list"
   }'
 ```
 
-## Gestion des Sessions
+Vous recevrez une réponse contenant les préférences mises à jour.
 
-### Récupération des sessions actives
+## Gestion des Notifications
 
-Pour récupérer la liste de vos sessions actives, utilisez l'endpoint `/api/users/me/sessions` :
+### Récupération des notifications
+
+Pour récupérer vos notifications, utilisez l'endpoint `/api/users/me/notifications` :
 
 ```bash
-curl -X GET http://localhost:8080/api/users/me/sessions \
-  -H "Authorization: Bearer votre_token_jwt"
+curl -X GET http://localhost:8080/api/users/me/notifications \
+  -b cookies.txt
 ```
 
-### Révocation d'une session
+Vous recevrez une réponse contenant la liste de vos notifications :
 
-Pour révoquer une session spécifique, utilisez l'endpoint `/api/users/me/sessions/{sessionId}` avec la méthode DELETE :
-
-```bash
-curl -X DELETE http://localhost:8080/api/users/me/sessions/abc123 \
-  -H "Authorization: Bearer votre_token_jwt"
+```json
+{
+  "content": [
+    {
+      "id": 1,
+      "type": "LIST_SHARED",
+      "message": "Jean Dupont a partagé une liste avec vous",
+      "createdAt": "2023-07-03T12:34:56Z",
+      "read": false,
+      "data": {
+        "listId": 5,
+        "listName": "Équipe Projet X",
+        "sharedBy": "Jean Dupont"
+      }
+    },
+    {
+      "id": 2,
+      "type": "DRAW_COMPLETED",
+      "message": "Le tirage 'Tirage du 15 juillet' est terminé",
+      "createdAt": "2023-07-03T10:20:30Z",
+      "read": true,
+      "data": {
+        "drawId": 3,
+        "drawName": "Tirage du 15 juillet",
+        "listId": 2
+      }
+    }
+  ],
+  "pageable": {
+    "pageNumber": 0,
+    "pageSize": 20,
+    "sort": {
+      "sorted": true,
+      "unsorted": false,
+      "empty": false
+    },
+    "offset": 0,
+    "paged": true,
+    "unpaged": false
+  },
+  "totalPages": 1,
+  "totalElements": 2,
+  "last": true,
+  "size": 20,
+  "number": 0,
+  "sort": {
+    "sorted": true,
+    "unsorted": false,
+    "empty": false
+  },
+  "numberOfElements": 2,
+  "first": true,
+  "empty": false
+}
 ```
 
-### Révocation de toutes les sessions
+### Marquer une notification comme lue
 
-Pour révoquer toutes vos sessions (sauf la session courante), utilisez l'endpoint `/api/users/me/sessions` avec la méthode DELETE :
+Pour marquer une notification comme lue, utilisez l'endpoint `/api/users/me/notifications/{notificationId}/read` :
 
 ```bash
-curl -X DELETE http://localhost:8080/api/users/me/sessions \
-  -H "Authorization: Bearer votre_token_jwt"
+curl -X PUT http://localhost:8080/api/users/me/notifications/1/read \
+  -b cookies.txt
+```
+
+### Marquer toutes les notifications comme lues
+
+Pour marquer toutes vos notifications comme lues, utilisez l'endpoint `/api/users/me/notifications/read-all` :
+
+```bash
+curl -X PUT http://localhost:8080/api/users/me/notifications/read-all \
+  -b cookies.txt
 ```
 
 ## Bonnes Pratiques
@@ -234,13 +255,10 @@ curl -X DELETE http://localhost:8080/api/users/me/sessions \
 
 - Utilisez un mot de passe fort et unique
 - Changez régulièrement votre mot de passe
-- Vérifiez régulièrement vos sessions actives et révoquez celles que vous ne reconnaissez pas
+- Ne partagez jamais vos identifiants de connexion
 
-### Gestion des Informations Personnelles
+### Gestion des Données Personnelles
 
-- Utilisez une adresse email valide pour pouvoir récupérer votre compte si nécessaire
-- Mettez à jour vos informations personnelles si elles changent
-
-## Étapes Suivantes
-
-Maintenant que vous savez comment gérer les comptes utilisateurs, vous pouvez passer à la [gestion des listes](/user-guide/list-management) pour apprendre à créer et gérer des listes de personnes.
+- Gardez vos informations de contact à jour
+- Utilisez une adresse email valide pour recevoir les notifications importantes
+- Supprimez votre compte uniquement si vous êtes sûr de ne plus vouloir utiliser le service
