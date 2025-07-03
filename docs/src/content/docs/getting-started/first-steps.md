@@ -12,8 +12,8 @@ Ce guide vous aidera à faire vos premiers pas avec l'API EasyGroup après l'avo
 Pour commencer à utiliser l'API EasyGroup, vous devrez suivre ces étapes :
 
 1. Créer un compte utilisateur
-2. S'authentifier pour obtenir un token JWT
-3. Utiliser ce token pour accéder aux endpoints protégés
+2. S'authentifier pour obtenir un cookie HTTP-Only
+3. Utiliser ce cookie pour accéder aux endpoints protégés
 4. Créer votre première liste
 5. Ajouter des personnes à votre liste
 6. Générer des groupes équilibrés
@@ -45,7 +45,7 @@ Vous recevrez une réponse similaire à :
 
 ## Authentification
 
-Une fois votre compte créé, vous devez vous authentifier pour obtenir un token JWT. Envoyez une requête POST à l'endpoint `/api/auth/login` :
+Une fois votre compte créé, vous devez vous authentifier pour obtenir un cookie HTTP-Only. Envoyez une requête POST à l'endpoint `/api/auth/login` :
 
 ```bash
 curl -X POST http://localhost:8080/api/auth/login \
@@ -53,28 +53,21 @@ curl -X POST http://localhost:8080/api/auth/login \
   -d '{
     "username": "votre_nom_utilisateur",
     "password": "votre_mot_de_passe"
-  }'
+  }' \
+  -c cookies.txt
 ```
 
-Vous recevrez une réponse contenant votre token JWT :
-
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "type": "Bearer",
-  "expiresIn": 3600
-}
-```
+Le serveur définira un cookie HTTP-Only dans votre navigateur, qui sera automatiquement inclus dans les requêtes suivantes.
 
 Pour plus de détails sur l'authentification, consultez le [guide d'authentification](/getting-started/authentication).
 
-## Utilisation du Token JWT
+## Utilisation du Cookie HTTP-Only
 
-Pour accéder aux endpoints protégés, vous devez inclure le token JWT dans l'en-tête `Authorization` de vos requêtes :
+Pour accéder aux endpoints protégés, incluez le cookie dans vos requêtes :
 
 ```bash
 curl -X GET http://localhost:8080/api/users/me \
-  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  -b cookies.txt
 ```
 
 ## Création d'une Liste
@@ -84,7 +77,7 @@ Pour créer une liste, envoyez une requête POST à l'endpoint `/api/lists` :
 ```bash
 curl -X POST http://localhost:8080/api/lists \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+  -b cookies.txt \
   -d '{
     "name": "Ma première liste",
     "description": "Une liste pour tester l'API EasyGroup"
@@ -111,7 +104,7 @@ Pour ajouter une personne à votre liste, envoyez une requête POST à l'endpoin
 ```bash
 curl -X POST http://localhost:8080/api/lists/1/persons \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+  -b cookies.txt \
   -d '{
     "firstName": "Jean",
     "lastName": "Dupont",
@@ -151,7 +144,7 @@ Une fois que vous avez ajouté suffisamment de personnes à votre liste (au moin
 ```bash
 curl -X POST http://localhost:8080/api/lists/1/draws \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+  -b cookies.txt \
   -d '{
     "name": "Mon premier tirage",
     "groupSize": 2,
@@ -233,7 +226,7 @@ Vous pouvez récupérer les groupes générés en envoyant une requête GET à l
 
 ```bash
 curl -X GET http://localhost:8080/api/draws/1 \
-  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  -b cookies.txt
 ```
 
 ## Étapes Suivantes
