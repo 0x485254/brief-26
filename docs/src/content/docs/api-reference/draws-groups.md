@@ -19,7 +19,6 @@ Permet de créer un nouveau tirage à partir d'une liste existante et de génér
 ### En-têtes de la Requête
 
 ```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 Content-Type: application/json
 ```
 
@@ -47,6 +46,35 @@ Content-Type: application/json
     }
   ]
 }
+```
+
+### Exemple de Requête
+
+```bash
+curl -X POST http://localhost:8080/api/lists/1/draws \
+  -H "Content-Type: application/json" \
+  -b cookies.txt \
+  -d '{
+    "title": "Tirage du 15 janvier",
+    "numberOfGroups": 3,
+    "balancingCriteria": [
+      {
+        "attribute": "age",
+        "weight": 2,
+        "strategy": "DISTRIBUTE_EVENLY"
+      },
+      {
+        "attribute": "experience",
+        "weight": 3,
+        "strategy": "DISTRIBUTE_EVENLY"
+      },
+      {
+        "attribute": "skills",
+        "weight": 1,
+        "strategy": "ENSURE_DIVERSITY"
+      }
+    ]
+  }'
 ```
 
 ### Réponse en Cas de Succès
@@ -116,7 +144,7 @@ Content-Type: application/json
         {
           "id": 3,
           "firstName": "Pierre",
-          "lastName": "Martin"
+          "lastName": "Durand"
         },
         {
           "id": 6,
@@ -129,114 +157,82 @@ Content-Type: application/json
 }
 ```
 
-## Récupération des Tirages
+### Réponses d'Erreur
 
-### Récupération de Tous les Tirages d'une Liste
+**Condition** : Si l'utilisateur n'est pas authentifié.
 
-Permet de récupérer tous les tirages associés à une liste spécifique.
+**Code** : 401 Unauthorized
+
+**Condition** : Si l'utilisateur n'a pas accès à la liste spécifiée.
+
+**Code** : 403 Forbidden
+
+**Condition** : Si la liste spécifiée n'existe pas.
+
+**Code** : 404 Not Found
+
+**Condition** : Si les critères d'équilibrage sont invalides.
+
+**Code** : 400 Bad Request
+
+```json
+{
+  "error": "Invalid balancing criteria",
+  "message": "The attribute 'skills' does not exist in the list"
+}
+```
+
+## Récupération des Tirages d'une Liste
+
+Permet de récupérer tous les tirages effectués pour une liste spécifique.
 
 <div class="api-endpoint">
   <span class="method">GET</span>
   <span class="path">/api/lists/{listId}/draws</span>
 </div>
 
-### En-têtes de la Requête
+### Exemple de Requête
 
+```bash
+curl -X GET http://localhost:8080/api/lists/1/draws \
+  -b cookies.txt
 ```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
-
-### Paramètres de Requête
-
-- `page` : Numéro de la page (défaut: 0)
-- `size` : Nombre d'éléments par page (défaut: 20)
-- `sort` : Champ de tri (défaut: createdAt,desc)
 
 ### Réponse en Cas de Succès
 
 **Code** : 200 OK
 
 ```json
-{
-  "content": [
-    {
-      "id": 2,
-      "title": "Tirage du 20 janvier",
-      "createdAt": "2023-01-20T14:15:00Z",
-      "numberOfGroups": 2,
-      "groups": [
-        {
-          "id": 4,
-          "name": "Groupe 1"
-        },
-        {
-          "id": 5,
-          "name": "Groupe 2"
-        }
-      ]
-    },
-    {
-      "id": 1,
-      "title": "Tirage du 15 janvier",
-      "createdAt": "2023-01-15T10:30:00Z",
-      "numberOfGroups": 3,
-      "groups": [
-        {
-          "id": 1,
-          "name": "Groupe 1"
-        },
-        {
-          "id": 2,
-          "name": "Groupe 2"
-        },
-        {
-          "id": 3,
-          "name": "Groupe 3"
-        }
-      ]
-    }
-  ],
-  "pageable": {
-    "pageNumber": 0,
-    "pageSize": 20,
-    "sort": {
-      "sorted": true,
-      "unsorted": false,
-      "empty": false
-    },
-    "offset": 0,
-    "paged": true,
-    "unpaged": false
+[
+  {
+    "id": 1,
+    "title": "Tirage du 15 janvier",
+    "createdAt": "2023-01-15T10:30:00Z",
+    "numberOfGroups": 3
   },
-  "totalPages": 1,
-  "totalElements": 2,
-  "last": true,
-  "size": 20,
-  "number": 0,
-  "sort": {
-    "sorted": true,
-    "unsorted": false,
-    "empty": false
-  },
-  "numberOfElements": 2,
-  "first": true,
-  "empty": false
-}
+  {
+    "id": 2,
+    "title": "Tirage du 20 janvier",
+    "createdAt": "2023-01-20T14:45:00Z",
+    "numberOfGroups": 2
+  }
+]
 ```
 
-### Récupération d'un Tirage Spécifique
+## Récupération d'un Tirage Spécifique
 
-Permet de récupérer les détails d'un tirage spécifique.
+Permet de récupérer les détails d'un tirage spécifique, y compris les groupes générés.
 
 <div class="api-endpoint">
   <span class="method">GET</span>
   <span class="path">/api/draws/{drawId}</span>
 </div>
 
-### En-têtes de la Requête
+### Exemple de Requête
 
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```bash
+curl -X GET http://localhost:8080/api/draws/1 \
+  -b cookies.txt
 ```
 
 ### Réponse en Cas de Succès
@@ -276,9 +272,9 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
           "firstName": "Jean",
           "lastName": "Dupont",
           "attributes": {
-            "age": 30,
-            "experience": "intermediate",
-            "skills": ["java", "spring"]
+            "age": "35",
+            "experience": "senior",
+            "skills": "java,python"
           }
         },
         {
@@ -286,9 +282,9 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
           "firstName": "Sophie",
           "lastName": "Dubois",
           "attributes": {
-            "age": 35,
-            "experience": "intermediate",
-            "skills": ["python", "django"]
+            "age": "28",
+            "experience": "junior",
+            "skills": "javascript,html"
           }
         }
       ]
@@ -302,9 +298,9 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
           "firstName": "Marie",
           "lastName": "Martin",
           "attributes": {
-            "age": 25,
-            "experience": "beginner",
-            "skills": ["javascript", "react"]
+            "age": "42",
+            "experience": "senior",
+            "skills": "c++,rust"
           }
         },
         {
@@ -312,9 +308,9 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
           "firstName": "Thomas",
           "lastName": "Petit",
           "attributes": {
-            "age": 40,
-            "experience": "expert",
-            "skills": ["java", "spring", "kubernetes"]
+            "age": "31",
+            "experience": "mid",
+            "skills": "python,javascript"
           }
         }
       ]
@@ -326,11 +322,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
         {
           "id": 3,
           "firstName": "Pierre",
-          "lastName": "Martin",
+          "lastName": "Durand",
           "attributes": {
-            "age": 28,
-            "experience": "beginner",
-            "skills": ["javascript", "react"]
+            "age": "39",
+            "experience": "senior",
+            "skills": "java,kotlin"
           }
         },
         {
@@ -338,9 +334,9 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
           "firstName": "Julie",
           "lastName": "Robert",
           "attributes": {
-            "age": 32,
-            "experience": "expert",
-            "skills": ["python", "django", "flask"]
+            "age": "25",
+            "experience": "junior",
+            "skills": "html,css"
           }
         }
       ]
@@ -351,7 +347,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ## Modification d'un Tirage
 
-Permet de modifier les informations d'un tirage existant.
+Permet de modifier un tirage existant, y compris ses critères d'équilibrage, et de régénérer les groupes.
 
 <div class="api-endpoint">
   <span class="method">PUT</span>
@@ -361,7 +357,6 @@ Permet de modifier les informations d'un tirage existant.
 ### En-têtes de la Requête
 
 ```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 Content-Type: application/json
 ```
 
@@ -369,8 +364,55 @@ Content-Type: application/json
 
 ```json
 {
-  "title": "Tirage du 15 janvier - Modifié"
+  "title": "Tirage du 15 janvier - Mise à jour",
+  "numberOfGroups": 4,
+  "balancingCriteria": [
+    {
+      "attribute": "age",
+      "weight": 1,
+      "strategy": "DISTRIBUTE_EVENLY"
+    },
+    {
+      "attribute": "experience",
+      "weight": 4,
+      "strategy": "DISTRIBUTE_EVENLY"
+    },
+    {
+      "attribute": "skills",
+      "weight": 2,
+      "strategy": "ENSURE_DIVERSITY"
+    }
+  ]
 }
+```
+
+### Exemple de Requête
+
+```bash
+curl -X PUT http://localhost:8080/api/draws/1 \
+  -H "Content-Type: application/json" \
+  -b cookies.txt \
+  -d '{
+    "title": "Tirage du 15 janvier - Mise à jour",
+    "numberOfGroups": 4,
+    "balancingCriteria": [
+      {
+        "attribute": "age",
+        "weight": 1,
+        "strategy": "DISTRIBUTE_EVENLY"
+      },
+      {
+        "attribute": "experience",
+        "weight": 4,
+        "strategy": "DISTRIBUTE_EVENLY"
+      },
+      {
+        "attribute": "skills",
+        "weight": 2,
+        "strategy": "ENSURE_DIVERSITY"
+      }
+    ]
+  }'
 ```
 
 ### Réponse en Cas de Succès
@@ -380,229 +422,65 @@ Content-Type: application/json
 ```json
 {
   "id": 1,
-  "title": "Tirage du 15 janvier - Modifié",
+  "title": "Tirage du 15 janvier - Mise à jour",
   "createdAt": "2023-01-15T10:30:00Z",
-  "updatedAt": "2023-01-16T09:45:00Z",
-  "numberOfGroups": 3,
+  "updatedAt": "2023-01-16T09:15:00Z",
+  "numberOfGroups": 4,
   "balancingCriteria": [
     {
       "attribute": "age",
-      "weight": 2,
+      "weight": 1,
       "strategy": "DISTRIBUTE_EVENLY"
     },
     {
       "attribute": "experience",
-      "weight": 3,
+      "weight": 4,
       "strategy": "DISTRIBUTE_EVENLY"
     },
     {
       "attribute": "skills",
-      "weight": 1,
+      "weight": 2,
       "strategy": "ENSURE_DIVERSITY"
     }
   ],
   "groups": [
-    {
-      "id": 1,
-      "name": "Groupe 1"
-    },
-    {
-      "id": 2,
-      "name": "Groupe 2"
-    },
-    {
-      "id": 3,
-      "name": "Groupe 3"
-    }
+    // Nouveaux groupes générés
   ]
 }
 ```
 
 ## Suppression d'un Tirage
 
-Permet de supprimer un tirage et tous ses groupes associés.
+Permet de supprimer un tirage existant et tous ses groupes associés.
 
 <div class="api-endpoint">
   <span class="method">DELETE</span>
   <span class="path">/api/draws/{drawId}</span>
 </div>
 
-### En-têtes de la Requête
+### Exemple de Requête
 
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```bash
+curl -X DELETE http://localhost:8080/api/draws/1 \
+  -b cookies.txt
 ```
 
 ### Réponse en Cas de Succès
 
 **Code** : 204 No Content
 
-## Gestion des Groupes
+## Modification Manuelle des Groupes
 
-### Récupération des Groupes d'un Tirage
-
-Permet de récupérer tous les groupes générés pour un tirage spécifique.
+Permet de modifier manuellement la composition des groupes d'un tirage.
 
 <div class="api-endpoint">
-  <span class="method">GET</span>
+  <span class="method">PUT</span>
   <span class="path">/api/draws/{drawId}/groups</span>
 </div>
 
 ### En-têtes de la Requête
 
 ```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
-
-### Réponse en Cas de Succès
-
-**Code** : 200 OK
-
-```json
-[
-  {
-    "id": 1,
-    "name": "Groupe 1",
-    "persons": [
-      {
-        "id": 1,
-        "firstName": "Jean",
-        "lastName": "Dupont",
-        "attributes": {
-          "age": 30,
-          "experience": "intermediate",
-          "skills": ["java", "spring"]
-        }
-      },
-      {
-        "id": 4,
-        "firstName": "Sophie",
-        "lastName": "Dubois",
-        "attributes": {
-          "age": 35,
-          "experience": "intermediate",
-          "skills": ["python", "django"]
-        }
-      }
-    ]
-  },
-  {
-    "id": 2,
-    "name": "Groupe 2",
-    "persons": [
-      {
-        "id": 2,
-        "firstName": "Marie",
-        "lastName": "Martin",
-        "attributes": {
-          "age": 25,
-          "experience": "beginner",
-          "skills": ["javascript", "react"]
-        }
-      },
-      {
-        "id": 5,
-        "firstName": "Thomas",
-        "lastName": "Petit",
-        "attributes": {
-          "age": 40,
-          "experience": "expert",
-          "skills": ["java", "spring", "kubernetes"]
-        }
-      }
-    ]
-  },
-  {
-    "id": 3,
-    "name": "Groupe 3",
-    "persons": [
-      {
-        "id": 3,
-        "firstName": "Pierre",
-        "lastName": "Martin",
-        "attributes": {
-          "age": 28,
-          "experience": "beginner",
-          "skills": ["javascript", "react"]
-        }
-      },
-      {
-        "id": 6,
-        "firstName": "Julie",
-        "lastName": "Robert",
-        "attributes": {
-          "age": 32,
-          "experience": "expert",
-          "skills": ["python", "django", "flask"]
-        }
-      }
-    ]
-  }
-]
-```
-
-### Récupération d'un Groupe Spécifique
-
-Permet de récupérer les détails d'un groupe spécifique.
-
-<div class="api-endpoint">
-  <span class="method">GET</span>
-  <span class="path">/api/groups/{groupId}</span>
-</div>
-
-### En-têtes de la Requête
-
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
-
-### Réponse en Cas de Succès
-
-**Code** : 200 OK
-
-```json
-{
-  "id": 1,
-  "name": "Groupe 1",
-  "drawId": 1,
-  "persons": [
-    {
-      "id": 1,
-      "firstName": "Jean",
-      "lastName": "Dupont",
-      "attributes": {
-        "age": 30,
-        "experience": "intermediate",
-        "skills": ["java", "spring"]
-      }
-    },
-    {
-      "id": 4,
-      "firstName": "Sophie",
-      "lastName": "Dubois",
-      "attributes": {
-        "age": 35,
-        "experience": "intermediate",
-        "skills": ["python", "django"]
-      }
-    }
-  ]
-}
-```
-
-### Modification d'un Groupe
-
-Permet de modifier les informations d'un groupe existant.
-
-<div class="api-endpoint">
-  <span class="method">PUT</span>
-  <span class="path">/api/groups/{groupId}</span>
-</div>
-
-### En-têtes de la Requête
-
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 Content-Type: application/json
 ```
 
@@ -610,244 +488,63 @@ Content-Type: application/json
 
 ```json
 {
-  "name": "Équipe Alpha"
-}
-```
-
-### Réponse en Cas de Succès
-
-**Code** : 200 OK
-
-```json
-{
-  "id": 1,
-  "name": "Équipe Alpha",
-  "drawId": 1,
-  "persons": [
-    {
-      "id": 1,
-      "firstName": "Jean",
-      "lastName": "Dupont"
-    },
-    {
-      "id": 4,
-      "firstName": "Sophie",
-      "lastName": "Dubois"
-    }
-  ]
-}
-```
-
-## Gestion des Personnes dans les Groupes
-
-### Ajout d'une Personne à un Groupe
-
-Permet d'ajouter manuellement une personne à un groupe existant.
-
-<div class="api-endpoint">
-  <span class="method">POST</span>
-  <span class="path">/api/groups/{groupId}/persons/{personId}</span>
-</div>
-
-### En-têtes de la Requête
-
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
-
-### Réponse en Cas de Succès
-
-**Code** : 200 OK
-
-```json
-{
-  "id": 1,
-  "name": "Équipe Alpha",
-  "drawId": 1,
-  "persons": [
-    {
-      "id": 1,
-      "firstName": "Jean",
-      "lastName": "Dupont"
-    },
-    {
-      "id": 4,
-      "firstName": "Sophie",
-      "lastName": "Dubois"
-    },
-    {
-      "id": 7,
-      "firstName": "Lucas",
-      "lastName": "Bernard"
-    }
-  ]
-}
-```
-
-### Suppression d'une Personne d'un Groupe
-
-Permet de retirer manuellement une personne d'un groupe.
-
-<div class="api-endpoint">
-  <span class="method">DELETE</span>
-  <span class="path">/api/groups/{groupId}/persons/{personId}</span>
-</div>
-
-### En-têtes de la Requête
-
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
-
-### Réponse en Cas de Succès
-
-**Code** : 200 OK
-
-```json
-{
-  "id": 1,
-  "name": "Équipe Alpha",
-  "drawId": 1,
-  "persons": [
-    {
-      "id": 1,
-      "firstName": "Jean",
-      "lastName": "Dupont"
-    }
-  ]
-}
-```
-
-### Déplacement d'une Personne entre Groupes
-
-Permet de déplacer une personne d'un groupe à un autre.
-
-<div class="api-endpoint">
-  <span class="method">POST</span>
-  <span class="path">/api/groups/{sourceGroupId}/persons/{personId}/move/{targetGroupId}</span>
-</div>
-
-### En-têtes de la Requête
-
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
-
-### Réponse en Cas de Succès
-
-**Code** : 200 OK
-
-```json
-{
-  "sourceGroup": {
-    "id": 1,
-    "name": "Équipe Alpha",
-    "persons": [
-      {
-        "id": 1,
-        "firstName": "Jean",
-        "lastName": "Dupont"
-      }
-    ]
-  },
-  "targetGroup": {
-    "id": 2,
-    "name": "Groupe 2",
-    "persons": [
-      {
-        "id": 2,
-        "firstName": "Marie",
-        "lastName": "Martin"
-      },
-      {
-        "id": 5,
-        "firstName": "Thomas",
-        "lastName": "Petit"
-      },
-      {
-        "id": 4,
-        "firstName": "Sophie",
-        "lastName": "Dubois"
-      }
-    ]
-  }
-}
-```
-
-## Rééquilibrage des Groupes
-
-### Rééquilibrage Automatique des Groupes
-
-Permet de rééquilibrer automatiquement les groupes d'un tirage existant.
-
-<div class="api-endpoint">
-  <span class="method">POST</span>
-  <span class="path">/api/draws/{drawId}/rebalance</span>
-</div>
-
-### En-têtes de la Requête
-
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-Content-Type: application/json
-```
-
-### Corps de la Requête
-
-```json
-{
-  "balancingCriteria": [
-    {
-      "attribute": "age",
-      "weight": 1,
-      "strategy": "DISTRIBUTE_EVENLY"
-    },
-    {
-      "attribute": "experience",
-      "weight": 3,
-      "strategy": "DISTRIBUTE_EVENLY"
-    },
-    {
-      "attribute": "skills",
-      "weight": 2,
-      "strategy": "ENSURE_DIVERSITY"
-    }
-  ]
-}
-```
-
-### Réponse en Cas de Succès
-
-**Code** : 200 OK
-
-```json
-{
-  "id": 1,
-  "title": "Tirage du 15 janvier - Modifié",
-  "createdAt": "2023-01-15T10:30:00Z",
-  "updatedAt": "2023-01-17T11:20:00Z",
-  "numberOfGroups": 3,
-  "balancingCriteria": [
-    {
-      "attribute": "age",
-      "weight": 1,
-      "strategy": "DISTRIBUTE_EVENLY"
-    },
-    {
-      "attribute": "experience",
-      "weight": 3,
-      "strategy": "DISTRIBUTE_EVENLY"
-    },
-    {
-      "attribute": "skills",
-      "weight": 2,
-      "strategy": "ENSURE_DIVERSITY"
-    }
-  ],
   "groups": [
     {
       "id": 1,
-      "name": "Équipe Alpha",
+      "name": "Groupe A",
+      "personIds": [1, 4, 7]
+    },
+    {
+      "id": 2,
+      "name": "Groupe B",
+      "personIds": [2, 5, 8]
+    },
+    {
+      "id": 3,
+      "name": "Groupe C",
+      "personIds": [3, 6, 9]
+    }
+  ]
+}
+```
+
+### Exemple de Requête
+
+```bash
+curl -X PUT http://localhost:8080/api/draws/1/groups \
+  -H "Content-Type: application/json" \
+  -b cookies.txt \
+  -d '{
+    "groups": [
+      {
+        "id": 1,
+        "name": "Groupe A",
+        "personIds": [1, 4, 7]
+      },
+      {
+        "id": 2,
+        "name": "Groupe B",
+        "personIds": [2, 5, 8]
+      },
+      {
+        "id": 3,
+        "name": "Groupe C",
+        "personIds": [3, 6, 9]
+      }
+    ]
+  }'
+```
+
+### Réponse en Cas de Succès
+
+**Code** : 200 OK
+
+```json
+{
+  "groups": [
+    {
+      "id": 1,
+      "name": "Groupe A",
       "persons": [
         {
           "id": 1,
@@ -855,15 +552,20 @@ Content-Type: application/json
           "lastName": "Dupont"
         },
         {
-          "id": 6,
-          "firstName": "Julie",
-          "lastName": "Robert"
+          "id": 4,
+          "firstName": "Sophie",
+          "lastName": "Dubois"
+        },
+        {
+          "id": 7,
+          "firstName": "Lucas",
+          "lastName": "Moreau"
         }
       ]
     },
     {
       "id": 2,
-      "name": "Groupe 2",
+      "name": "Groupe B",
       "persons": [
         {
           "id": 2,
@@ -874,22 +576,32 @@ Content-Type: application/json
           "id": 5,
           "firstName": "Thomas",
           "lastName": "Petit"
+        },
+        {
+          "id": 8,
+          "firstName": "Emma",
+          "lastName": "Leroy"
         }
       ]
     },
     {
       "id": 3,
-      "name": "Groupe 3",
+      "name": "Groupe C",
       "persons": [
         {
           "id": 3,
           "firstName": "Pierre",
-          "lastName": "Martin"
+          "lastName": "Durand"
         },
         {
-          "id": 4,
-          "firstName": "Sophie",
-          "lastName": "Dubois"
+          "id": 6,
+          "firstName": "Julie",
+          "lastName": "Robert"
+        },
+        {
+          "id": 9,
+          "firstName": "Hugo",
+          "lastName": "Simon"
         }
       ]
     }
@@ -897,75 +609,145 @@ Content-Type: application/json
 }
 ```
 
-## Export des Groupes
+## Exportation des Groupes
 
-### Export des Groupes en CSV
-
-Permet d'exporter les groupes d'un tirage au format CSV.
+Permet d'exporter les groupes d'un tirage dans différents formats.
 
 <div class="api-endpoint">
   <span class="method">GET</span>
-  <span class="path">/api/draws/{drawId}/export/csv</span>
+  <span class="path">/api/draws/{drawId}/export</span>
 </div>
 
-### En-têtes de la Requête
+### Paramètres de Requête
 
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+| Paramètre | Type   | Description                                                |
+|-----------|--------|------------------------------------------------------------|
+| format    | string | Format d'exportation (csv, pdf, xlsx). Par défaut : csv    |
+
+### Exemple de Requête
+
+```bash
+curl -X GET "http://localhost:8080/api/draws/1/export?format=csv" \
+  -b cookies.txt \
+  -o groupes.csv
 ```
 
 ### Réponse en Cas de Succès
 
 **Code** : 200 OK
-**Content-Type** : text/csv
-**Content-Disposition** : attachment; filename="tirage-1-groupes.csv"
 
-```
-Groupe,Prénom,Nom,Email,Âge,Expérience,Compétences
-"Équipe Alpha","Jean","Dupont","jean.dupont@exemple.com",30,"intermediate","java,spring"
-"Équipe Alpha","Julie","Robert","julie.robert@exemple.com",32,"expert","python,django,flask"
-"Groupe 2","Marie","Martin","marie.martin@exemple.com",25,"beginner","javascript,react"
-"Groupe 2","Thomas","Petit","thomas.petit@exemple.com",40,"expert","java,spring,kubernetes"
-"Groupe 3","Pierre","Martin","pierre.martin@exemple.com",28,"beginner","javascript,react"
-"Groupe 3","Sophie","Dubois","sophie.dubois@exemple.com",35,"intermediate","python,django"
-```
+Le contenu de la réponse dépend du format demandé.
 
-### Export des Groupes en PDF
+## Régénération des Groupes
 
-Permet d'exporter les groupes d'un tirage au format PDF.
+Permet de régénérer les groupes d'un tirage existant sans modifier ses critères d'équilibrage.
 
 <div class="api-endpoint">
-  <span class="method">GET</span>
-  <span class="path">/api/draws/{drawId}/export/pdf</span>
+  <span class="method">POST</span>
+  <span class="path">/api/draws/{drawId}/regenerate</span>
 </div>
 
-### En-têtes de la Requête
+### Exemple de Requête
 
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```bash
+curl -X POST http://localhost:8080/api/draws/1/regenerate \
+  -b cookies.txt
 ```
 
 ### Réponse en Cas de Succès
 
 **Code** : 200 OK
-**Content-Type** : application/pdf
-**Content-Disposition** : attachment; filename="tirage-1-groupes.pdf"
 
-## Statistiques des Groupes
+```json
+{
+  "id": 1,
+  "title": "Tirage du 15 janvier",
+  "createdAt": "2023-01-15T10:30:00Z",
+  "updatedAt": "2023-01-16T11:20:00Z",
+  "numberOfGroups": 3,
+  "balancingCriteria": [
+    {
+      "attribute": "age",
+      "weight": 2,
+      "strategy": "DISTRIBUTE_EVENLY"
+    },
+    {
+      "attribute": "experience",
+      "weight": 3,
+      "strategy": "DISTRIBUTE_EVENLY"
+    },
+    {
+      "attribute": "skills",
+      "weight": 1,
+      "strategy": "ENSURE_DIVERSITY"
+    }
+  ],
+  "groups": [
+    // Nouveaux groupes générés
+  ]
+}
+```
 
-### Récupération des Statistiques d'un Tirage
+## Partage d'un Tirage
 
-Permet de récupérer des statistiques sur les groupes d'un tirage.
+Permet de partager un tirage avec d'autres utilisateurs.
+
+<div class="api-endpoint">
+  <span class="method">POST</span>
+  <span class="path">/api/draws/{drawId}/share</span>
+</div>
+
+### En-têtes de la Requête
+
+```
+Content-Type: application/json
+```
+
+### Corps de la Requête
+
+```json
+{
+  "userId": 2,
+  "permission": "VIEW"
+}
+```
+
+### Exemple de Requête
+
+```bash
+curl -X POST http://localhost:8080/api/draws/1/share \
+  -H "Content-Type: application/json" \
+  -b cookies.txt \
+  -d '{
+    "userId": 2,
+    "permission": "VIEW"
+  }'
+```
+
+### Réponse en Cas de Succès
+
+**Code** : 200 OK
+
+```json
+{
+  "message": "Tirage partagé avec succès"
+}
+```
+
+## Récupération des Statistiques d'un Tirage
+
+Permet de récupérer des statistiques sur l'équilibrage des groupes d'un tirage.
 
 <div class="api-endpoint">
   <span class="method">GET</span>
   <span class="path">/api/draws/{drawId}/stats</span>
 </div>
 
-### En-têtes de la Requête
+### Exemple de Requête
 
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```bash
+curl -X GET http://localhost:8080/api/draws/1/stats \
+  -b cookies.txt
 ```
 
 ### Réponse en Cas de Succès
@@ -975,219 +757,179 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```json
 {
   "drawId": 1,
-  "title": "Tirage du 15 janvier - Modifié",
+  "title": "Tirage du 15 janvier",
   "numberOfGroups": 3,
   "totalPersons": 6,
-  "averagePersonsPerGroup": 2.0,
-  "attributeStats": {
-    "age": {
-      "min": 25,
-      "max": 40,
-      "average": 31.67,
-      "groupAverages": {
-        "1": 31.0,
-        "2": 32.5,
-        "3": 31.5
+  "personsPerGroup": {
+    "min": 2,
+    "max": 2,
+    "average": 2
+  },
+  "attributeStats": [
+    {
+      "attribute": "age",
+      "averagePerGroup": [35.5, 36.5, 32.0],
+      "standardDeviation": 2.3,
+      "balanceScore": 0.85
+    },
+    {
+      "attribute": "experience",
+      "distribution": {
+        "Groupe 1": {"senior": 1, "junior": 1},
+        "Groupe 2": {"senior": 1, "mid": 1},
+        "Groupe 3": {"senior": 1, "junior": 1}
       },
-      "standardDeviation": 5.12,
       "balanceScore": 0.92
     },
-    "experience": {
-      "distribution": {
-        "beginner": {
-          "total": 2,
-          "groupDistribution": {
-            "1": 0,
-            "2": 1,
-            "3": 1
-          }
-        },
-        "intermediate": {
-          "total": 2,
-          "groupDistribution": {
-            "1": 1,
-            "2": 0,
-            "3": 1
-          }
-        },
-        "expert": {
-          "total": 2,
-          "groupDistribution": {
-            "1": 1,
-            "2": 1,
-            "3": 0
-          }
-        }
-      },
-      "balanceScore": 0.89
-    },
-    "skills": {
-      "uniqueValues": ["java", "spring", "python", "django", "javascript", "react", "kubernetes", "flask"],
-      "distribution": {
-        "java": {
-          "total": 2,
-          "groupDistribution": {
-            "1": 1,
-            "2": 1,
-            "3": 0
-          }
-        },
-        "spring": {
-          "total": 2,
-          "groupDistribution": {
-            "1": 1,
-            "2": 1,
-            "3": 0
-          }
-        },
-        "python": {
-          "total": 2,
-          "groupDistribution": {
-            "1": 1,
-            "2": 0,
-            "3": 1
-          }
-        },
-        "django": {
-          "total": 2,
-          "groupDistribution": {
-            "1": 1,
-            "2": 0,
-            "3": 1
-          }
-        },
-        "javascript": {
-          "total": 2,
-          "groupDistribution": {
-            "1": 0,
-            "2": 1,
-            "3": 1
-          }
-        },
-        "react": {
-          "total": 2,
-          "groupDistribution": {
-            "1": 0,
-            "2": 1,
-            "3": 1
-          }
-        },
-        "kubernetes": {
-          "total": 1,
-          "groupDistribution": {
-            "1": 0,
-            "2": 1,
-            "3": 0
-          }
-        },
-        "flask": {
-          "total": 1,
-          "groupDistribution": {
-            "1": 1,
-            "2": 0,
-            "3": 0
-          }
-        }
-      },
-      "diversityScore": 0.85
+    {
+      "attribute": "skills",
+      "uniqueValuesPerGroup": [4, 4, 4],
+      "diversityScore": 0.78
     }
+  ],
+  "overallBalanceScore": 0.85
+}
+```
+
+## Stratégies d'Équilibrage Disponibles
+
+Récupère la liste des stratégies d'équilibrage disponibles et leurs descriptions.
+
+<div class="api-endpoint">
+  <span class="method">GET</span>
+  <span class="path">/api/draws/balancing-strategies</span>
+</div>
+
+### Exemple de Requête
+
+```bash
+curl -X GET http://localhost:8080/api/draws/balancing-strategies \
+  -b cookies.txt
+```
+
+### Réponse en Cas de Succès
+
+**Code** : 200 OK
+
+```json
+[
+  {
+    "id": "DISTRIBUTE_EVENLY",
+    "name": "Distribuer équitablement",
+    "description": "Répartit les valeurs numériques de manière équilibrée entre les groupes",
+    "applicableToTypes": ["numeric", "ordinal"],
+    "examples": [
+      "Âge",
+      "Années d'expérience",
+      "Niveau (débutant, intermédiaire, avancé)"
+    ]
   },
-  "overallBalanceScore": 0.88
-}
+  {
+    "id": "ENSURE_DIVERSITY",
+    "name": "Assurer la diversité",
+    "description": "Maximise la diversité des valeurs catégorielles dans chaque groupe",
+    "applicableToTypes": ["categorical", "tags"],
+    "examples": [
+      "Compétences",
+      "Départements",
+      "Centres d'intérêt"
+    ]
+  },
+  {
+    "id": "KEEP_TOGETHER",
+    "name": "Garder ensemble",
+    "description": "Essaie de garder les personnes ayant la même valeur dans le même groupe",
+    "applicableToTypes": ["categorical", "boolean"],
+    "examples": [
+      "Équipe actuelle",
+      "Langue maternelle",
+      "Localisation"
+    ]
+  },
+  {
+    "id": "SEPARATE",
+    "name": "Séparer",
+    "description": "Essaie de séparer les personnes ayant la même valeur dans différents groupes",
+    "applicableToTypes": ["categorical", "boolean"],
+    "examples": [
+      "Rôle dans l'équipe",
+      "Expertise technique",
+      "Ancienneté"
+    ]
+  }
+]
 ```
 
-## Erreurs Courantes
+## Contraintes de Groupe
 
-### Tirage Non Trouvé
+### Ajout d'une Contrainte
 
-**Code** : 404 Not Found
+Permet d'ajouter une contrainte pour le tirage (par exemple, deux personnes qui doivent être dans le même groupe).
+
+<div class="api-endpoint">
+  <span class="method">POST</span>
+  <span class="path">/api/draws/{drawId}/constraints</span>
+</div>
+
+### En-têtes de la Requête
+
+```
+Content-Type: application/json
+```
+
+### Corps de la Requête
 
 ```json
 {
-  "timestamp": "2023-01-17T12:34:56Z",
-  "status": 404,
-  "error": "Not Found",
-  "message": "Tirage non trouvé avec l'ID: 999",
-  "path": "/api/draws/999"
+  "type": "MUST_BE_TOGETHER",
+  "personIds": [1, 3]
 }
 ```
 
-### Groupe Non Trouvé
+### Exemple de Requête
 
-**Code** : 404 Not Found
+```bash
+curl -X POST http://localhost:8080/api/draws/1/constraints \
+  -H "Content-Type: application/json" \
+  -b cookies.txt \
+  -d '{
+    "type": "MUST_BE_TOGETHER",
+    "personIds": [1, 3]
+  }'
+```
+
+### Réponse en Cas de Succès
+
+**Code** : 201 Created
 
 ```json
 {
-  "timestamp": "2023-01-17T12:34:56Z",
-  "status": 404,
-  "error": "Not Found",
-  "message": "Groupe non trouvé avec l'ID: 999",
-  "path": "/api/groups/999"
+  "id": 1,
+  "type": "MUST_BE_TOGETHER",
+  "personIds": [1, 3]
 }
 ```
 
-### Personne Non Trouvée
+### Types de Contraintes Disponibles
 
-**Code** : 404 Not Found
+- `MUST_BE_TOGETHER` : Les personnes spécifiées doivent être dans le même groupe
+- `MUST_BE_SEPARATED` : Les personnes spécifiées doivent être dans des groupes différents
+- `MUST_BE_IN_GROUP` : La personne spécifiée doit être dans un groupe spécifique
 
-```json
-{
-  "timestamp": "2023-01-17T12:34:56Z",
-  "status": 404,
-  "error": "Not Found",
-  "message": "Personne non trouvée avec l'ID: 999",
-  "path": "/api/groups/1/persons/999"
-}
+### Suppression d'une Contrainte
+
+<div class="api-endpoint">
+  <span class="method">DELETE</span>
+  <span class="path">/api/draws/{drawId}/constraints/{constraintId}</span>
+</div>
+
+### Exemple de Requête
+
+```bash
+curl -X DELETE http://localhost:8080/api/draws/1/constraints/1 \
+  -b cookies.txt
 ```
 
-### Accès Non Autorisé
+### Réponse en Cas de Succès
 
-**Code** : 403 Forbidden
-
-```json
-{
-  "timestamp": "2023-01-17T12:34:56Z",
-  "status": 403,
-  "error": "Forbidden",
-  "message": "Vous n'avez pas les permissions nécessaires pour accéder à ce tirage",
-  "path": "/api/draws/1"
-}
-```
-
-### Validation des Données
-
-**Code** : 422 Unprocessable Entity
-
-```json
-{
-  "timestamp": "2023-01-17T12:34:56Z",
-  "status": 422,
-  "error": "Unprocessable Entity",
-  "message": "Validation failed for object='drawCreateRequest'",
-  "path": "/api/lists/1/draws",
-  "errors": [
-    {
-      "field": "numberOfGroups",
-      "message": "must be greater than 0"
-    },
-    {
-      "field": "title",
-      "message": "must not be blank"
-    }
-  ]
-}
-```
-
-### Conflit de Personne
-
-**Code** : 409 Conflict
-
-```json
-{
-  "timestamp": "2023-01-17T12:34:56Z",
-  "status": 409,
-  "error": "Conflict",
-  "message": "La personne avec l'ID 1 est déjà présente dans un autre groupe de ce tirage",
-  "path": "/api/groups/2/persons/1"
-}
-```
+**Code** : 204 No Content
