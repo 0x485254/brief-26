@@ -12,11 +12,12 @@ Ce guide vous aidera à faire vos premiers pas avec l'API EasyGroup après l'avo
 Pour commencer à utiliser l'API EasyGroup, vous devrez suivre ces étapes :
 
 1. Créer un compte utilisateur
-2. S'authentifier pour obtenir un cookie HTTP-Only
-3. Utiliser ce cookie pour accéder aux endpoints protégés
-4. Créer votre première liste
-5. Ajouter des personnes à votre liste
-6. Générer des groupes équilibrés
+2. Vérifier votre adresse email via le lien reçu par email
+3. S'authentifier pour obtenir un cookie HTTP-Only contenant un JWT
+4. Utiliser ce cookie pour accéder aux endpoints protégés
+5. Créer votre première liste
+6. Ajouter des personnes à votre liste
+7. Générer des groupes équilibrés
 
 ## Création d'un Compte Utilisateur
 
@@ -26,44 +27,56 @@ Pour créer un compte utilisateur, envoyez une requête POST à l'endpoint `/api
 curl -X POST http://localhost:8080/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
-    "username": "votre_nom_utilisateur",
     "email": "votre_email@exemple.com",
-    "password": "votre_mot_de_passe"
+    "password": "votre_mot_de_passe",
+    "firstName": "Votre Prénom",
+    "lastName": "Votre Nom"
   }'
 ```
 
-Vous recevrez une réponse similaire à :
+Si l'inscription réussit, vous recevrez une réponse avec le statut HTTP 201 (Created) et un corps de réponse indiquant que l'inscription a réussi :
 
 ```json
-{
-  "id": 1,
-  "username": "votre_nom_utilisateur",
-  "email": "votre_email@exemple.com",
-  "createdAt": "2023-07-03T12:34:56Z"
-}
+true
 ```
+
+Un email de vérification sera envoyé à l'adresse email que vous avez fournie. Vous devrez cliquer sur le lien dans cet email pour activer votre compte avant de pouvoir vous connecter.
 
 ## Authentification
 
-Une fois votre compte créé, vous devez vous authentifier pour obtenir un cookie HTTP-Only. Envoyez une requête POST à l'endpoint `/api/auth/login` :
+Une fois votre compte créé et activé via le lien de vérification envoyé par email, vous devez vous authentifier pour obtenir un cookie HTTP-Only contenant un JWT. Envoyez une requête POST à l'endpoint `/api/auth/login` :
 
 ```bash
 curl -X POST http://localhost:8080/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
-    "username": "votre_nom_utilisateur",
+    "email": "votre_email@exemple.com",
     "password": "votre_mot_de_passe"
   }' \
   -c cookies.txt
 ```
 
-Le serveur définira un cookie HTTP-Only dans votre navigateur, qui sera automatiquement inclus dans les requêtes suivantes.
+Si l'authentification réussit, vous recevrez une réponse avec le statut HTTP 200 (OK) et un corps de réponse contenant vos informations utilisateur :
+
+```json
+{
+  "id": 1,
+  "email": "votre_email@exemple.com",
+  "firstName": "Votre Prénom",
+  "lastName": "Votre Nom",
+  "token": null,
+  "role": "USER",
+  "isActivated": true
+}
+```
+
+Le serveur définira également un cookie HTTP-Only contenant un JWT dans votre navigateur, qui sera automatiquement inclus dans les requêtes suivantes.
 
 Pour plus de détails sur l'authentification, consultez le [guide d'authentification](/getting-started/authentication).
 
-## Utilisation du Cookie HTTP-Only
+## Utilisation du Cookie HTTP-Only avec JWT
 
-Pour accéder aux endpoints protégés, incluez le cookie dans vos requêtes :
+Pour accéder aux endpoints protégés, incluez le cookie contenant le JWT dans vos requêtes :
 
 ```bash
 curl -X GET http://localhost:8080/api/users/me \
