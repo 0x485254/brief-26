@@ -5,22 +5,21 @@ import com.easygroup.dto.ListResponse;
 import com.easygroup.entity.ListEntity;
 import com.easygroup.entity.User;
 import com.easygroup.service.ListService;
-import com.easygroup.service.UserService;
+
+import java.util.UUID;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/lists")
 public class ListController {
 
     private final ListService listService;
-    private final UserService userService;
 
-    public ListController(ListService listService, UserService userService) {
+    public ListController(ListService listService) {
         this.listService = listService;
-        this.userService = userService;
     }
 
     // Create a list for a user
@@ -44,7 +43,7 @@ public class ListController {
         }
     }
 
-    // Get a list by its id
+    // Get all lists of a specific user
     @GetMapping
     public ResponseEntity<java.util.List<ListResponse>> getListByUser(@AuthenticationPrincipal User user) {
         try {
@@ -62,22 +61,23 @@ public class ListController {
         }
     }
 
-    // Get all lists of a specific user by ID
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<java.util.List<ListResponse>> getListsByUserId(@PathVariable UUID userId) {
-        User foundUser = userService.findById(userId).orElse(null);
-        if (foundUser == null) {
-            return ResponseEntity.notFound().build();
+    // Get a specific list by ID, only if owned by the authenticated user
+    @GetMapping("/{listId}")
+    public ResponseEntity<ListResponse> getListById(
+            @PathVariable UUID listId,
+            @AuthenticationPrincipal User user) {
+
+        ListEntity list = listService.findByIdAndUserId(listId, user.getId());
+        if (list == null) {
+            return ResponseEntity.status(403).build(); // liste non trouvée ou n'appartient pas à l'utilisateur
         }
 
-        java.util.List<ListResponse> responseList = listService.findByUser(foundUser).stream()
-                .map(list -> new ListResponse(
-                        list.getId(),
-                        list.getName(),
-                        list.getIsShared()))
-                .toList();
+        ListResponse response = new ListResponse(
+                list.getId(),
+                list.getName(),
+                list.getIsShared());
 
-        return ResponseEntity.ok(responseList);
+        return ResponseEntity.ok(response);
     }
 
 }

@@ -17,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,7 +30,7 @@ class ListControllerTests {
     private ListService listService;
 
     @Mock
-    private UserService userService;
+    private UserService userService; // Keep this if you plan to reintroduce a method using it
 
     @InjectMocks
     private ListController listController;
@@ -52,14 +51,14 @@ class ListControllerTests {
         testUser = new User();
         testUser.setId(userId);
         testUser.setEmail("user@test.com");
-        testUser.setFirstName("John");
-        testUser.setLastName("Doe");
+        testUser.setFirstName("Dodo");
+        testUser.setLastName("Dada");
 
         otherUser = new User();
         otherUser.setId(otherUserId);
         otherUser.setEmail("other@test.com");
-        otherUser.setFirstName("Jane");
-        otherUser.setLastName("Smith");
+        otherUser.setFirstName("Lulu");
+        otherUser.setLastName("Nunu");
 
         testList1 = new ListEntity();
         testList1.setId(UUID.randomUUID());
@@ -180,58 +179,25 @@ class ListControllerTests {
     }
 
     @Test
-    void getListsByUserId_Success() {
+    void getListById_Success() {
+        when(listService.findByIdAndUserId(testList1.getId(), testUser.getId())).thenReturn(testList1);
 
-        List<ListEntity> otherUserLists = Arrays.asList(testList1, testList2);
-        when(userService.findById(otherUserId)).thenReturn(Optional.of(otherUser));
-        when(listService.findByUser(otherUser)).thenReturn(otherUserLists);
-
-        ResponseEntity<List<ListResponse>> result = listController.getListsByUserId(otherUserId);
+        ResponseEntity<ListResponse> result = listController.getListById(testList1.getId(), testUser);
 
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertNotNull(result.getBody());
-        assertEquals(2, result.getBody().size());
-        assertEquals("My First List", result.getBody().get(0).getName());
-        assertEquals("My Second List", result.getBody().get(1).getName());
+        assertEquals(testList1.getId(), result.getBody().getId());
+        assertEquals(testList1.getName(), result.getBody().getName());
+        assertEquals(testList1.getIsShared(), result.getBody().getIsShared());
     }
 
     @Test
-    void getListsByUserId_UserNotFound_ReturnsNotFound() {
+    void getListById_NotFoundOrNotOwned_ReturnsForbidden() {
+        when(listService.findByIdAndUserId(testList1.getId(), testUser.getId())).thenReturn(null);
 
-        when(userService.findById(otherUserId)).thenReturn(Optional.empty());
+        ResponseEntity<ListResponse> result = listController.getListById(testList1.getId(), testUser);
 
-        ResponseEntity<List<ListResponse>> result = listController.getListsByUserId(otherUserId);
-
-        assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+        assertEquals(HttpStatus.FORBIDDEN, result.getStatusCode());
         assertNull(result.getBody());
-    }
-
-    @Test
-    void getListsByUserId_UserFoundButEmptyLists_Success() {
-
-        when(userService.findById(otherUserId)).thenReturn(Optional.of(otherUser));
-        when(listService.findByUser(otherUser)).thenReturn(Arrays.asList());
-
-        ResponseEntity<List<ListResponse>> result = listController.getListsByUserId(otherUserId);
-
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertNotNull(result.getBody());
-        assertTrue(result.getBody().isEmpty());
-    }
-
-    @Test
-    void getListsByUserId_SingleList_Success() {
-
-        List<ListEntity> singleList = Arrays.asList(sharedList);
-        when(userService.findById(otherUserId)).thenReturn(Optional.of(otherUser));
-        when(listService.findByUser(otherUser)).thenReturn(singleList);
-
-        ResponseEntity<List<ListResponse>> result = listController.getListsByUserId(otherUserId);
-
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertNotNull(result.getBody());
-        assertEquals(1, result.getBody().size());
-        assertEquals("Shared List", result.getBody().get(0).getName());
-        assertEquals(true, result.getBody().get(0).getIsShared());
     }
 }

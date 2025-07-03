@@ -19,6 +19,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Arrays;
 
 import java.util.List;
 
@@ -61,11 +62,10 @@ public class SecurityConfig {
         return new Argon();
     }
 
-
-
-
     private List<String> getAllowedOrigins() {
-        return List.of(corsUrl.split(","));
+        return Arrays.stream(corsUrl.split(","))
+                .map(String::trim)
+                .toList();
     }
 
     /**
@@ -94,7 +94,7 @@ public class SecurityConfig {
             config.setAllowCredentials(true); // Permet l'envoi des cookies/session
         } else {
             // Disable CORS by not setting any allowed origins
-            config.setAllowedOrigins(List.of()); 
+            config.setAllowedOrigins(List.of());
         }
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -154,18 +154,17 @@ public class SecurityConfig {
     }
 
     @Bean
-public UserDetailsService userDetailsService(UserRepository userRepository) {
-    return email -> {
-        User user = userRepository.findByEmail(email)
-                .filter(User::getIsActivated)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found or inactive"));
-        return org.springframework.security.core.userdetails.User
-                .withUsername(user.getEmail())
-                .password(user.getPassword())
-                .roles(user.getRole().name())
-                .build();
-    };
-}
-
+    public UserDetailsService userDetailsService(UserRepository userRepository) {
+        return email -> {
+            User user = userRepository.findByEmail(email)
+                    .filter(User::getIsActivated)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found or inactive"));
+            return org.springframework.security.core.userdetails.User
+                    .withUsername(user.getEmail())
+                    .password(user.getPassword())
+                    .roles(user.getRole().name())
+                    .build();
+        };
+    }
 
 }

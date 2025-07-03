@@ -51,6 +51,7 @@ class AuthControllerTests {
 
         @BeforeEach
         void setUp() {
+
                 ReflectionTestUtils.setField(authController, "smtpServer", "smtp.test.com");
                 ReflectionTestUtils.setField(authController, "smtpUsername", "test@test.com");
                 ReflectionTestUtils.setField(authController, "smtpPassword", "password");
@@ -91,9 +92,10 @@ class AuthControllerTests {
                 ResponseEntity<Boolean> result = authController.register(registerRequest, response);
 
                 assertEquals(HttpStatus.CREATED, result.getStatusCode());
-                assertEquals(true, result.getBody());
+                assertTrue(result.getBody());
                 verify(authService).register("messi@barca.com", "password123", "Lionel", "Messi");
                 verify(jwtService).generateValidationToken(testUser);
+
         }
 
         @Test
@@ -118,19 +120,38 @@ class AuthControllerTests {
                 ResponseEntity<Boolean> result = authController.register(registerRequest, response);
 
                 assertEquals(HttpStatus.CREATED, result.getStatusCode());
-                assertEquals(true, result.getBody());
+                assertTrue(result.getBody());
                 verify(authService).register("messi@barca.com", "password123", "Lionel", "Messi");
+                verify(jwtService).generateValidationToken(testUser);
+
         }
 
         @Test
-        void verifyEmail_Success() {
-                String validationToken = "I'm a Valid Toookn Thou";
+        void verifyEmail_Success_RedirectsToLoginPage() {
+                String validationToken = "valid-token-for-user";
                 doNothing().when(authService).verifyAccount(validationToken);
 
-                ResponseEntity<Boolean> result = authController.verifyEmail(validationToken);
+                ResponseEntity<?> result = authController.verifyEmail(validationToken);
 
-                assertEquals(HttpStatus.OK, result.getStatusCode());
-                assertEquals(true, result.getBody());
+                assertEquals(HttpStatus.FOUND, result.getStatusCode());
+                assertTrue(result.getHeaders().containsKey("Location"));
+                assertEquals("https://brief-react-v3-groupshuffle.vercel.app/login",
+                                result.getHeaders().get("Location").get(0));
+                verify(authService).verifyAccount(validationToken);
+        }
+
+        @Test
+        void verifyEmail_InvalidToken_RedirectsToErrorPage() {
+                String validationToken = "invalid-token";
+
+                doThrow(new RuntimeException("Invalid or expired token")).when(authService)
+                                .verifyAccount(validationToken);
+
+                ResponseEntity<?> result = authController.verifyEmail(validationToken);
+
+                assertEquals(HttpStatus.FOUND, result.getStatusCode());
+                assertTrue(result.getHeaders().containsKey("Location"));
+                assertEquals("http://localhost:8080/verification-failed", result.getHeaders().get("Location").get(0));
                 verify(authService).verifyAccount(validationToken);
         }
 
@@ -144,10 +165,12 @@ class AuthControllerTests {
 
                 assertEquals(HttpStatus.OK, result.getStatusCode());
                 assertNotNull(result.getBody());
-                assertEquals("messi@barca.com", result.getBody().getEmail());
-                assertEquals("Lionel", result.getBody().getFirstName());
-                assertEquals("Messi", result.getBody().getLastName());
-                assertEquals("USER", result.getBody().getRole());
+                assertEquals(authResponse.getEmail(), result.getBody().getEmail());
+                assertEquals(authResponse.getFirstName(), result.getBody().getFirstName());
+                assertEquals(authResponse.getLastName(), result.getBody().getLastName());
+                assertEquals(authResponse.getRole(), result.getBody().getRole());
+                assertEquals(authResponse.getIsActivated(), result.getBody().getIsActivated());
+                assertEquals(authResponse.getUserId(), result.getBody().getUserId());
                 verify(authService).authenticate("messi@barca.com", "password123", response);
         }
 
@@ -185,6 +208,7 @@ class AuthControllerTests {
 
                 assertEquals(HttpStatus.UNAUTHORIZED, result.getStatusCode());
                 assertNull(result.getBody());
+                verify(authService).authenticate("messi@barca.com", "password123", response);
         }
 
         @Test

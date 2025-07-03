@@ -1,0 +1,45 @@
+
+services:
+  app:
+    build: .
+    container_name: easygroup-inter-app
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=easygroup
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+
+    # Configuration CORS pour le frontend local et distant
+      - CORS_ENABLED=true
+      - CORS_URLS=${CORS_URLS:-http://localhost:5173, https://brief-react-v3-groupshuffle.vercel.app}
+
+      # - SPRING_CONTEXT_PATH=/easy-api
+    restart: unless-stopped
+    depends_on:
+      - db
+    networks:
+      - spring-network
+
+  db:
+    image: postgres:14-alpine
+    container_name: easygroup-db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=easygroup
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - spring-network
+
+networks:
+  spring-network:
+
+volumes:
+  postgres_data:
