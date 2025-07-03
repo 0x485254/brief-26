@@ -193,9 +193,6 @@ public class AuthController {
 
         Optional<User> user = userService.findByEmail(request.getEmail());
 
-        System.out.println("-----------------ACTIVATED-------------------");
-        System.out.println(user.get().getIsActivated());
-
         if (user.isEmpty() || !user.get().getIsActivated() ) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
