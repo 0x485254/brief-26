@@ -1,54 +1,57 @@
-{
-  "properties": [
-    {
-      "name": "cors.urls",
-      "type": "java.lang.String",
-      "description": "Liste séparée par des virgules des URLs autorisées à faire des requêtes cross-origin vers l'API (ex : https://frontend.example.com)."
-    },
-    {
-      "name": "cors.enabled",
-      "type": "java.lang.String",
-      "description": "Active ou désactive la configuration CORS du backend. Utiliser 'true' pour autoriser les requêtes cross-origin."
-    },
-    {
-      "name": "csrf.enabled",
-      "type": "java.lang.String",
-      "description": "Active ou désactive la protection CSRF. Mettre 'true' pour sécuriser les sessions basées sur cookie, ou 'false' si JWT est utilisé."
-    },
-    {
-      "name": "samesite.cookie.enabled",
-      "type": "java.lang.String",
-      "description": "Active la configuration SameSite pour les cookies. Utile pour restreindre l'envoi de cookies dans des contextes cross-site."
-    },
-    {
-      "name": "jwt.secret",
-      "type": "java.lang.String",
-      "description": "Clé secrète utilisée pour signer et valider les tokens JWT. Elle doit rester confidentielle."
-    },
-    {
-      "name": "jwt.expiration",
-      "type": "java.lang.String",
-      "description": "Durée de validité des tokens JWT (en millisecondes). Exemple : 86400000 pour 24h."
-    },
-    {
-      "name": "smtp.server",
-      "type": "java.lang.String",
-      "description": "Adresse du serveur SMTP utilisé pour l'envoi des emails (ex : smtp.gmail.com)."
-    },
-    {
-      "name": "smtp.port",
-      "type": "java.lang.String",
-      "description": "Port du serveur SMTP (généralement 587 pour TLS ou 465 pour SSL)."
-    },
-    {
-      "name": "smtp.username",
-      "type": "java.lang.String",
-      "description": "Nom d'utilisateur utilisé pour l'authentification auprès du serveur SMTP."
-    },
-    {
-      "name": "smtp.password",
-      "type": "java.lang.String",
-      "description": "Mot de passe ou token utilisé pour l'authentification SMTP. Ne jamais exposer cette valeur publiquement."
-    }
-  ]
-}
+{"properties": [
+  {
+    "name": "cors.urls",
+    "type": "java.lang.String",
+    "description": "Liste séparée par des virgules des URLs autorisées à faire des requêtes cross-origin vers l'API (ex : https://frontend.example.com)."
+  },
+  {
+    "name": "cors.enabled",
+    "type": "java.lang.String",
+    "description": "Active ou désactive la configuration CORS du backend. Utiliser 'true' pour autoriser les requêtes cross-origin."
+  },
+  {
+    "name": "csrf.enabled",
+    "type": "java.lang.String",
+    "description": "Active ou désactive la protection CSRF. Mettre 'true' pour sécuriser les sessions basées sur cookie, ou 'false' si JWT est utilisé."
+  },
+  {
+    "name": "samesite.cookie.enabled",
+    "type": "java.lang.String",
+    "description": "Active la configuration SameSite pour les cookies. Utile pour restreindre l'envoi de cookies dans des contextes cross-site."
+  },
+  {
+    "name": "jwt.secret",
+    "type": "java.lang.String",
+    "description": "Clé secrète utilisée pour signer et valider les tokens JWT. Elle doit rester confidentielle."
+  },
+  {
+    "name": "jwt.expiration",
+    "type": "java.lang.String",
+    "description": "Durée de validité des tokens JWT (en millisecondes). Exemple : 86400000 pour 24h."
+  },
+  {
+    "name": "smtp.server",
+    "type": "java.lang.String",
+    "description": "Adresse du serveur SMTP utilisé pour l'envoi des emails (ex : smtp.gmail.com)."
+  },
+  {
+    "name": "smtp.port",
+    "type": "java.lang.String",
+    "description": "Port du serveur SMTP (généralement 587 pour TLS ou 465 pour SSL)."
+  },
+  {
+    "name": "smtp.username",
+    "type": "java.lang.String",
+    "description": "Nom d'utilisateur utilisé pour l'authentification auprès du serveur SMTP."
+  },
+  {
+    "name": "smtp.password",
+    "type": "java.lang.String",
+    "description": "Mot de passe ou token utilisé pour l'authentification SMTP. Ne jamais exposer cette valeur publiquement."
+  },
+  {
+    "name": "application.url",
+    "type": "java.lang.String",
+    "description": "A description for 'application.url'"
+  }
+]}

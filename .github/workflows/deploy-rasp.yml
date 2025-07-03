@@ -37,8 +37,6 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no pi@raspberrypi.tail06bcb8.ts.net "
             cd brief-26 &&
-            git fetch origin &&
-            git reset --hard origin/deploy-rasp &&
+            git pull origin deploy-rasp &&
             docker compose -f docker-compose.rasp.yml --env-file .env --project-name easygroup-inter-prod up --build -d
           "
-
