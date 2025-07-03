@@ -7,6 +7,8 @@ description: Documentation des endpoints de gestion des personnes de l'API EasyG
 
 Cette page documente les endpoints de gestion des personnes disponibles dans l'API EasyGroup.
 
+> **Note:** Certains endpoints documentés sur cette page sont planifiés mais pas encore implémentés dans la version actuelle de l'API. Ces endpoints sont marqués comme "Planifié" dans leur description.
+
 ## Ajout d'une Personne à une Liste
 
 Permet d'ajouter une nouvelle personne à une liste existante.
@@ -40,7 +42,7 @@ Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement
 
 ### Réponse en Cas de Succès
 
-**Code** : 201 Created
+**Code** : 200 OK
 
 ```json
 {
@@ -136,7 +138,7 @@ Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement
 }
 ```
 
-### Récupération d'une Personne Spécifique
+### Récupération d'une Personne Spécifique (Planifié)
 
 Permet de récupérer les détails d'une personne spécifique.
 
@@ -172,7 +174,7 @@ Permet de modifier les informations d'une personne existante.
 
 <div class="api-endpoint">
   <span class="method">PUT</span>
-  <span class="path">/api/persons/{personId}</span>
+  <span class="path">/api/lists/{listId}/persons/{personId}</span>
 </div>
 
 ### En-têtes de la Requête
@@ -199,7 +201,7 @@ Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement
 
 ### Réponse en Cas de Succès
 
-**Code** : 200 OK
+**Code** : 201 Created
 
 ```json
 {
@@ -220,7 +222,7 @@ Permet de supprimer une personne d'une liste.
 
 <div class="api-endpoint">
   <span class="method">DELETE</span>
-  <span class="path">/api/persons/{personId}</span>
+  <span class="path">/api/lists/{listId}/persons/{personId}</span>
 </div>
 
 ### En-têtes de la Requête
@@ -233,7 +235,7 @@ Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement
 
 ## Modification des Champs Spécifiques
 
-### Modification Partielle d'une Personne
+### Modification Partielle d'une Personne (Planifié)
 
 Permet de modifier certains champs d'une personne sans avoir à fournir tous les champs.
 
@@ -279,7 +281,7 @@ Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement
 
 ## Recherche et Filtrage
 
-### Recherche de Personnes par Nom
+### Recherche de Personnes par Nom (Planifié)
 
 Permet de rechercher des personnes par nom dans une liste.
 
@@ -317,7 +319,7 @@ Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement
 ]
 ```
 
-### Filtrage par Champ
+### Filtrage par Champ (Planifié)
 
 Permet de filtrer les personnes par champ.
 
@@ -396,7 +398,7 @@ GET /api/lists/1/persons?gender=MALE&age.gte=30&techLevel=4
 
 ## Opérations en Masse
 
-### Ajout de Plusieurs Personnes
+### Ajout de Plusieurs Personnes (Planifié)
 
 Permet d'ajouter plusieurs personnes à une liste en une seule requête.
 
@@ -477,7 +479,7 @@ Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement
 ]
 ```
 
-### Suppression de Plusieurs Personnes
+### Suppression de Plusieurs Personnes (Planifié)
 
 Permet de supprimer plusieurs personnes en une seule requête.
 
@@ -508,7 +510,7 @@ Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement
 
 ## Déplacement de Personnes
 
-### Déplacement d'une Personne vers une Autre Liste
+### Déplacement d'une Personne vers une Autre Liste (Planifié)
 
 Permet de déplacer une personne d'une liste à une autre.
 
@@ -554,7 +556,7 @@ Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement
 }
 ```
 
-### Déplacement de Plusieurs Personnes vers une Autre Liste
+### Déplacement de Plusieurs Personnes vers une Autre Liste (Planifié)
 
 Permet de déplacer plusieurs personnes d'une liste à une autre en une seule requête.
 
