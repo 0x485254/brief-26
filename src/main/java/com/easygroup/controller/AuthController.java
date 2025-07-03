@@ -51,6 +51,9 @@ public class AuthController {
     @Value("${application.url}")
     private String applicationUrl;
 
+    @Value("${mail.from}")
+    private String mailFrom;
+
     /**
      * Register a new user and set a JWT token cookie.
      *
@@ -98,7 +101,7 @@ public class AuthController {
             String url = applicationUrl + "/api/auth/verify?token=" + token;
 
             mailingService.sendHtmlEmail(
-                    smtpUsername,
+                    mailFrom,
                     userEmail,
                     "Validation",
                     "<html>\n" +
