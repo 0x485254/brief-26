@@ -18,9 +18,7 @@ Permet à un utilisateur authentifié de récupérer son propre profil.
 
 ### En-têtes de la Requête
 
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
+Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement inclus dans la requête.
 
 ### Réponse en Cas de Succès
 
@@ -52,9 +50,10 @@ Permet à un utilisateur authentifié de mettre à jour son propre profil.
 ### En-têtes de la Requête
 
 ```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 Content-Type: application/json
 ```
+
+Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement inclus dans la requête.
 
 ### Corps de la Requête
 
@@ -96,9 +95,10 @@ Permet à un utilisateur authentifié de modifier son mot de passe.
 ### En-têtes de la Requête
 
 ```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 Content-Type: application/json
 ```
+
+Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement inclus dans la requête.
 
 ### Corps de la Requête
 
@@ -130,9 +130,7 @@ Permet à un utilisateur authentifié de supprimer son propre compte.
 
 ### En-têtes de la Requête
 
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
+Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement inclus dans la requête.
 
 ### Réponse en Cas de Succès
 
@@ -151,9 +149,7 @@ Permet à un utilisateur authentifié de récupérer ses préférences.
 
 ### En-têtes de la Requête
 
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
+Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement inclus dans la requête.
 
 ### Réponse en Cas de Succès
 
@@ -182,9 +178,10 @@ Permet à un utilisateur authentifié de mettre à jour ses préférences.
 ### En-têtes de la Requête
 
 ```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 Content-Type: application/json
 ```
+
+Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement inclus dans la requête.
 
 ### Corps de la Requête
 
@@ -227,9 +224,7 @@ Permet à un utilisateur authentifié de récupérer la liste de ses sessions ac
 
 ### En-têtes de la Requête
 
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
+Note: L'authentification se fait via un cookie HTTP-only qui est automatiquement inclus dans la requête.
 
 ### Réponse en Cas de Succès
 
