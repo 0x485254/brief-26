@@ -58,6 +58,7 @@ public class AuthController {
      * Register a new user and set a JWT token cookie.
      *
      * @param request  the registration request
+     * @param request  the registration request
      * @param response the HTTP response to set the cookie on
      * @return the created user details (without the token in the response body)
      */
@@ -68,6 +69,8 @@ public class AuthController {
             HttpServletResponse response) {
         try {
             // Register the user
+            User userResponse = authService.register(request.getEmail(), request.getPassword(), request.getFirstName(),
+                    request.getLastName());
             User userResponse = authService.register(request.getEmail(), request.getPassword(), request.getFirstName(),
                     request.getLastName());
 
@@ -85,8 +88,11 @@ public class AuthController {
      * Sends a validation email to the specified user with an HTML email format.
      * The email contains a verification link for the user to confirm their email
      * address.
+     * The email contains a verification link for the user to confirm their email
+     * address.
      *
      * @param userEmail the email address of the recipient
+     * @param userName  the name of the recipient to personalize the email
      * @param userName  the name of the recipient to personalize the email
      * @throws MessagingException if there is an issue while sending the email
      */
@@ -95,9 +101,11 @@ public class AuthController {
                 smtpServer,
                 smtpUsername,
                 smtpPassword);
+                smtpPassword);
 
         // Send an HTML email
         try {
+            String url = applicationUrl + "/api/auth/verify?token=" + token;
             String url = applicationUrl + "/api/auth/verify?token=" + token;
 
             mailingService.sendHtmlEmail(
@@ -151,6 +159,8 @@ public class AuthController {
                             "        <p>Hello," + userName + "</p>\n" +
                             "        <p>Thank you for registering with our service. To complete your registration and verify your email address, please click the button below:</p>\n"
                             +
+                            "        <p>Thank you for registering with our service. To complete your registration and verify your email address, please click the button below:</p>\n"
+                            +
                             "        \n" +
                             "        <div style=\"text-align: center;\">\n" +
                             "            <a href=" + url + " class=\"button\">Verify My Email</a>\n" +
@@ -158,9 +168,12 @@ public class AuthController {
                             "        \n" +
                             "        <p>If the button above doesn't work, copy and paste the following URL into your browser:</p>\n"
                             +
+                            "        <p>If the button above doesn't work, copy and paste the following URL into your browser:</p>\n"
+                            +
                             "        <p style=\"word-break: break-all; font-size: 12px;\">" + url + "</p>\n" +
                             "    </div>\n" +
                             "</body>\n" +
+                            "</html>");
                             "</html>");
             System.out.println("HTML email sent successfully!");
         } catch (MessagingException e) {
@@ -173,6 +186,8 @@ public class AuthController {
      * Verifies a user's email by validating the provided token.
      * If the token is valid, the user's account is activated and the user is
      * redirected to the login page.
+     * If the token is valid, the user's account is activated and the user is
+     * redirected to the login page.
      *
      * @param token the token used for email verification
      * @return a redirect to the login page after successful verification
@@ -182,6 +197,7 @@ public class AuthController {
         try {
             authService.verifyAccount(token);
 
+
             // Create a redirect URL to the frontend login page
             // You might want to configure this URL in your application properties
             String redirectUrl = "https://brief-react-v3-groupshuffle.vercel.app/login";
@@ -190,9 +206,13 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.FOUND)
                     .header("Location", redirectUrl)
                     .build();
+                    .header("Location", redirectUrl)
+                    .build();
         } catch (Exception e) {
             // In case of errors, redirect to an error page
             return ResponseEntity.status(HttpStatus.FOUND)
+                    .header("Location", applicationUrl + "/verification-failed")
+                    .build();
                     .header("Location", applicationUrl + "/verification-failed")
                     .build();
         }
@@ -202,7 +222,10 @@ public class AuthController {
      * Authenticate a user and set a JWT token cookie.
      *
      * @param request  the authentication request
+     * @param request  the authentication request
      * @param response the HTTP response to set the cookie on
+     * @return the authenticated user details (without the token in the response
+     *         body)
      * @return the authenticated user details (without the token in the response
      *         body)
      */
@@ -213,6 +236,7 @@ public class AuthController {
 
         Optional<User> user = userService.findByEmail(request.getEmail());
 
+        if (user.isEmpty() || !user.get().getIsActivated()) {
         if (user.isEmpty() || !user.get().getIsActivated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }

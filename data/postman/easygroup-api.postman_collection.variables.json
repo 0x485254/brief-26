@@ -1,6 +1,6 @@
 {
   "info": {
-    "name": "EasyGroup API - Organisé",
+    "name": "EasyGroup API - Updated",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -20,19 +20,33 @@
             "url": {
               "raw": "http://localhost:8080/api/auth/register",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "auth",
-                "register"
-              ]
+              "path": ["api", "auth", "register"]
             },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"user1@example.com\",\n  \"password\": \"password\",\n  \"firstName\": \"Jean\",\n  \"lastName\": \"Dupont\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Verify Email",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/auth/verify?token={{verificationToken}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "auth", "verify"],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{verificationToken}}"
+                }
+              ]
             }
           }
         },
@@ -49,15 +63,9 @@
             "url": {
               "raw": "http://localhost:8080/api/auth/login",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "auth",
-                "login"
-              ]
+              "path": ["api", "auth", "login"]
             },
             "body": {
               "mode": "raw",
@@ -73,15 +81,9 @@
             "url": {
               "raw": "http://localhost:8080/api/auth/logout",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "auth",
-                "logout"
-              ]
+              "path": ["api", "auth", "logout"]
             }
           }
         }
@@ -91,46 +93,6 @@
       "name": "Utilisateurs",
       "item": [
         {
-          "name": "Get all users",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:8080/api/users",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "8080",
-              "path": [
-                "api",
-                "users"
-              ]
-            }
-          }
-        },
-        {
-          "name": "De/Activate user",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:8080/api/users/1/activate",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "8080",
-              "path": [
-                "api",
-                "users",
-                "1",
-                "activate"
-              ]
-            }
-          }
-        },
-        {
           "name": "Get current user",
           "request": {
             "method": "GET",
@@ -138,15 +100,9 @@
             "url": {
               "raw": "http://localhost:8080/api/users/me",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "users",
-                "me"
-              ]
+              "path": ["api", "users", "me"]
             }
           }
         },
@@ -154,19 +110,22 @@
           "name": "Update current user",
           "request": {
             "method": "PUT",
-            "header": [],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "http://localhost:8080/api/users/me",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "users",
-                "me"
-              ]
+              "path": ["api", "users", "me"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Jean\",\n  \"lastName\": \"Modifié\"\n}"
             }
           }
         },
@@ -178,60 +137,42 @@
             "url": {
               "raw": "http://localhost:8080/api/users/me",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "users",
-                "me"
-              ]
+              "path": ["api", "users", "me"]
             }
           }
         },
         {
-          "name": "Get user by ID",
+          "name": "Get all users (Admin)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/users/1",
+              "raw": "http://localhost:8080/api/users",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "users",
-                "1"
-              ]
+              "path": ["api", "users"]
             }
           }
         },
         {
-          "name": "Delete user",
+          "name": "Get user by ID (Admin)",
           "request": {
-            "method": "DELETE",
+            "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/users/1",
+              "raw": "http://localhost:8080/api/users/{{userId}}",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "users",
-                "1"
-              ]
+              "path": ["api", "users", "{{userId}}"]
             }
           }
         },
         {
-          "name": "Update user",
+          "name": "Update user by ID (Admin)",
           "request": {
             "method": "PUT",
             "header": [
@@ -241,21 +182,49 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:8080/api/users/1",
+              "raw": "http://localhost:8080/api/users/{{userId}}",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "users",
-                "1"
-              ]
+              "path": ["api", "users", "{{userId}}"]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"new@example.com\",\n  \"firstName\": \"Jean\",\n  \"lastName\": \"Modifi\\u00e9\"\n}"
+              "raw": "{\n  \"firstName\": \"Jean\",\n  \"lastName\": \"Modifié\",\n  \"email\": \"new@example.com\",\n  \"role\": \"USER\",\n  \"isActivated\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete user by ID (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/users/{{userId}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "users", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Activate/Deactivate user (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/users/{{userId}}/activate?isActivated=true",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "users", "{{userId}}", "activate"],
+              "query": [
+                {
+                  "key": "isActivated",
+                  "value": "true"
+                }
+              ]
             }
           }
         }
@@ -265,42 +234,16 @@
       "name": "Listes",
       "item": [
         {
-          "name": "Get all lists",
+          "name": "Get current user lists",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "http://localhost:8080/api/lists",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "lists"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get lists by user ID",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:8080/api/lists/user/{{userId}}",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "8080",
-              "path": [
-                "api",
-                "lists",
-                "user",
-                "{{userId}}"
-              ]
+              "path": ["api", "lists"]
             }
           }
         },
@@ -317,14 +260,9 @@
             "url": {
               "raw": "http://localhost:8080/api/lists",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "lists"
-              ]
+              "path": ["api", "lists"]
             },
             "body": {
               "mode": "raw",
@@ -333,71 +271,16 @@
           }
         },
         {
-          "name": "Get list by ID",
+          "name": "Get lists by user ID",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/lists/{{listId}}",
+              "raw": "http://localhost:8080/api/lists/user/{{userId}}",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "lists",
-                "{{listId}}"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Update list",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:8080/api/lists/{{listId}}",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "8080",
-              "path": [
-                "api",
-                "lists",
-                "{{listId}}"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Liste Modifi\\u00e9e\"\n}"
-            }
-          }
-        },
-        {
-          "name": "Delete list",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:8080/api/lists/{{listId}}",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "8080",
-              "path": [
-                "api",
-                "lists",
-                "{{listId}}"
-              ]
+              "path": ["api", "lists", "user", "{{userId}}"]
             }
           }
         }
@@ -406,6 +289,20 @@
     {
       "name": "Personnes",
       "item": [
+        {
+          "name": "Get persons in list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/lists/{{listId}}/persons",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "lists", "{{listId}}", "persons"]
+            }
+          }
+        },
         {
           "name": "Add person to list",
           "request": {
@@ -419,41 +316,13 @@
             "url": {
               "raw": "http://localhost:8080/api/lists/{{listId}}/persons",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "lists",
-                "{{listId}}",
-                "persons"
-              ]
+              "path": ["api", "lists", "{{listId}}", "persons"]
             },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Jean Dupont\",\n  \"gender\": \"MALE\",\n  \"age\": 32,\n  \"frenchLevel\": 3,\n  \"oldDwwm\": true,\n  \"techLevel\": 2,\n  \"profile\": \"A_LAISE\"\n}"
-            }
-          }
-        },
-        {
-          "name": "Get persons in list",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:8080/api/lists/{{listId}}/persons",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "8080",
-              "path": [
-                "api",
-                "lists",
-                "{{listId}}",
-                "persons"
-              ]
             }
           }
         },
@@ -470,21 +339,13 @@
             "url": {
               "raw": "http://localhost:8080/api/lists/{{listId}}/persons/{{personId}}",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "lists",
-                "{{listId}}",
-                "persons",
-                "{{personId}}"
-              ]
+              "path": ["api", "lists", "{{listId}}", "persons", "{{personId}}"]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Jean M.\",\n  \"age\": 33\n}"
+              "raw": "{\n  \"name\": \"Jean Modifié\",\n  \"gender\": \"MALE\",\n  \"age\": 33,\n  \"frenchLevel\": 4,\n  \"oldDwwm\": true,\n  \"techLevel\": 3,\n  \"profile\": \"A_LAISE\"\n}"
             }
           }
         },
@@ -496,17 +357,9 @@
             "url": {
               "raw": "http://localhost:8080/api/lists/{{listId}}/persons/{{personId}}",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "lists",
-                "{{listId}}",
-                "persons",
-                "{{personId}}"
-              ]
+              "path": ["api", "lists", "{{listId}}", "persons", "{{personId}}"]
             }
           }
         }
@@ -528,20 +381,36 @@
             "url": {
               "raw": "http://localhost:8080/api/lists/{{listId}}/share",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "lists",
-                "{{listId}}",
-                "share"
-              ]
+              "path": ["api", "lists", "{{listId}}", "share"]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"userId\": \"00000000-0000-0000-0000-000000000002\"\n}"
+              "raw": "{\n  \"userId\": \"{{targetUserId}\",\n  \"email\": null\n}"
+            }
+          }
+        },
+        {
+          "name": "Share list by email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/lists/{{listId}}/share",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "lists", "{{listId}}", "share"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": null,\n  \"email\": \"user@example.com\"\n}"
             }
           }
         },
@@ -549,13 +418,16 @@
           "name": "Unshare list",
           "request": {
             "method": "DELETE",
-            "header": [],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "http://localhost:8080/api/lists/{{listId}}/share/{{sharedUserId}}",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
               "path": [
                 "api",
@@ -564,6 +436,10 @@
                 "share",
                 "{{sharedUserId}}"
               ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{sharedUserId}}\"\n}"
             }
           }
         }
@@ -573,7 +449,30 @@
       "name": "Tirages",
       "item": [
         {
-          "name": "Draw groups",
+          "name": "Generate Groups Preview",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/lists/{{listId}}/draws/preview",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "lists", "{{listId}}", "draws", "preview"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Tirage de test - Preview\",\n  \"numberOfGroups\": 3,\n  \"groupNames\": [\"Groupe A\", \"Groupe B\", \"Groupe C\"],\n  \"balanceByGender\": true,\n  \"balanceByAge\": false,\n  \"balanceByFrenchLevel\": true,\n  \"balanceByTechLevel\": false,\n  \"balanceByOldDwwm\": true,\n  \"balanceByProfile\": false\n}"
+            }
+          }
+        },
+        {
+          "name": "Save Modified Groups",
           "request": {
             "method": "POST",
             "header": [
@@ -585,63 +484,27 @@
             "url": {
               "raw": "http://localhost:8080/api/lists/{{listId}}/draws",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "lists",
-                "{{listId}}",
-                "draws"
-              ]
+              "path": ["api", "lists", "{{listId}}", "draws"]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Tirage Juin\",\n  \"criteria\": [\n    \"AGE\",\n    \"OLD_DWWM\"\n  ],\n  \"numberOfGroups\": 3\n}"
+              "raw": "{\n  \"listId\": \"{{listId}}\",\n  \"listName\": \"Test List\",\n  \"title\": \"Final Groups\",\n  \"groups\": [\n    {\n      \"id\": null,\n      \"name\": \"Groupe A\",\n      \"drawId\": null,\n      \"persons\": [\n        {\n          \"personId\": \"{{personId1}}\",\n          \"name\": \"Person 1\",\n          \"gender\": \"MALE\",\n          \"age\": 25,\n          \"frenchLevel\": 3,\n          \"oldDwwm\": false,\n          \"techLevel\": 2,\n          \"profile\": \"A_LAISE\"\n        }\n      ],\n      \"personCount\": 1\n    }\n  ],\n  \"groupCount\": 1,\n  \"totalPersons\": 1,\n  \"generatedAt\": \"2025-07-03T10:00:00\"\n}"
             }
           }
         },
         {
-          "name": "Get draw history",
+          "name": "Get All Draws for List",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "http://localhost:8080/api/lists/{{listId}}/draws",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "lists",
-                "{{listId}}",
-                "draws"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get draw by ID",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:8080/api/lists/{{listId}}/draws/{{drawId}}",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "8080",
-              "path": [
-                "api",
-                "lists",
-                "{{listId}}",
-                "draws",
-                "{{drawId}}"
-              ]
+              "path": ["api", "lists", "{{listId}}", "draws"]
             }
           }
         }
@@ -656,44 +519,71 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/lists/{{listId}}/draws/{{drawId}}/groups",
+              "raw": "http://localhost:8080/api/draws/{{drawId}}/groups",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "lists",
-                "{{listId}}",
-                "draws",
-                "{{drawId}}",
-                "groups"
-              ]
+              "path": ["api", "draws", "{{drawId}}", "groups"]
             }
           }
         },
         {
-          "name": "Get people from group",
+          "name": "Create group for draw",
           "request": {
-            "method": "GET",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/draws/{{drawId}}/groups",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "draws", "{{drawId}}", "groups"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nouveau Groupe\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update group",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/groups/{{groupId}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "groups", "{{groupId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Groupe Modifié\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete group",
+          "request": {
+            "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/lists/{{listId}}/draws/{{drawId}}/groups/{{groupId}}",
+              "raw": "http://localhost:8080/api/groups/{{groupId}}",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8080",
-              "path": [
-                "api",
-                "lists",
-                "{{listId}}",
-                "draws",
-                "{{drawId}}",
-                "groups",
-                "{{groupId}}"
-              ]
+              "path": ["api", "groups", "{{groupId}}"]
             }
           }
         }
