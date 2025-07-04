@@ -100,11 +100,9 @@ public class AuthController {
                 smtpServer,
                 smtpUsername,
                 smtpPassword);
-                smtpPassword);
 
         // Send an HTML email
         try {
-            String url = applicationUrl + "/api/auth/verify?token=" + token;
             String url = applicationUrl + "/api/auth/verify?token=" + token;
 
             mailingService.sendHtmlEmail(
@@ -173,7 +171,6 @@ public class AuthController {
                             "    </div>\n" +
                             "</body>\n" +
                             "</html>");
-                            "</html>");
             System.out.println("HTML email sent successfully!");
         } catch (MessagingException e) {
             System.err.println("Failed to send HTML email: " + e.getMessage());
@@ -205,15 +202,13 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.FOUND)
                     .header("Location", redirectUrl)
                     .build();
-                    .header("Location", redirectUrl)
-                    .build();
+
         } catch (Exception e) {
             // In case of errors, redirect to an error page
             return ResponseEntity.status(HttpStatus.FOUND)
                     .header("Location", applicationUrl + "/verification-failed")
                     .build();
-                    .header("Location", applicationUrl + "/verification-failed")
-                    .build();
+
         }
     }
 
@@ -235,7 +230,6 @@ public class AuthController {
 
         Optional<User> user = userService.findByEmail(request.getEmail());
 
-        if (user.isEmpty() || !user.get().getIsActivated()) {
         if (user.isEmpty() || !user.get().getIsActivated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
