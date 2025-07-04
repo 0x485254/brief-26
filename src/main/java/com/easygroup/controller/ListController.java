@@ -6,6 +6,7 @@ import com.easygroup.entity.ListEntity;
 import com.easygroup.entity.User;
 import com.easygroup.service.ListService;
 
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
@@ -81,18 +82,22 @@ public class ListController {
     }
 
     @DeleteMapping("/{listId}")
-    public ResponseEntity<Void> deleteList(
+    public ResponseEntity<?> deleteList(
             @PathVariable UUID listId,
             @AuthenticationPrincipal User user) {
 
         ListEntity list = listService.findByIdAndUserId(listId, user.getId());
 
         if (list == null) {
-            return ResponseEntity.status(403).build(); // soit non trouvée, soit pas propriétaire
+            return ResponseEntity.status(403)
+                    .body("Vous n'avez pas les droits pour supprimer cette liste ou elle n'existe pas.");
         }
 
         listService.deleteById(listId);
-        return ResponseEntity.noContent().build(); // 204 No Content
+
+        return ResponseEntity.ok().body(Map.of(
+                "message", "Liste supprimée avec succès.",
+                "listId", listId));
     }
 
 }
