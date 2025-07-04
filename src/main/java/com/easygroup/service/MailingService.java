@@ -7,9 +7,7 @@ import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 import java.io.File;
 import java.util.Properties;
-import org.springframework.stereotype.Service;
 
-@Service
 public class MailingService {
     private final String host;
     private final int port;
@@ -17,9 +15,12 @@ public class MailingService {
     private final String password;
     private final boolean auth;
     private final boolean starttls;
-    
-    public MailingService(String host, int port, String username, String password, 
-                          boolean auth, boolean starttls) {
+
+    /**
+     * Constructeur complet pour personnaliser entièrement la config SMTP.
+     */
+    public MailingService(String host, int port, String username, String password,
+            boolean auth, boolean starttls) {
         this.host = host;
         this.port = port;
         this.username = username;
@@ -27,19 +28,21 @@ public class MailingService {
         this.auth = auth;
         this.starttls = starttls;
     }
-    
-    // Simple constructor with default settings
+
+    /**
+     * Constructeur par défaut avec port 587, authentification et STARTTLS activés.
+     */
     public MailingService(String host, String username, String password) {
         this(host, 587, username, password, true, true);
     }
-    
+
     private Session createSession() {
         Properties props = new Properties();
         props.put("mail.smtp.host", host);
         props.put("mail.smtp.port", port);
-        props.put("mail.smtp.auth", auth);
-        props.put("mail.smtp.starttls.enable", starttls);
-        
+        props.put("mail.smtp.auth", String.valueOf(auth));
+        props.put("mail.smtp.starttls.enable", String.valueOf(starttls));
+
         return Session.getInstance(props, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
@@ -47,68 +50,65 @@ public class MailingService {
             }
         });
     }
-    
+
     /**
-     * Sends a simple text email
+     * Envoie un e-mail texte simple.
      */
-    public void sendTextEmail(String from, String to, String subject, String body) 
+    public void sendTextEmail(String from, String to, String subject, String body)
             throws MessagingException {
         Session session = createSession();
-        
+
         Message message = new MimeMessage(session);
         message.setFrom(new InternetAddress(from));
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
         message.setSubject(subject);
         message.setText(body);
-        
+
         Transport.send(message);
     }
-    
+
     /**
-     * Sends an HTML email
+     * Envoie un e-mail HTML.
      */
-    public void sendHtmlEmail(String from, String to, String subject, String htmlBody) 
+    public void sendHtmlEmail(String from, String to, String subject, String htmlBody)
             throws MessagingException {
         Session session = createSession();
-        
+
         Message message = new MimeMessage(session);
         message.setFrom(new InternetAddress(from));
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
         message.setSubject(subject);
-        
+
         MimeBodyPart mimeBodyPart = new MimeBodyPart();
         mimeBodyPart.setContent(htmlBody, "text/html; charset=utf-8");
-        
+
         Multipart multipart = new MimeMultipart();
         multipart.addBodyPart(mimeBodyPart);
-        
+
         message.setContent(multipart);
-        
+
         Transport.send(message);
     }
-    
+
     /**
-     * Sends an email with attachments
+     * Envoie un e-mail avec des pièces jointes.
      */
-    public void sendEmailWithAttachment(String from, String to, String subject, 
-                                       String body, File[] attachments) 
+    public void sendEmailWithAttachment(String from, String to, String subject,
+            String body, File[] attachments)
             throws MessagingException {
         Session session = createSession();
-        
+
         Message message = new MimeMessage(session);
         message.setFrom(new InternetAddress(from));
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
         message.setSubject(subject);
-        
-        // Create the message body part
-        BodyPart messageBodyPart = new MimeBodyPart();
-        messageBodyPart.setText(body);
-        
-        // Create a multipart message
+
+        MimeBodyPart textPart = new MimeBodyPart();
+        textPart.setText(body);
+
         Multipart multipart = new MimeMultipart();
-        multipart.addBodyPart(messageBodyPart);
-        
-        // Add attachments
+        multipart.addBodyPart(textPart);
+
         if (attachments != null) {
             for (File file : attachments) {
                 MimeBodyPart attachmentPart = new MimeBodyPart();
@@ -120,11 +120,9 @@ public class MailingService {
                 }
             }
         }
-        
-        // Set the complete message parts
+
         message.setContent(multipart);
-        
-        // Send the message
+
         Transport.send(message);
     }
 }
