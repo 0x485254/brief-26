@@ -95,7 +95,7 @@ class AuthControllerTests {
                 when(authService.register(anyString(), anyString(), anyString(), anyString())).thenReturn(testUser);
                 when(jwtService.generateValidationToken(testUser)).thenReturn("validation-token");
 
-                ResponseEntity<Boolean> result = authController.register(registerRequest, response);
+                ResponseEntity<Boolean> result = authController.registerWithMail(registerRequest, response);
 
                 assertEquals(HttpStatus.CREATED, result.getStatusCode());
                 assertTrue(result.getBody());
@@ -109,7 +109,7 @@ class AuthControllerTests {
                 when(authService.register(anyString(), anyString(), anyString(), anyString()))
                                 .thenThrow(new IllegalArgumentException("Email already exists"));
 
-                ResponseEntity<Boolean> result = authController.register(registerRequest, response);
+                ResponseEntity<Boolean> result = authController.registerWithMail(registerRequest, response);
 
                 assertEquals(HttpStatus.CONFLICT, result.getStatusCode());
                 assertNull(result.getBody());
@@ -123,7 +123,7 @@ class AuthControllerTests {
                 when(authService.register(anyString(), anyString(), anyString(), anyString())).thenReturn(testUser);
                 when(jwtService.generateValidationToken(testUser)).thenReturn("validation-token");
 
-                ResponseEntity<Boolean> result = authController.register(registerRequest, response);
+                ResponseEntity<Boolean> result = authController.registerWithMail(registerRequest, response);
 
                 assertEquals(HttpStatus.CREATED, result.getStatusCode());
                 assertTrue(result.getBody());
