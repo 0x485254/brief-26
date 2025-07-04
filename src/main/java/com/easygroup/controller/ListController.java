@@ -80,4 +80,19 @@ public class ListController {
         return ResponseEntity.ok(response);
     }
 
+    @DeleteMapping("/{listId}")
+    public ResponseEntity<Void> deleteList(
+            @PathVariable UUID listId,
+            @AuthenticationPrincipal User user) {
+
+        ListEntity list = listService.findByIdAndUserId(listId, user.getId());
+
+        if (list == null) {
+            return ResponseEntity.status(403).build(); // soit non trouvée, soit pas propriétaire
+        }
+
+        listService.deleteById(listId);
+        return ResponseEntity.noContent().build(); // 204 No Content
+    }
+
 }

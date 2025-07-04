@@ -56,9 +56,9 @@ public class AuthController {
     @Value("${mail.from}")
     private String mailFrom;
 
-    @Operation(summary = "Inscription d'un nouvel utilisateur", description = "Crée un nouveau compte utilisateur à partir d'un email, mot de passe, prénom et nom")
-    @PostMapping("/register")
-    public ResponseEntity<Boolean> register(
+    @Operation(summary = "Inscription d'un nouvel utilisateur", description = "Crée un nouveau compte utilisateur à partir d'un email, mot de passe, prénom et nom, avec vérification par mail")
+    @PostMapping("/register-mail")
+    public ResponseEntity<Boolean> registerWithMail(
             @RequestBody @Valid RegisterRequest request,
             HttpServletResponse response) {
         try {
@@ -81,6 +81,29 @@ public class AuthController {
                     System.err.println("❌ Email not sent: " + e.getMessage());
                 }
             }
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(true);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+    }
+
+    @Operation(summary = "Inscription d'un nouvel utilisateur", description = "Crée un nouveau compte utilisateur activé immédiatement (sans vérification e-mail)")
+    @PostMapping("/register")
+    public ResponseEntity<Boolean> register(
+            @RequestBody @Valid RegisterRequest request,
+            HttpServletResponse response) {
+        try {
+            User user = authService.register(
+                    request.getEmail(),
+                    request.getPassword(),
+                    request.getFirstName(),
+                    request.getLastName());
+
+            user.setIsActivated(true); // ✅ Activation immédiate
+
+            userService.save(user); // ✅ Persistance de la modification
 
             return ResponseEntity.status(HttpStatus.CREATED).body(true);
 
