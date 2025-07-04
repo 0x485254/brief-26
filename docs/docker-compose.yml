@@ -1,0 +1,19 @@
+services:
+  b26docs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - nw_caddy
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "/app/healthcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  nw_caddy:
+    external: true
