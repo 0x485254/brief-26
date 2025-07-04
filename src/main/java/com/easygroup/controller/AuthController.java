@@ -196,7 +196,7 @@ public class AuthController {
 
             // Create a redirect URL to the frontend login page
             // You might want to configure this URL in your application properties
-            String redirectUrl = "https://brief-react-v3-groupshuffle.vercel.app/login";
+            String redirectUrl = "https://brief-react-v3-groupshuffle-11e877.gitlab.io/#/login";
 
             // Use HTTP status 302 for temporary redirect
             return ResponseEntity.status(HttpStatus.FOUND)
