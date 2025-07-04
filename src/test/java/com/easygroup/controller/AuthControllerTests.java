@@ -6,7 +6,10 @@ import com.easygroup.dto.RegisterRequest;
 import com.easygroup.entity.User;
 import com.easygroup.service.AuthService;
 import com.easygroup.service.JwtService;
+import com.easygroup.service.MailingService;
 import com.easygroup.service.UserService;
+
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,6 +42,9 @@ class AuthControllerTests {
         private UserService userService;
 
         @Mock
+        private MailingService mailingService;
+
+        @Mock
         private HttpServletResponse response;
 
         @InjectMocks
@@ -51,11 +57,11 @@ class AuthControllerTests {
 
         @BeforeEach
         void setUp() {
-
                 ReflectionTestUtils.setField(authController, "smtpServer", "smtp.test.com");
                 ReflectionTestUtils.setField(authController, "smtpUsername", "test@test.com");
                 ReflectionTestUtils.setField(authController, "smtpPassword", "password");
                 ReflectionTestUtils.setField(authController, "applicationUrl", "http://localhost:8080");
+                ReflectionTestUtils.setField(authController, "mailFrom", "no-reply@easygroup.com");
 
                 registerRequest = new RegisterRequest();
                 registerRequest.setEmail("messi@barca.com");
@@ -85,7 +91,7 @@ class AuthControllerTests {
         }
 
         @Test
-        void register_Success() {
+        void register_Success() throws MessagingException {
                 when(authService.register(anyString(), anyString(), anyString(), anyString())).thenReturn(testUser);
                 when(jwtService.generateValidationToken(testUser)).thenReturn("validation-token");
 
@@ -95,7 +101,7 @@ class AuthControllerTests {
                 assertTrue(result.getBody());
                 verify(authService).register("messi@barca.com", "password123", "Lionel", "Messi");
                 verify(jwtService).generateValidationToken(testUser);
-
+                verify(mailingService).sendHtmlEmail(anyString(), anyString(), anyString(), anyString());
         }
 
         @Test
@@ -110,12 +116,12 @@ class AuthControllerTests {
         }
 
         @Test
-        void register_EmailSendingFails_StillReturnsSuccess() {
+        void register_EmailSendingFails_StillReturnsSuccess() throws MessagingException {
+                doThrow(new MessagingException("Simulated failure")).when(mailingService)
+                                .sendHtmlEmail(anyString(), anyString(), anyString(), anyString());
 
                 when(authService.register(anyString(), anyString(), anyString(), anyString())).thenReturn(testUser);
                 when(jwtService.generateValidationToken(testUser)).thenReturn("validation-token");
-
-                ReflectionTestUtils.setField(authController, "smtpServer", "invalid-smtp");
 
                 ResponseEntity<Boolean> result = authController.register(registerRequest, response);
 
@@ -123,7 +129,7 @@ class AuthControllerTests {
                 assertTrue(result.getBody());
                 verify(authService).register("messi@barca.com", "password123", "Lionel", "Messi");
                 verify(jwtService).generateValidationToken(testUser);
-
+                verify(mailingService).sendHtmlEmail(anyString(), anyString(), anyString(), anyString());
         }
 
         @Test
@@ -143,7 +149,6 @@ class AuthControllerTests {
         @Test
         void verifyEmail_InvalidToken_RedirectsToErrorPage() {
                 String validationToken = "invalid-token";
-
                 doThrow(new RuntimeException("Invalid or expired token")).when(authService)
                                 .verifyAccount(validationToken);
 
