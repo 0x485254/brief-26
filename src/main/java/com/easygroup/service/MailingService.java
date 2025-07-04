@@ -7,7 +7,9 @@ import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 import java.io.File;
 import java.util.Properties;
+import org.springframework.stereotype.Service;
 
+@Service
 public class MailingService {
     private final String host;
     private final int port;
