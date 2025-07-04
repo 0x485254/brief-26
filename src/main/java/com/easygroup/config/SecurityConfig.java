@@ -123,7 +123,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // Configure CORS based on corsEnabled property
         if (corsEnabled) {
-            http.cors(Customizer.withDefaults());
+            http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
         } else {
             http.cors(cors -> cors.disable());
         }
