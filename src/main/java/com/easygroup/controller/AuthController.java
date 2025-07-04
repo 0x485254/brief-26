@@ -69,8 +69,7 @@ public class AuthController {
             HttpServletResponse response) {
         try {
             // Register the user
-            User userResponse = authService.register(request.getEmail(), request.getPassword(), request.getFirstName(),
-                    request.getLastName());
+
             User userResponse = authService.register(request.getEmail(), request.getPassword(), request.getFirstName(),
                     request.getLastName());
 
